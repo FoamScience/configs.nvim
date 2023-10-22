@@ -1,0 +1,21 @@
+{
+    "workspace.library": [
+        "/home/fadeli/.local/share/nvim/lazy/neodev.nvim/types/nightly",
+        "/usr/local/share/nvim/runtime/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim-autopairs/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim-web-devicons/lua",
+        "/home/fadeli/.local/share/nvim/lazy/mason-lspconfig.nvim/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim-lspconfig/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim-ts-context-commentstring/lua",
+        "/home/fadeli/.local/share/nvim/lazy/mason.nvim/lua",
+        "/home/fadeli/.local/share/nvim/lazy/neodev.nvim/lua",
+        "/home/fadeli/.local/share/nvim/lazy/lazy.nvim/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim-ts-autotag/lua",
+        "/home/fadeli/.local/share/nvim/lazy/plenary.nvim/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim-treesitter/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim/lua",
+        "/home/fadeli/.local/share/nvim/lazy/nvim-treesitter-textobjects/lua",
+        "/home/fadeli/.config/nvim/lua",
+        "${3rd}/luv/library"
+    ]
+}
