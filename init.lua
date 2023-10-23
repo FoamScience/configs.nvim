@@ -41,25 +41,9 @@ spec "user.project"
 -- optionals for prettifying
 spec "user.optional.colorizer"
 spec "user.optional.dial"
---spec "user.extras.nui"
---spec "user.extras.dressing"
---spec "user.extras.surround"
---spec "user.extras.eyeliner"
---spec "user.extras.numb"
---spec "user.extras.jaq"
---spec "user.extras.minifiles"
----- spec "user.extras.noice"
---spec "user.extras.cmp-tabnine"
---spec "user.extras.lab"
---spec "user.extras.tabby"
----- spec "user.extras.test"
----- spec "user.extras.typescript-tools"
---spec "user.extras.gitlinker"
---spec "user.extras.fugitive"
---spec "user.extras.bookmark"
---spec "user.extras.trailblazer"
+spec "user.optional.dressing"
+spec "user.optional.hop"
+spec "user.optional.fugitive"
+
 -- lazy needs to be loaded last
 require "user.lazy"
-
--- local colors = vim.fn.getcompletion("", "color")
--- vim.cmd("colorscheme " .. colors[math.random(1, #colors)])
