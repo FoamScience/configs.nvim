@@ -8,11 +8,13 @@ function M.config()
 		["q"] = { "<cmd>confirm q<CR>", "Quit" },
 		["e"] = { "<cmd>NvimTreeToggle<CR>", "Explorer" },
 		["o"] = { "<cmd>Navbuddy<cr>", "Nav" },
+
         d = {
             name = "Diffing",
             d = { "<cmd>DiffviewOpen<cr>", "Open Diff" },
             h = { "<cmd>DiffviewFileHistory<cr>", "File History" },
         },
+
 		f = {
 			name = "Find",
 			b = { "<cmd>Telescope git_branches<cr>", "Checkout branch" },
@@ -58,6 +60,12 @@ function M.config()
 			},
 		},
 
+        h = {
+            name = "Harpoon",
+            a = { "<cmd>lua require('harpoon.mark').add_file()<cr>" , "Add file"},
+            h = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>" , "Menu"},
+        },
+
 		l = {
 			name = "LSP",
 			a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
@@ -85,6 +93,17 @@ function M.config()
 			},
 			e = { "<cmd>Telescope quickfix<cr>", "Telescope Quickfix" },
 		},
+
+        t = {
+            name = "Telescope",
+            b = { "<cmd>Telescope buffers previewer=false<cr>", "Buffers"},
+            f = { "<cmd>Telescope find_files<cr>", "Find files" },
+            t = { "<cmd>Telescope live_grep<cr>", "Find Text" },
+            s = { "<cmd>Telescope grep_string<cr>", "Find String" },
+            h = { "<cmd>Telescope help_tags<cr>", "Help" },
+            H = { "<cmd>Telescope highlights<cr>", "Highlights" },
+            l = { "<cmd>Telescope resume<cr>", "Last Search" },
+        },
 
 		T = {
 			name = "Treesitter",

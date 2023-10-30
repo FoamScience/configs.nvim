@@ -4,7 +4,7 @@ vim.opt.swapfile = false -- no swapfiles
 
 vim.opt.clipboard = "unnamedplus" -- allows neovim to access the system clipboard
 
-vim.opt.cmdheight = 2 -- more space in the neovim command line for displaying messages
+vim.opt.cmdheight = 1 -- more space in the neovim command line for displaying messages
 vim.opt.completeopt = { "menuone", "noselect" } -- cmp
 
 vim.opt.conceallevel = 2 -- conceal is cool
@@ -46,6 +46,12 @@ vim.opt.fillchars:append {
 }
 
 vim.opt.laststatus = 3
+
+vim.opt.undodir = "/tmp/.vim-undo-dir"
+if not vim.fn.isdirectory("/tmp/.vim-undo-dir") then
+    vim.fn.mkdir(vim.opt.undodir, "p")
+end
+vim.opt.undofile = true
 
 vim.opt.shortmess:append "c"
 

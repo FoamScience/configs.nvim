@@ -59,6 +59,7 @@ function M.config()
 		"yamlls",
 		"marksman",
 		"tailwindcss",
+        "glsl_analyzer",
 	}
 
 	local default_diagnostic_config = {
@@ -109,6 +110,10 @@ function M.config()
 		if server == "lua_ls" then
 			require("neodev").setup {}
 		end
+
+		--if server == "pyright" then
+		--	print(vim.inspect(opts))
+		--end
 
 		lspconfig[server].setup(opts)
 	end

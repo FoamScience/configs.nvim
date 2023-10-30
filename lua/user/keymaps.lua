@@ -10,4 +10,8 @@ keymap("n", "<C-i>", "<C-i>", opts)
 
 -- hopping
 keymap("n", "s", "<cmd>HopWord<cr>", opts)
-keymap("n", "S", "<cmd>HopLine<cr>", opts)
+keymap("n", "S", "<cmd>HopChar2<cr>", opts)
+
+-- Buffer hopping
+keymap("n", "<Tab>", "<cmd>bn<cr>", opts)
+keymap("n", "<S-Tab>", "<cmd>bp<cr>", opts)
