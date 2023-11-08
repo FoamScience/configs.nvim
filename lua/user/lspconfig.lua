@@ -60,6 +60,7 @@ function M.config()
 		"marksman",
 		"tailwindcss",
         "glsl_analyzer",
+        "foam_ls",
 	}
 
 	local default_diagnostic_config = {

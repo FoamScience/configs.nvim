@@ -44,6 +44,10 @@ spec "user.optional.dial"
 spec "user.optional.dressing"
 spec "user.optional.hop"
 spec "user.optional.fugitive"
+spec "user.optional.csv"
 
 -- lazy needs to be loaded last
 require "user.lazy"
+
+-- Non-plugin stuff
+require "user.ai"

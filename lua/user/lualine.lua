@@ -59,7 +59,7 @@ function M.config()
 			lualine_a = {
                 {
                     "buffers",
-                    hide_filename_extension = true,
+                    hide_filename_extension = false,
                     symbols = {
                         modified = " " .. icons.ui.Pencil,
                         alternate_file = icons.ui.Files,

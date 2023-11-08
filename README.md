@@ -8,6 +8,8 @@ Here are a few programming languages I usually write in:
 - GdScript, GLSL for game development
 - Obviously, Bash for shell scripting
 
+Want to get started? -> Press `<space>`
+
 In particular, this configuration will never support the following features:
 - Debugging. Not an editor's job, use GDB and the like.
-- Auto-formatting.
+- Auto-formatting, because trying to auto-format C++ is a pain!
