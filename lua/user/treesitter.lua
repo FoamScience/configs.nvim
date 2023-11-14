@@ -19,6 +19,10 @@ local M = {
 			"windwp/nvim-autopairs",
 			event = "InsertEnter",
 		},
+        {
+            "nvim-treesitter/playground",
+            cmd = "TSPlaygroundToggle",
+        },
 	},
 }
 function M.config()

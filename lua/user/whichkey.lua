@@ -109,6 +109,11 @@ function M.config()
 			name = "Treesitter",
 			i = { ":TSConfigInfo<cr>", "Info" },
 		},
+
+        w = {
+            name = "Twilight",
+            t = { "<cmd>Twilight<cr>", "Toggle" },
+        },
 	}
 
 	local opts = {

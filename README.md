@@ -1,5 +1,8 @@
 This my minimal, clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
 
+> Best used with Kitty terminal (or Alacritty if you prefer that) which runs a powerline font (or at least,
+> a font that supports ligatures)
+
 Here are a few programming languages I usually write in:
 - C++/C (and OpenFOAM code)
 - Python, Lua as scripting languages

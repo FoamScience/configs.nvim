@@ -45,6 +45,7 @@ spec "user.optional.dressing"
 spec "user.optional.hop"
 spec "user.optional.fugitive"
 spec "user.optional.csv"
+spec "user.optional.dim"
 
 -- lazy needs to be loaded last
 require "user.lazy"
