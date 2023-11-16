@@ -21,14 +21,22 @@ M.RunChat = function()
     local ns = vim.api.nvim_create_namespace("chat")
     local pos = vim.api.nvim_win_get_cursor(0)[1]-1
     vim.api.nvim_buf_set_extmark(0, ns, pos, 0, { virt_text = { { " ■ AI engine is thinking...", "@constructor"} }})
+    local oldbuf = vim.api.nvim_get_current_buf()
+    vim.cmd('vsplit')
+    local win = vim.api.nvim_get_current_win()
+    local buf = vim.api.nvim_create_buf(true, true)
+    vim.api.nvim_win_set_buf(win, buf)
+    vim.api.nvim_buf_set_extmark(buf, ns, 0, 0, { virt_text = { { " ■ AI engine is thinking...", "@constructor"} }})
     vim.fn.jobstart(chat, {
         stdout_buffered = true,
         on_stdout = function(_, data)
             local row = vend[2]
-            vim.api.nvim_buf_set_lines(0, row, row, false, {">>>>> AI Response:"})
-            vim.api.nvim_buf_set_lines(0, row+1, row+1, false, data)
-            vim.api.nvim_buf_set_lines(0, row+1+len(data), row+1+len(data), false, {"<<<<< End of AI Response"})
-            vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+            vim.api.nvim_buf_set_lines(buf, 0, 0, false, data)
+            --vim.api.nvim_buf_set_lines(0, row, row, false, {">>>>> AI Response:"})
+            --vim.api.nvim_buf_set_lines(0, row+1, row+1, false, data)
+            --vim.api.nvim_buf_set_lines(0, row+1+len(data), row+1+len(data), false, {"<<<<< End of AI Response"})
+            vim.api.nvim_buf_clear_namespace(oldbuf, ns, 0, -1)
+            vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
         end
     })
 end
