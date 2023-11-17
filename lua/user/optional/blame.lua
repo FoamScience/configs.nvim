@@ -9,7 +9,10 @@ local M = {
 }
 
 function M.config()
-	require("gitblame").setup {}
+	require("gitblame").setup ({
+        display_virtual_text = false,
+        message_when_not_committed = "Oh! Plz commit me!",
+    })
 end
 
 return M
