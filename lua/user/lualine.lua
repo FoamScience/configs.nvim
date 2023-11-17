@@ -1,12 +1,28 @@
 local M = {
 	"nvim-lualine/lualine.nvim",
-    dependencies = { "SmiteshP/nvim-navic", },
+	dependencies = { "SmiteshP/nvim-navic" },
 }
+
+local clients_lsp = function()
+	local bufnr = vim.api.nvim_get_current_buf()
+	local clients = vim.lsp.get_clients({ bufnr = 0 })
+	if next(clients) == nil then
+		return ""
+	end
+
+	local c = {}
+	for _, client in pairs(clients) do
+		if not (client.name == "null-ls") then
+			table.insert(c, client.name)
+		end
+	end
+	return "\u{f085}  " .. table.concat(c, "|")
+end
 
 function M.config()
 	local sl_hl = vim.api.nvim_get_hl_by_name("StatusLine", true)
 	vim.api.nvim_set_hl(0, "Copilot", { fg = "#6CC644", bg = sl_hl.background })
-	local icons = require "user.lspicons"
+	local icons = require("user.lspicons")
 	local diff = {
 		"diff",
 		colored = true,
@@ -14,7 +30,7 @@ function M.config()
 	}
 
 	local copilot = function()
-		local buf_clients = vim.lsp.get_active_clients { bufnr = 0 }
+		local buf_clients = vim.lsp.active_clients({ bufnr = 0 })
 		if #buf_clients == 0 then
 			return "LSP Inactive"
 		end
@@ -38,9 +54,9 @@ function M.config()
 		return ""
 	end
 
-    local navic = require("nvim-navic")
-    local icons = require("user.lspicons")
-	require("lualine").setup {
+	local navic = require("nvim-navic")
+	local git_blame = require("gitblame")
+	require("lualine").setup({
 		options = {
 			component_separators = { left = "", right = "" },
 			section_separators = { left = "", right = "" },
@@ -48,43 +64,44 @@ function M.config()
 		},
 		sections = {
 			lualine_a = { "mode" },
-			lualine_b = { {"branch", icon =""}, },
+			lualine_b = { { "branch", icon = "" } },
 			lualine_c = { diff },
 			lualine_x = { "diagnostics", copilot },
-			lualine_y = { "filetype" },
+			lualine_y = { { git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available }, "filetype" },
 			lualine_z = { "progress" },
 		},
 		extensions = { "quickfix", "man", "fugitive" },
 		winbar = {
 			lualine_a = {
-                {
-                    "buffers",
-                    hide_filename_extension = false,
-                    symbols = {
-                        modified = " " .. icons.ui.Pencil,
-                        alternate_file = icons.ui.Files,
-                        directory = icons.ui.Folder,
-                    }
-                },
-            },
+				{
+					"buffers",
+					hide_filename_extension = false,
+					symbols = {
+						modified = " " .. icons.ui.Pencil,
+						alternate_file = icons.ui.Files,
+						directory = icons.ui.Folder,
+					},
+				},
+			},
 			lualine_b = {
-                {
-                    function()
-				        return navic.get_location()
-				    end,
-				    cond = function()
-				        return navic.is_available()
-				    end,
-                    color = 'WarningMsg'
-                },
-            },
+				{
+					function()
+						return navic.get_location()
+					end,
+					cond = function()
+						return navic.is_available()
+					end,
+					color = "WarningMsg",
+				},
+			},
 			lualine_c = {},
 			lualine_x = {},
 			lualine_y = {},
 			lualine_z = {
-            },
+				clients_lsp,
+			},
 		},
-}
+	})
 end
 
 return M
