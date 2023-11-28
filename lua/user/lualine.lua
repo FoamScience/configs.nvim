@@ -66,8 +66,13 @@ function M.config()
 			lualine_a = { "mode" },
 			lualine_b = { { "branch", icon = "" } },
 			lualine_c = { diff },
-			lualine_x = { "diagnostics", copilot },
-			lualine_y = { { git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available }, "filetype" },
+			lualine_x = {
+                { git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available },
+                "diagnostics",
+                clients_lsp,
+                copilot,
+            },
+			lualine_y = { "filetype" },
 			lualine_z = { "progress" },
 		},
 		extensions = { "quickfix", "man", "fugitive" },
@@ -98,7 +103,6 @@ function M.config()
 			lualine_x = {},
 			lualine_y = {},
 			lualine_z = {
-				clients_lsp,
 			},
 		},
 	})

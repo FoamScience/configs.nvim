@@ -7,10 +7,10 @@ local M = {
 			"nvim-treesitter/nvim-treesitter-textobjects",
 			event = "VeryLazy",
 		},
-		{
-			"JoosepAlviste/nvim-ts-context-commentstring",
-			event = "VeryLazy",
-		},
+		--{
+		--	"JoosepAlviste/nvim-ts-context-commentstring",
+		--	event = "VeryLazy",
+		--},
 		{
 			"windwp/nvim-ts-autotag",
 			event = "VeryLazy",
@@ -53,10 +53,10 @@ function M.config()
 
 		autotag = { enable = true },
 
-		context_commentstring = {
-			enable = true,
-			enable_autocmd = false,
-		},
+		--context_commentstring = {
+		--	enable = true,
+		--	enable_autocmd = false,
+		--},
 
 		autopairs = { enable = true },
 

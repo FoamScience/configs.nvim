@@ -8,6 +8,7 @@ spec "user.devicons"
 
 -- lsp setup
 spec "user.treesitter"
+spec "user.comments"
 spec "user.mason"
 spec "user.lspconfig" -- most things after this require "user.lspicons"
 spec "user.none-ls"
@@ -47,6 +48,8 @@ spec "user.optional.fugitive"
 spec "user.optional.csv"
 spec "user.optional.dim"
 spec "user.optional.blame"
+spec "user.optional.lens"
+spec "user.optional.waka"
 
 -- lazy needs to be loaded last
 require "user.lazy"

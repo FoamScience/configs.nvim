@@ -10,12 +10,13 @@ local function len(T)
   return count
 end
 
-M.RunChat = function()
+M.RunChat = function(promptstring)
     local vstart = vim.fn.getpos("'<")
     local vend = vim.fn.getpos("'>")
     local line_start = vstart[2]
     local line_end = vend[2]
     local lines = vim.fn.getline(line_start,line_end)
+    table.insert(lines, 1, promptstring)
     local prompt = table.concat(lines, "\n")
     local chat = {"chat", "-q", prompt}
     local ns = vim.api.nvim_create_namespace("chat")
@@ -32,15 +33,14 @@ M.RunChat = function()
         on_stdout = function(_, data)
             local row = vend[2]
             vim.api.nvim_buf_set_lines(buf, 0, 0, false, data)
-            --vim.api.nvim_buf_set_lines(0, row, row, false, {">>>>> AI Response:"})
-            --vim.api.nvim_buf_set_lines(0, row+1, row+1, false, data)
-            --vim.api.nvim_buf_set_lines(0, row+1+len(data), row+1+len(data), false, {"<<<<< End of AI Response"})
             vim.api.nvim_buf_clear_namespace(oldbuf, ns, 0, -1)
             vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
         end
     })
 end
 
-vim.api.nvim_create_user_command('Chat', 'lua require("user.ai").RunChat()', { range = 2, bang = true})
+vim.api.nvim_create_user_command('Chat', 'lua require("user.ai").RunChat("")', { range = 2, bang = true})
+M.proofread = "proofread the following content, keeping the syntax intact, and displaying nothing if content is not changed"
+vim.api.nvim_create_user_command('ChatProofread', 'lua require("user.ai").RunChat(require("user.ai").proofread)', { range = 2, bang = true})
 
 return M
