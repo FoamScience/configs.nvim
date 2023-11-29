@@ -94,6 +94,11 @@ function M.config()
 			e = { "<cmd>Telescope quickfix<cr>", "Telescope Quickfix" },
 		},
 
+        s = {
+            name = "Cody",
+            s = { "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>", "Search public code" },
+        },
+
         t = {
             name = "Telescope",
             b = { "<cmd>Telescope buffers previewer=false<cr>", "Buffers"},
@@ -103,6 +108,7 @@ function M.config()
             h = { "<cmd>Telescope help_tags<cr>", "Help" },
             H = { "<cmd>Telescope highlights<cr>", "Highlights" },
             l = { "<cmd>Telescope resume<cr>", "Last Search" },
+            p = { "<cmd>Telescope projects<cr>", "List projects" },
         },
 
 		T = {
