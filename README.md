@@ -59,6 +59,9 @@ In particular, this configuration will never support the following features:
 - [cmp.lua:](lua/user/cmp.lua) autocompletion engine
   - `<tab>` to cycle through suggestions, `<cr>` to confirm
   - Autocompletes emojies, buffer text, file paths, snippets, and also shows copilot suggestions as virtual text
+  - Even searches with `/`. Type `/@` to search through LSP symbols in code buffers!
+  - Completes math functions in Vim's expression register (`<c-r>` in insert mode)
+  - Also provides command line completion on `:`
 - [copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot
   - Type `:Copilot` in normal mode to login for the first time
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
