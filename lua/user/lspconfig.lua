@@ -61,6 +61,7 @@ function M.config()
 		"tailwindcss",
         "glsl_analyzer",
         "foam_ls",
+        "rust_analyzer",
 	}
 
 	local default_diagnostic_config = {

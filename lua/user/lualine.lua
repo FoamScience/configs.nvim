@@ -61,6 +61,7 @@ function M.config()
 			component_separators = { left = "", right = "" },
 			section_separators = { left = "", right = "" },
 			ignore_focus = { "NvimTree" },
+            globalstatus = true,
 		},
 		sections = {
 			lualine_a = { "mode" },
@@ -75,7 +76,13 @@ function M.config()
 			lualine_y = { "filetype" },
 			lualine_z = { "progress" },
 		},
-		extensions = { "quickfix", "man", "fugitive" },
+        inactive_sections = {
+            lualine_a = {  },
+            lualine_b = { "filename" },
+            lualine_x = { "filetype"  }
+        },
+		extensions = { "quickfix", "man", "fugitive", "fzf", "lazy", "mason",  },
+
 		winbar = {
 			lualine_a = {
 				{
@@ -102,9 +109,13 @@ function M.config()
 			lualine_c = {},
 			lualine_x = {},
 			lualine_y = {},
-			lualine_z = {
-			},
+			lualine_z = {},
 		},
+        inactive_winbar = {
+            lualine_a = {},
+            lualine_b = { "filename" },
+            lualine_x = {}
+        },
 	})
 end
 
