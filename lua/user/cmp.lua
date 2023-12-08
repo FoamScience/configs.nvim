@@ -34,7 +34,20 @@ local M = {
 		},
 		{
 			"hrsh7th/cmp-nvim-lua",
+			event = "InsertEnter",
 		},
+        {
+            "hrsh7th/cmp-nvim-lsp-signature-help",
+            event = "InsertEnter",
+        },
+        {
+            "hrsh7th/cmp-calc",
+            event = "InsertEnter",
+        },
+        {
+            "hrsh7th/cmp-nvim-lsp-document-symbol",
+            event = "InsertEnter",
+        },
 	},
 	event = "InsertEnter",
 }
@@ -179,6 +192,7 @@ function M.config()
 			{ name = "treesitter" },
 			{ name = "crates" },
 			{ name = "tmux" },
+            { name = 'nvim_lsp_signature_help' },
 		},
 		confirm_opts = {
 			behavior = cmp.ConfirmBehavior.Replace,
@@ -202,6 +216,28 @@ function M.config()
 			ghost_text = false,
 		},
 	})
+
+    cmp.setup.cmdline('/', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+            { name = 'buffer' },
+            { name = 'nvim_lsp_document_symbol' },
+        },
+    })
+
+    cmp.setup.cmdline(':', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+            { name = 'path' },
+        }, {
+            {
+                name = 'cmdline',
+                option = {
+                    ignore_cmds = { '!', 'x', 'wq' },
+                },
+            },
+        })
+    })
 
 	pcall(function()
 		local function on_confirm_done(...)
