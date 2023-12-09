@@ -91,7 +91,12 @@ In particular, this configuration will never support the following features:
   - `<space>wt` to toggle
 - [blame.lua:](lua/user/optional/blame.lua) shows you git blame info in the status line
 - [lens.lua:](lua/user/optional/lens.lua) not so annoying code lens
-- [waka.lua](lua/user/optional/waka.lua) a plugin for tracking your coding time
+- [waka.lua:](lua/user/optional/waka.lua) a plugin for tracking your coding time
   - It will ask for an [API key](https://wakatime.com/settings/api-key) on installation
-- [sg.lua](lua/user/optional/sg.lua) public code search through [sourcegraph](https://sourcegraph.com)
+- [sg.lua:](lua/user/optional/sg.lua) public code search through [sourcegraph](https://sourcegraph.com)
   - Try `<space>ss` and type some class's name
+- [leetcode.lua:](lua/user/optional/leetcode.lua) a plugin for solving LeetCode problems
+  - `nvim leetcode.nvim` to open
+  - Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)
+    for more info.
+- [noice.lua:](lua/user/optional/noice.lua) nicer UI.
