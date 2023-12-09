@@ -43,8 +43,8 @@ function M.common_capabilities()
 end
 
 function M.config()
-	local lspconfig = require "lspconfig"
-	local icons = require "user.lspicons"
+	local lspconfig = require("lspconfig")
+	local icons = require("user.lspicons")
 
 	local servers = {
 		"clangd",
@@ -59,9 +59,9 @@ function M.config()
 		"yamlls",
 		"marksman",
 		"tailwindcss",
-        "glsl_analyzer",
-        "foam_ls",
-        "rust_analyzer",
+		"glsl_analyzer",
+		"foam_ls",
+		"rust_analyzer",
 	}
 
 	local default_diagnostic_config = {
@@ -94,8 +94,20 @@ function M.config()
 		vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
 	end
 
-	vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
-	vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
+	local border = {
+		{ "🭽", "FloatBorder" },
+		{ "▔", "FloatBorder" },
+		{ "🭾", "FloatBorder" },
+		{ "▕", "FloatBorder" },
+		{ "🭿", "FloatBorder" },
+		{ "▁", "FloatBorder" },
+		{ "🭼", "FloatBorder" },
+		{ "▏", "FloatBorder" },
+	}
+
+	vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border })
+	vim.lsp.handlers["textDocument/signatureHelp"] =
+		vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 	require("lspconfig.ui.windows").default_options.border = "rounded"
 
 	for _, server in pairs(servers) do
@@ -110,7 +122,11 @@ function M.config()
 		end
 
 		if server == "lua_ls" then
-			require("neodev").setup {}
+			require("neodev").setup({})
+		end
+
+		if server == "clangd" then
+            opts.cmd = { "clangd", "--offset-encoding=utf-16" }
 		end
 
 		--if server == "pyright" then
