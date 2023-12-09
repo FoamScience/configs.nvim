@@ -51,6 +51,8 @@ spec "user.optional.blame"
 spec "user.optional.lens"
 spec "user.optional.waka"
 spec "user.optional.sg"
+spec "user.optional.leetcode"
+spec "user.optional.noice"
 
 -- lazy needs to be loaded last
 require "user.lazy"

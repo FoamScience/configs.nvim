@@ -217,7 +217,7 @@ function M.config()
 		},
 	})
 
-    cmp.setup.cmdline('/', {
+    cmp.setup.cmdline({'/', '?'}, {
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
             { name = 'buffer' },
@@ -233,7 +233,7 @@ function M.config()
             {
                 name = 'cmdline',
                 option = {
-                    ignore_cmds = { '!', 'x', 'wq' },
+                    ignore_cmds = { '!', 'x', 'w' },
                 },
             },
         })

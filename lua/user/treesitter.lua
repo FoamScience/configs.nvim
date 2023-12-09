@@ -19,22 +19,28 @@ local M = {
 			"windwp/nvim-autopairs",
 			event = "InsertEnter",
 		},
-        {
-            "nvim-treesitter/playground",
-            cmd = "TSPlaygroundToggle",
-        },
+		{
+			"nvim-treesitter/playground",
+			cmd = "TSPlaygroundToggle",
+		},
 	},
 }
 function M.config()
-	require("nvim-treesitter.configs").setup {
+	require("nvim-treesitter.configs").setup({
 		ensure_installed = {
-				"lua", "vim",
-				"markdown", "markdown_inline",
-				"bash",
-				"python",
-				"foam", "cpp", "c",
-				"rust",
-				"glsl"
+			"lua",
+			"vim",
+            "latex",
+            "regex",
+			"markdown",
+			"markdown_inline",
+			"bash",
+			"python",
+			"foam",
+			"cpp",
+			"c",
+			"rust",
+			"glsl",
 		},
 		ignore_install = { "" },
 		sync_install = false,
@@ -90,7 +96,7 @@ function M.config()
 				},
 			},
 		},
-	}
+	})
 end
 
 return M
