@@ -3,7 +3,6 @@ local M = {
 	event = "VeryLazy",
 	dependencies = {
 		"MunifTanjim/nui.nvim",
-		--"nvim-telescope/telescope.nvim"
 	},
 }
 
@@ -17,6 +16,9 @@ function M.config()
 				["cmp.entry.get_documentation"] = true,
 			},
 		},
+        notify = {
+            enabled = false,
+        },
 		-- you can enable a preset for easier configuration
 		presets = {
 			bottom_search = true, -- use a classic bottom cmdline for search

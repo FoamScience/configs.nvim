@@ -20,6 +20,7 @@ In particular, this configuration will never support the following features:
 ## Requirements
 
 - Neovim 0.9+, NodeJS **v18**, Python 3 and (optionally) Rust installed
+- For installing some LSP servers, you will need the `unzip` command
 - A terminal with ligature support (**Kitty**, Alacritty, etc.)
   - For kitty, I like to set (after installing Comic Code Ligatures, Font Awesome and Symbols Nerd Font Mono):
     ```
