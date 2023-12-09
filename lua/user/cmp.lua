@@ -45,7 +45,7 @@ local M = {
             event = "InsertEnter",
         },
         {
-            "hrsh7th/cmp-nvim-lsp-document-symbol",
+            "FoamScience/cmp-nvim-lsp-document-symbol",
             event = "InsertEnter",
         },
 	},
@@ -221,7 +221,19 @@ function M.config()
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
             { name = 'buffer' },
-            { name = 'nvim_lsp_document_symbol' },
+            --{ name = 'nvim_lsp_document_symbol' },
+            {
+                name = 'nvim_lsp_document_symbol',
+                option = {
+                    kinds_to_show = {
+                        foam = {
+	                        "Variable", "Constant",
+	                        "Number", "Boolean", "Array", "Object", "Key",
+	                        "Struct",
+                        }
+                    },
+                },
+            },
         },
     })
 
