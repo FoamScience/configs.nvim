@@ -1,5 +1,6 @@
 This my minimal, clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
 
+> [!TIP]
 > Best used with Kitty terminal (or Alacritty if you prefer that) which runs a powerline font (or at least,
 > a font that supports ligatures)
 
