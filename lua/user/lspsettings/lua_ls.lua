@@ -1,7 +1,11 @@
 return {
     settings = {
         Lua = {
-            format = {enable = false},
+            format = {
+              enable = true,
+              indent_style = "space",
+              indent_size = 2
+            },
             diagnostics = {globals = {"vim", "spec"}},
             runtime = {version = "LuaJIT", special = {spec = "require"}},
             workspace = {

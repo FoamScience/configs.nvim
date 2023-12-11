@@ -35,6 +35,7 @@ spec "user.harpoon"
 spec "user.gitsigns"
 spec "user.neogit"
 spec "user.diffview"
+spec "user.gitconflicts"
 
 -- projects
 spec "user.project"

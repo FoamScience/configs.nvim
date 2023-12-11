@@ -46,6 +46,7 @@ local M = {
         },
         {
             "FoamScience/cmp-nvim-lsp-document-symbol",
+            branch = "override_kinds",
             event = "InsertEnter",
         },
 	},
