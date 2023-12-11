@@ -82,6 +82,10 @@ function M.config()
             lualine_x = { "filetype"  }
         },
 		extensions = { "quickfix", "man", "fugitive", "fzf", "lazy", "mason",  },
+        disabled_filetypes = {
+            statusline = { "NvimTree", "terminal", "glow" },
+            winbar = { "NvimTree", "terminal", "glow" },
+        },
 
 		winbar = {
 			lualine_a = {

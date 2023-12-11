@@ -55,10 +55,8 @@ function M.config()
 				"<cmd>Telescope git_bcommits<cr>",
 				"Checkout commit(for current file)",
 			},
-			d = {
-				"<cmd>Gitsigns diffthis HEAD<cr>",
-				"Git Diff",
-			},
+			d = { "<cmd>Gitsigns diffthis HEAD<cr>", "Git Diff" },
+            t = { "<cmd>DiffConflicts<cr>", "Diff Conflicts" }
 		},
 
         h = {
@@ -96,7 +94,7 @@ function M.config()
 		},
 
         s = {
-            name = "Cody",
+            name = "Sourcegraph",
             s = { "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>", "Search public code" },
         },
 
@@ -136,6 +134,11 @@ function M.config()
 	-- see https://neovim.io/doc/user/map.html#:map-cmd
 	local vmappings = {
 		["/"] = { "<Plug>(comment_toggle_linewise_visual)", "Comment toggle linewise (visual)" },
+        a = {
+            name = "AI",
+            c = { "<cmd>Chat<cr>", "Chat" },
+            d = { "<cmd>ChatDiagnostics<cr>", "Chat diagnostics" },
+        },
 		l = {
 			name = "LSP",
 			a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
