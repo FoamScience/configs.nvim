@@ -6,6 +6,8 @@ require "user.autocmds"
 spec "user.colorscheme"
 spec "user.devicons"
 
+-- TODO what else?
+
 -- lsp setup
 spec "user.treesitter"
 spec "user.comments"
@@ -13,6 +15,7 @@ spec "user.mason"
 spec "user.lspconfig" -- most things after this require "user.lspicons"
 spec "user.none-ls"
 spec "user.treesj"
+spec "user.todocomments"
 
 -- winbar and statusline
 spec "user.navic"
