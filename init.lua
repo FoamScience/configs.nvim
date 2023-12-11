@@ -12,6 +12,7 @@ spec "user.comments"
 spec "user.mason"
 spec "user.lspconfig" -- most things after this require "user.lspicons"
 spec "user.none-ls"
+spec "user.treesj"
 
 -- winbar and statusline
 spec "user.navic"

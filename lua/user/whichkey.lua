@@ -8,6 +8,7 @@ function M.config()
 		["q"] = { "<cmd>confirm q<CR>", "Quit" },
 		["e"] = { "<cmd>NvimTreeToggle<CR>", "Explorer" },
 		["o"] = { "<cmd>Navbuddy<cr>", "Nav" },
+        ["m"] = { "<cmd>lua require('treesj').toggle()<cr>", "Split/join code blocks"},
 
         d = {
             name = "Diffing",
