@@ -57,6 +57,7 @@ spec "user.optional.lens"
 spec "user.optional.sg"
 spec "user.optional.leetcode"
 spec "user.optional.noice"
+spec "user.optional.devdocs"
 
 -- lazy needs to be loaded last
 require "user.lazy"
