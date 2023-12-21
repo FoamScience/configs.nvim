@@ -2,6 +2,9 @@ vim.opt.backup = false -- no backups
 vim.opt.writebackup = false -- absolutely no backups
 vim.opt.swapfile = false -- no swapfiles
 
+vim.opt.splitbelow = true -- horizontal splits will automatically be below
+vim.opt.splitright = true -- vertical splits will automatically be to the right
+
 vim.opt.clipboard = "unnamedplus" -- allows neovim to access the system clipboard
 
 vim.opt.cmdheight = 1 -- more space in the neovim command line for displaying messages
@@ -37,8 +40,8 @@ vim.opt.cursorline = true -- highlight the current line
 
 vim.opt.wrap = false -- display lines as one long line
 
-vim.opt.scrolloff = 0
-vim.opt.sidescrolloff = 8
+vim.opt.scrolloff = 999 -- keep cursor around the center of the screen
+vim.opt.sidescrolloff = 10 -- show 10 chars when scrolling horizontally
 
 vim.opt.fillchars = vim.opt.fillchars + "eob: "
 vim.opt.fillchars:append {
