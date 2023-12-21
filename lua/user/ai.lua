@@ -1,8 +1,11 @@
 -- A small Lua script to run LLM-based AI assistants on Neovim Buffers
-if vim.fn.executable('chat') == 0 then
-    print([[chat command not found; a GPT-like CMD tool is required that can run
-    `chat -q <prompt>` and write results to stdout.]])
-    return nil
+
+local function checkChat()
+    if vim.fn.executable('chat') == 0 then
+        vim.notify([[chat command not found; a GPT-like CMD tool is required that can run
+        --`chat -q <prompt>` and write results to stdout.]], vim.log.levels.WARN)
+        return nil
+    end
 end
 
 local M = {}
@@ -16,6 +19,7 @@ end
 -- Generic Chat prompting
 
 M.RunChat = function(promptstring)
+    if checkChat() == nil then return nil end
     local vstart = vim.fn.getpos("'<")
     local vend = vim.fn.getpos("'>")
     local line_start = vstart[2]
@@ -79,6 +83,7 @@ local function get_diagnostics(range_start, range_end)
 end
 
 M.RunDiagnose = function()
+    if checkChat() == nil then return nil end
     -- Back to normal mode
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "x", true)
     local vstart = vim.fn.getpos("'<")
