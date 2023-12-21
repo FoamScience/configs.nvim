@@ -44,6 +44,7 @@ function M.config()
 			"glsl",
 		},
 		ignore_install = { "" },
+        auto_install = true,
 		sync_install = false,
 		highlight = {
 			enable = true,
