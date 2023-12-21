@@ -43,6 +43,9 @@ vim.opt.wrap = false -- display lines as one long line
 vim.opt.scrolloff = 999 -- keep cursor around the center of the screen
 vim.opt.sidescrolloff = 10 -- show 10 chars when scrolling horizontally
 
+vim.opt.virtualedit = "block" -- allow cursor to move where there is no text in visual block mode
+vim.opt.inccommand = "split" -- live replace preview
+
 vim.opt.fillchars = vim.opt.fillchars + "eob: "
 vim.opt.fillchars:append {
 	stl = " ",
