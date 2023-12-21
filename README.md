@@ -51,6 +51,8 @@ In particular, this configuration will never support the following features:
   - `<space>tp` to open the recent projects list
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
+- [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
+  - Try `:Telescope colorscheme` to see a live demo of all available color schemes
 
 ### UI
 
