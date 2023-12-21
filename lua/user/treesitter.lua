@@ -19,10 +19,11 @@ local M = {
 			"windwp/nvim-autopairs",
 			event = "InsertEnter",
 		},
-		{
-			"nvim-treesitter/playground",
-			cmd = "TSPlaygroundToggle",
-		},
+        -- This is deprecated in favor of the default :InspectTree
+		--{
+		--	"nvim-treesitter/playground",
+		--	cmd = "TSPlaygroundToggle",
+		--},
 	},
 }
 function M.config()
