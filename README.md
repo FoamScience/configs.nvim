@@ -1,4 +1,4 @@
-This my minimal, clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
+This is my minimal(?), clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
 
 > [!TIP]
 > Best used with Kitty terminal (or Alacritty if you prefer that) which runs a powerline font (or at least,
@@ -52,7 +52,8 @@ In particular, this configuration will never support the following features:
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
-  - Try `:Telescope colorscheme` to see a live demo of all available color schemes
+  - Try `:Telescope colorscheme` (or just `<leader>fc`) to see a live demo of all available color schemes
+  - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
 
 ### UI
 
@@ -60,7 +61,7 @@ In particular, this configuration will never support the following features:
   - `<space>e` to toggle
 - [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline and winbar
 - [indentline.lua:](lua/user/indentline.lua) improves code indentation
-- [noice.lua:](lua/user/optional/noice.lua) nicer UI.
+- [noice.lua:](lua/user/optional/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
   - Setup for proper dimming of OpenFOAM entries
@@ -99,6 +100,7 @@ In particular, this configuration will never support the following features:
 
 - [treesitter.lua:](lua/user/treesitter.lua) syntax highlighting and code folding
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
+  - Auto-installs tree-sitter grammars for languages the first time they are encountered
 - [comments.lua:](lua/user/comments.lua) comment and uncomment lines with `gcc` and `gbc` keymaps
 - [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
