@@ -4,20 +4,21 @@ local M = {
 }
 
 function M.config()
+    local icons = require("user.lspicons")
 	local mappings = {
-		["q"] = { "<cmd>confirm q<CR>", "Quit" },
-		["e"] = { "<cmd>NvimTreeToggle<CR>", "Explorer" },
-		["o"] = { "<cmd>Navbuddy<cr>", "Nav" },
-        ["m"] = { "<cmd>lua require('treesj').toggle()<cr>", "Split/join code blocks"},
+		["q"] = { "<cmd>confirm q<CR>", icons.ui.SignOut .. " Quit" },
+		["e"] = { "<cmd>NvimTreeToggle<CR>", icons.ui.Folder .. " Explorer" },
+		["o"] = { "<cmd>Navbuddy<cr>", icons.ui.Forward .. " Navigate" },
+        ["m"] = { "<cmd>lua require('treesj').toggle()<cr>", icons.ui.Stacks .. "  Split/join code blocks"},
 
         d = {
-            name = "Diffing",
+            name = icons.git.Diff .. " Diffing",
             d = { "<cmd>DiffviewOpen<cr>", "Open Diff" },
             h = { "<cmd>DiffviewFileHistory<cr>", "File History" },
         },
 
 		f = {
-			name = "Find",
+			name = icons.ui.Search .. " Find stuff",
 			b = { "<cmd>Telescope git_branches<cr>", "Checkout branch" },
 			B = { "<cmd>Telescope buffers previewer=false<cr>", "Buffers"},
 			c = { "<cmd>Telescope colorscheme<cr>", "Colorscheme" },
@@ -35,7 +36,7 @@ function M.config()
 		},
 
 		g = {
-			name = "Git",
+			name = icons.git.Branch .. "  Git",
 			g = { "<cmd>Neogit<cr>", "Neogit" },
 			j = { "<cmd>lua require 'gitsigns'.next_hunk({navigation_message = false})<cr>", "Next Hunk" },
 			k = { "<cmd>lua require 'gitsigns'.prev_hunk({navigation_message = false})<cr>", "Prev Hunk" },
@@ -60,17 +61,18 @@ function M.config()
 		},
 
         h = {
-            name = "Harpoon",
+            name = icons.ui.History .. " Harpoon",
             a = { "<cmd>lua require('harpoon.mark').add_file()<cr>" , "Add file"},
             h = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>" , "Menu"},
         },
 
 		l = {
-			name = "LSP",
+			name = icons.kind.Class .. " LSP",
 			a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
-			d = { "<cmd>Telescope diagnostics bufnr=0 theme=get_ivy<cr>", "Buffer Diagnostics" },
-			w = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
+            d = { "<cmd>Telescope lsp_definitions<cr>", "Symbol definition" },
+            D = { "<cmd>Telescope lsp_type_definitions<cr>", "Type definition" },
 			f = { "<cmd>lua vim.lsp.buf.format({timeout_ms = 1000000})<cr>", "Format" },
+			g = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
 			i = { "<cmd>LspInfo<cr>", "Info" },
 			I = { "<cmd>Mason<cr>", "Mason Info" },
 			j = {
@@ -85,21 +87,21 @@ function M.config()
 			l = { "<cmd>lua vim.lsp.codelens.run()<cr>", "CodeLens Action" },
 			q = { "<cmd>lua vim.diagnostic.setloclist()<cr>", "Quickfix" },
 			r = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+			R = { "<cmd>Telescope lsp_references<cr>", "References" },
 			s = { "<cmd>Telescope lsp_document_symbols<cr>", "Document Symbols" },
 			S = {
 				"<cmd>Telescope lsp_dynamic_workspace_symbols<cr>",
 				"Workspace Symbols",
 			},
-			e = { "<cmd>Telescope quickfix<cr>", "Telescope Quickfix" },
 		},
 
         s = {
-            name = "Sourcegraph",
+            name = icons.ui.Target .. " Sourcegraph",
             s = { "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>", "Search public code" },
         },
 
         t = {
-            name = "Telescope",
+            name = icons.ui.Telescope .. " Telescope",
             b = { "<cmd>Telescope buffers previewer=false<cr>", "Buffers"},
             f = { "<cmd>Telescope find_files<cr>", "Find files" },
             t = { "<cmd>Telescope live_grep<cr>", "Find Text" },
@@ -111,12 +113,13 @@ function M.config()
         },
 
 		T = {
-			name = "Treesitter",
-			i = { ":TSConfigInfo<cr>", "Info" },
+			name = icons.ui.Code .. "  TreeSitter",
+			i = { "<cmd>TSConfigInfo<cr>", "Info" },
+            t = { "<cmd>InspectTree<cr>", "Inspect Tree" },
 		},
 
         w = {
-            name = "Twilight",
+            name = icons.ui.Watches .. "  Twilight",
             t = { "<cmd>Twilight<cr>", "Toggle" },
         },
 	}
@@ -138,6 +141,9 @@ function M.config()
             name = "AI",
             c = { "<cmd>Chat<cr>", "Chat" },
             d = { "<cmd>ChatDiagnostics<cr>", "Chat diagnostics" },
+            p = { "<cmd>ChatProofread<cr>", "Chat proofread" },
+            r = { "<cmd>ChatCodeSmells<cr>", "Chat code review" },
+            R = { "<cmd>ChatOldCodeSmells<cr>", "Chat old code review" },
         },
 		l = {
 			name = "LSP",
@@ -158,8 +164,8 @@ function M.config()
 
 	which_key.setup {
 		plugins = {
-			marks = false, -- shows a list of your marks on ' and `
-			registers = false, -- shows your registers on " in NORMAL or <C-r> in INSERT mode
+			marks = true, -- shows a list of your marks on ' and `
+			registers = true, -- shows your registers on " in NORMAL or <C-r> in INSERT mode
 			spelling = {
 				enabled = true,
 				suggestions = 20,
@@ -167,13 +173,13 @@ function M.config()
 			-- the presets plugin, adds help for a bunch of default keybindings in Neovim
 			-- No actual key bindings are created
 			presets = {
-				operators = false, -- adds help for operators like d, y, ...
+				operators = true, -- adds help for operators like d, y, ...
 				motions = false, -- adds help for motions
 				text_objects = false, -- help for text objects triggered after entering an operator
-				windows = false, -- default bindings on <c-w>
+				windows = true, -- default bindings on <c-w>
 				nav = false, -- misc bindings to work with windows
-				z = false, -- bindings for folds, spelling and others prefixed with z
-				g = false, -- bindings for prefixed with g
+				z = true, -- bindings for folds, spelling and others prefixed with z
+				g = true, -- bindings for prefixed with g
 			},
 		},
 		popup_mappings = {
@@ -181,8 +187,8 @@ function M.config()
 			scroll_up = "<c-u>", -- binding to scroll up inside the popup
 		},
 		window = {
-			border = "none", -- none, single, double, shadow
-			position = "top", -- bottom, top
+			border = "single", -- none, single, double, shadow
+			position = "bottom", -- bottom, top
 			margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
 			padding = { 1, 1, 1, 1 }, -- extra window padding [top, right, bottom, left]
 			winblend = 0,
