@@ -163,7 +163,7 @@ function M.config()
 		},
 		sources = {
 			{ name = "copilot" },
-			{ name = "otter" },
+			{ name = "nvim_lsp_signature_help" },
 			{
 				name = "nvim_lsp",
 				entry_filter = function(entry, ctx)
@@ -193,25 +193,26 @@ function M.config()
 			{ name = "treesitter" },
 			{ name = "crates" },
 			{ name = "tmux" },
-            { name = 'nvim_lsp_signature_help' },
 		},
 		confirm_opts = {
 			behavior = cmp.ConfirmBehavior.Replace,
 			select = false,
 		},
 		window = {
-			completion = {
-				border = "rounded",
-				winhighlight = "Normal:Pmenu,CursorLine:PmenuSel,FloatBorder:FloatBorder,Search:None",
-				col_offset = -3,
-				side_padding = 1,
-				scrollbar = false,
-				scrolloff = 8,
-			},
-			documentation = {
-				border = "rounded",
-				winhighlight = "Normal:Pmenu,FloatBorder:FloatBorder,Search:None",
-			},
+            completion = cmp.config.window.bordered(),
+            documentation = cmp.config.window.bordered(),
+			--completion = {
+			--	border = "rounded",
+			--	winhighlight = "Normal:Pmenu,CursorLine:PmenuSel,FloatBorder:FloatBorder,Search:None",
+			--	col_offset = -3,
+			--	side_padding = 1,
+			--	scrollbar = false,
+			--	scrolloff = 8,
+			--},
+			--documentation = {
+			--	border = "rounded",
+			--	winhighlight = "Normal:Pmenu,FloatBorder:FloatBorder,Search:None",
+			--},
 		},
 		experimental = {
 			ghost_text = false,
