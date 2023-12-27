@@ -43,7 +43,10 @@ In particular, this configuration will never support the following features:
   - `<space>` is the leader key, which is used to open `which-key` menu in normal mode
   - `s` and `S` in normal mode are used for word hoping
   - `<tab>` and `<S-tab>` in normal mode are used for buffer switching
-- [which-key.lua:](lua/user/which-key.lua) shows all keymaps available in normal mode
+- [which-key.lua:](lua/user/which-key.lua) shows all available keymaps
+  - Press `<space>` to check available keymaps
+  - Shows Vim keymaps on `` ` `` (marks), `"` (registers), `z` (folds and spelling), `g` (operators)
+  and `<c-w>` (window navigation)
 - [telescope.lua:](lua/user/telescope.lua) fuzzy finder for files, buffers, etc.
   - `<space>f` and `<space>t` take advantage of it
   - In particular `<space>fk` shows all configured keymaps 
@@ -52,7 +55,7 @@ In particular, this configuration will never support the following features:
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
-  - Try `:Telescope colorscheme` (or just `<leader>fc`) to see a live demo of all available color schemes
+  - Try `:Telescope colorscheme` (or just `<space>fc`) to see a live demo of all available color schemes
   - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
 
 ### UI
@@ -125,9 +128,16 @@ In particular, this configuration will never support the following features:
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
 - [sg.lua:](lua/user/optional/sg.lua) public code search through [sourcegraph](https://sourcegraph.com)
   - Try `<space>ss` and type some class's name
+  - Login either by `:SourceGraphLogin` or by setting:
+    ```bash
+    export SRC_ENDPOINT=https://sourcegraph.com/
+    export SRC_ACCESS_TOKEN=<your_token>
+    ```
 - [ai.lua:](lua/user/optional/ai.lua) a custom plugin for AI-assisted programming
   - `<space>ac` in visual mode to send selected test to the AI agent.
   - `<space>ad` in visual mode to send selected code to the AI agent for diagnostics explanation.
+  - `<space>ar` in visual mode to review selected lines of code.
+  - `<space>aR` in visual mode to check old code smells.
   - Requires a CLI binary called `chat` which must:
     - Be invoked as in `chat -q <prompt>`
     - Write response to `stdout`
