@@ -4,7 +4,6 @@ local M = {
 }
 
 local clients_lsp = function()
-	local bufnr = vim.api.nvim_get_current_buf()
 	local clients = vim.lsp.get_clients({ bufnr = 0 })
 	if next(clients) == nil then
 		return ""
@@ -60,7 +59,7 @@ function M.config()
 		options = {
 			component_separators = { left = "", right = "" },
 			section_separators = { left = "", right = "" },
-			ignore_focus = { "NvimTree" },
+			ignore_focus = { "NvimTree", "noice", "qf" },
             globalstatus = true,
 		},
 		sections = {
