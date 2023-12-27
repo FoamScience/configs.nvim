@@ -11,6 +11,16 @@ local M = {
 function M.config()
 	local icons = require("user.lspicons")
 	local actions = require("telescope.actions")
+    local layout_ops = {
+        layout_strategy = "flex",
+        layout_config = {
+            width = 0.95,
+            horizontal = {
+                prompt_position = 'top',
+                preview_width = 0.65,
+            },
+        },
+    }
 
 	require("telescope").setup({
 		defaults = {
@@ -24,7 +34,9 @@ function M.config()
 			set_env = { ["COLORTERM"] = "truecolor" },
 			sorting_strategy = nil,
 			layout_strategy = nil,
-			layout_config = {},
+			layout_config = {
+                width = 0.95,
+            },
 			vimgrep_arguments = {
 				"rg",
 				"--color=never",
@@ -54,19 +66,17 @@ function M.config()
 			},
 		},
 		pickers = {
-			live_grep = {
-				theme = "dropdown",
-			},
-
-			grep_string = {
-				theme = "dropdown",
-			},
-
-			find_files = {
-				-- theme = "dropdown",
-                theme = "ivy",
+			live_grep = vim.tbl_extend("force", layout_ops, {
 				previewer = true,
-			},
+			}),
+
+			grep_string = vim.tbl_extend("force", layout_ops, {
+				previewer = true,
+			}),
+
+			find_files = vim.tbl_extend("force", layout_ops, {
+				previewer = true,
+			}),
 
 			buffers = {
 				theme = "dropdown",
@@ -80,11 +90,6 @@ function M.config()
 						["dd"] = actions.delete_buffer,
 					},
 				},
-			},
-
-			planets = {
-				show_pluto = true,
-				show_moon = true,
 			},
 
 			colorscheme = {
