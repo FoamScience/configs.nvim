@@ -85,9 +85,10 @@ In particular, this configuration will never support the following features:
   - `nvim leetcode.nvim` to open
   - Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)
     for more info.
-- [devdocs.lua:](lua/user/optional/devdocs.lua) a plugin for browsing DevDocs.
-  - `:DevdocsOpenFloat` to open in a floating window
-  - Build documentation for any language with `:DevdocsInstall` (can freeze Neovim for a bit)
+- ~~[devdocs.lua:](lua/user/optional/devdocs.lua) a plugin for browsing DevDocs.~~
+  - ~~`:DevdocsOpenFloat` to open in a floating window~~
+  - ~~Build documentation for any language with `:DevdocsInstall` (can freeze Neovim for a bit)~~
+  - Nightly builds of **Neovim v0.10** suffer from a bug, so this plugin is disabled for now.
 
 ### Navigation
 
