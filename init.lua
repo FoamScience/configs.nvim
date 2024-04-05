@@ -16,6 +16,7 @@ spec "user.lspconfig" -- most things after this require "user.lspicons"
 spec "user.none-ls"
 spec "user.treesj"
 spec "user.todocomments"
+spec "user.garbage"
 
 -- winbar and statusline
 spec "user.navic"

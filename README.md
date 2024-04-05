@@ -23,10 +23,12 @@ In particular, this configuration will never support the following features:
 
 ## Requirements
 
-- Neovim 0.9+, NodeJS **v18**, Python 3 and (optionally) Rust installed
+- [Neovim](https://github.com/neovim/neovim/releases) 0.9+, [NodeJS]() **v18** preferably
+  installed with [nvm](https://github.com/nvm-sh/nvm),
+  Python 3 and (optionally) Rust installed
 - For installing some LSP servers, you will need the `unzip` command
 - For Todo-comments and various other searching tasks, you will need [ripgrep](https://github.com/BurntSushi/ripgrep)
-- A terminal with ligature support (**Kitty**, Alacritty, etc.)
+- A terminal with ligature support ([**Kitty**](https://sw.kovidgoyal.net/kitty/binary/), Alacritty, etc.)
   - For kitty, I like to set (after installing Comic Code Ligatures, Font Awesome and Symbols Nerd Font Mono):
     ```
     font_family      ComicCodeLigatures
@@ -120,6 +122,7 @@ In particular, this configuration will never support the following features:
   - Even searches with `/`. Type `/@` to search through LSP symbols in code buffers!
   - Completes math functions in Vim's expression register (`<c-r>` in insert mode)
   - Also provides command line completion on `:`
+- [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
 - [lens.lua:](lua/user/optional/lens.lua) not so annoying code lens
 
 ### AI
