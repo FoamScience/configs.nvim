@@ -3,6 +3,8 @@ local M = {
 	dependencies = {
 		{ "nvim-telescope/telescope-fzf-native.nvim", build = "make", lazy = true },
 		{ "nvim-telescope/telescope-symbols.nvim" },
+        { "polirritmico/telescope-lazy-plugins.nvim" },
+        { "isak102/telescope-git-file-history.nvim", dependencies = {"tpope/vim-fugitive"} },
 	},
 	lazy = true,
 	cmd = "Telescope",
@@ -123,6 +125,8 @@ function M.config()
 				override_file_sorter = true, -- override the file sorter
 				case_mode = "smart_case", -- or "ignore_case" or "respect_case"
 			},
+            lazy_plugins = { },
+            git_file_history = { },
 		},
 	})
 end

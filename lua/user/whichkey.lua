@@ -104,12 +104,14 @@ function M.config()
             name = icons.ui.Telescope .. " Telescope",
             b = { "<cmd>Telescope buffers previewer=false<cr>", "Buffers"},
             f = { "<cmd>Telescope find_files<cr>", "Find files" },
+			F = { "<cmd>Telescope git_file_history<cr>", "File history" },
             t = { "<cmd>Telescope live_grep<cr>", "Find Text" },
             s = { "<cmd>Telescope grep_string<cr>", "Find String" },
             h = { "<cmd>Telescope help_tags<cr>", "Help" },
             H = { "<cmd>Telescope highlights<cr>", "Highlights" },
             l = { "<cmd>Telescope resume<cr>", "Last Search" },
             p = { "<cmd>Telescope projects<cr>", "List projects" },
+			P = { "<cmd>Telescope lazy_plugins<cr>", "Plugin configs" },
         },
 
 		T = {
