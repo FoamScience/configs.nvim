@@ -18,7 +18,8 @@ local M = {
 			event = "InsertEnter",
 		},
 		{
-			"hrsh7th/cmp-cmdline",
+			"iteratee/cmp-cmdline",
+            branch = "kb/file-name-completion",
 			event = "InsertEnter",
 		},
 		{
@@ -47,6 +48,10 @@ local M = {
         {
             "FoamScience/cmp-nvim-lsp-document-symbol",
             branch = "override_kinds",
+            event = "InsertEnter",
+        },
+        {
+            "SergioRibera/cmp-dotenv",
             event = "InsertEnter",
         },
 	},
@@ -193,6 +198,7 @@ function M.config()
 			{ name = "treesitter" },
 			{ name = "crates" },
 			{ name = "tmux" },
+            { name = "dotenv" },
 		},
 		confirm_opts = {
 			behavior = cmp.ConfirmBehavior.Replace,
