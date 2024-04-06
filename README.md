@@ -59,6 +59,7 @@ In particular, this configuration will never support the following features:
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
   - Try `:Telescope colorscheme` (or just `<space>fc`) to see a live demo of all available color schemes
   - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
+- [dashboard.lua:](lua/user/dashboard.lua) a startup screen
 
 ### UI
 
