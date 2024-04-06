@@ -88,8 +88,6 @@ In particular, this configuration will never support the following features:
   - Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)
     for more info.
 - ~~[devdocs.lua:](lua/user/optional/devdocs.lua) a plugin for browsing DevDocs.~~
-  - ~~`:DevdocsOpenFloat` to open in a floating window~~
-  - ~~Build documentation for any language with `:DevdocsInstall` (can freeze Neovim for a bit)~~
   - Nightly builds of **Neovim v0.10** suffer from a bug, so this plugin is disabled for now.
 
 ### Navigation
@@ -130,13 +128,7 @@ In particular, this configuration will never support the following features:
 - [copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot
   - Type `:Copilot` in normal mode to login for the first time
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
-- [sg.lua:](lua/user/optional/sg.lua) public code search through [sourcegraph](https://sourcegraph.com)
-  - Try `<space>ss` and type some class's name
-  - Login either by `:SourceGraphLogin` or by setting:
-    ```bash
-    export SRC_ENDPOINT=https://sourcegraph.com/
-    export SRC_ACCESS_TOKEN=<your_token>
-    ```
+- ~~[sg.lua:](lua/user/optional/sg.lua) public code search through [sourcegraph](https://sourcegraph.com)~~
 - [ai.lua:](lua/user/optional/ai.lua) a custom plugin for AI-assisted programming
   - `<space>ac` in visual mode to send selected test to the AI agent.
   - `<space>ad` in visual mode to send selected code to the AI agent for diagnostics explanation.

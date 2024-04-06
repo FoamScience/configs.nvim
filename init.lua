@@ -55,7 +55,6 @@ spec "user.optional.csv"
 spec "user.optional.dim"
 spec "user.optional.blame"
 spec "user.optional.lens"
-spec "user.optional.sg"
 spec "user.optional.leetcode"
 spec "user.optional.noice"
 
