@@ -6,6 +6,7 @@ local M = {
 function M.config()
     local icons = require("user.lspicons")
 	local mappings = {
+        ["b"] = { "<cmd>lua require('arrow.ui').openMenu()<CR>", icons.ui.History .. " Bookmarks" },
 		["q"] = { "<cmd>confirm q<CR>", icons.ui.SignOut .. " Quit" },
 		["e"] = { "<cmd>NvimTreeToggle<CR>", icons.ui.Folder .. " Explorer" },
 		["o"] = { "<cmd>Navbuddy<cr>", icons.ui.Forward .. " Navigate" },
@@ -59,12 +60,6 @@ function M.config()
 			d = { "<cmd>Gitsigns diffthis HEAD<cr>", "Git Diff" },
             t = { "<cmd>DiffConflicts<cr>", "Diff Conflicts" }
 		},
-
-        h = {
-            name = icons.ui.History .. " Harpoon",
-            a = { "<cmd>lua require('harpoon.mark').add_file()<cr>" , "Add file"},
-            h = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>" , "Menu"},
-        },
 
 		l = {
 			name = icons.kind.Class .. " LSP",

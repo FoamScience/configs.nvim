@@ -5,6 +5,7 @@ local M = {
 }
 function M.config()
     local db = require("dashboard")
+    local icons = require("user.lspicons")
     db.setup {
         config = {
             theme = "hyper",
@@ -13,8 +14,8 @@ function M.config()
                 enable = false,
             },
             shortcut = {
-                { desc = "󰊳 Update", group = "@property", action = "Lazy update", key = "u", },
-                { desc = " Keymaps", group = "@property", action = "Telescope keymaps", key = "k", },
+                { desc = icons.ui.BoldArrowUp .. " Update", group = "@property", action = "Lazy update", key = "u", },
+                { desc = icons.ui.Telescope .. "Keymaps", group = "@property", action = "Telescope keymaps", key = "k", },
             },
         },
     }

@@ -89,14 +89,14 @@ In particular, this configuration will never support the following features:
   - Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)
     for more info.
 - ~~[devdocs.lua:](lua/user/optional/devdocs.lua) a plugin for browsing DevDocs.~~
-  - Nightly builds of **Neovim v0.10** suffer from a bug, so this plugin is disabled for now.
 
 ### Navigation
 
 - [hop.lua:](lua/user/optional/hop.lua) fast word hopping
   - `s` and `S` to hop to words in normal mode
-- [harpoon.lua:](lua/user/harpoon.lua) to bookmark your buffers, and come back to them in a blink of an eye
-  - `<space>ha` to bookmark a file, `<space>hh` to see bookmark menu
+- ~~[harpoon.lua:](lua/user/harpoon.lua) to bookmark your buffers, and come back to them in a blink of an eye~~
+- [arrow.lua:](lua/user/arrow.lua) to bookmark your buffers. Replacing Harpoon.
+    - Just press `,` in normal mode, or `<leader>b`
 - [navbuddy.lua:](lua/user/navbuddy.lua) fast local code navigation
   - `<space>o` to toggle
   - Only enabled on specific file types, such as OpenFOAM, C++, Python, Lua files
