@@ -35,6 +35,7 @@ spec "user.autopairs"
 -- keymaps
 spec "user.whichkey"
 spec "user.harpoon"
+spec "user.dashboard"
 
 -- git
 spec "user.gitsigns"

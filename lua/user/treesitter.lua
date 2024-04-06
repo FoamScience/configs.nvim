@@ -31,6 +31,7 @@ function M.config()
 		ensure_installed = {
 			"lua",
 			"vim",
+            "vimdoc",
             "latex",
             "regex",
 			"markdown",
