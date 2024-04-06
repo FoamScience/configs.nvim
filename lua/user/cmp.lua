@@ -77,6 +77,7 @@ function M.config()
 	local icons = require("user.lspicons")
 
 	cmp.setup({
+        preselect = cmp.PreselectMode.None,
 		snippet = {
 			expand = function(args)
 				luasnip.lsp_expand(args.body) -- For `luasnip` users.
@@ -167,8 +168,9 @@ function M.config()
 			end,
 		},
 		sources = {
-			{ name = "copilot" },
-			{ name = "nvim_lsp_signature_help" },
+			{
+              name = "nvim_lsp_signature_help",
+            },
 			{
 				name = "nvim_lsp",
 				entry_filter = function(entry, ctx)
@@ -188,6 +190,7 @@ function M.config()
 					return true
 				end,
 			},
+			{ name = "copilot" },
 			{ name = "luasnip" },
 			{ name = "cmp_tabnine" },
 			{ name = "nvim_lua" },

@@ -15,10 +15,13 @@ function M.config()
 				["vim.lsp.util.stylize_markdown"] = true,
 				["cmp.entry.get_documentation"] = true,
 			},
+			signature = {
+				enabled = false,
+			},
 		},
-        notify = {
-            enabled = false,
-        },
+		notify = {
+			enabled = false,
+		},
 		-- you can enable a preset for easier configuration
 		presets = {
 			bottom_search = true, -- use a classic bottom cmdline for search
@@ -27,10 +30,10 @@ function M.config()
 			inc_rename = false, -- enables an input dialog for inc-rename.nvim
 			lsp_doc_border = true, -- add a border to hover docs and signature help
 		},
-        messages = {
-            enabled = true,
-            view_history = "popup",
-        },
+		messages = {
+			enabled = true,
+			view_history = "popup",
+		},
 	})
 end
 
