@@ -52,6 +52,9 @@ In particular, this configuration will never support the following features:
 - [telescope.lua:](lua/user/telescope.lua) fuzzy finder for files, buffers, etc.
   - `<space>f` and `<space>t` take advantage of it
   - In particular `<space>fk` shows all configured keymaps 
+  - Open the file from its Git history without checking out earlier commits with `<space>tF` 
+  - Browse the Undo tree (including diffs!) with `<space>tu`
+  - Open Plugin configuration files with `<space>tP`
 - [projects.lua:](lua/user/projects.lua) a project manager, mostly for detecting root directories
   - `<space>tp` to open the recent projects list
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
