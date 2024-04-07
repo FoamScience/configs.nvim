@@ -107,6 +107,7 @@ function M.config()
             l = { "<cmd>Telescope resume<cr>", "Last Search" },
             p = { "<cmd>Telescope projects<cr>", "List projects" },
 			P = { "<cmd>Telescope lazy_plugins<cr>", "Plugin configs" },
+            u = { "<cmd>Telescope undo<cr>", "Unto tree" },
         },
 
 		T = {

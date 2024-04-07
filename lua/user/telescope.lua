@@ -5,6 +5,7 @@ local M = {
 		{ "nvim-telescope/telescope-symbols.nvim" },
         { "polirritmico/telescope-lazy-plugins.nvim" },
         { "isak102/telescope-git-file-history.nvim", dependencies = {"tpope/vim-fugitive"} },
+        { "debugloop/telescope-undo.nvim" },
 	},
 	lazy = true,
 	cmd = "Telescope",
@@ -127,6 +128,10 @@ function M.config()
 			},
             lazy_plugins = { },
             git_file_history = { },
+            undo = {
+                use_delta = true,
+                diff_context_lines = 10,
+            },
 		},
 	})
 end
