@@ -4,6 +4,10 @@ local M = {
     --"Shatur/neovim-ayu",
 	lazy = false, -- load at startup cuz it's the main colorscheme
 	priority = 1000, -- load it before anything else
+    name = "catppuccin",
+    init = function()
+      vim.cmd.colorscheme "catppuccin"
+    end,
 }
 
 function M.config()

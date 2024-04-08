@@ -1,4 +1,5 @@
 -- general stuff
+vim.loader.enable()
 require "user.base"
 require "user.options"
 require "user.keymaps"

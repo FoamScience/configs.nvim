@@ -1,6 +1,6 @@
 local M = {
 	"whiteinge/diffconflicts",
-	event = "BufEnter",
+    event = {"BufReadPre", "BufNewFile"},
 }
 M.config = function()
     --require("diffconflicts").setup{}

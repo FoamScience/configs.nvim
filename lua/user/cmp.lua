@@ -3,59 +3,47 @@ local M = {
 	dependencies = {
 		{
 			"hrsh7th/cmp-nvim-lsp",
-			event = "InsertEnter",
 		},
 		{
 			"hrsh7th/cmp-emoji",
-			event = "InsertEnter",
 		},
 		{
 			"hrsh7th/cmp-buffer",
-			event = "InsertEnter",
 		},
 		{
 			"hrsh7th/cmp-path",
-			event = "InsertEnter",
 		},
 		{
 			"iteratee/cmp-cmdline",
             branch = "kb/file-name-completion",
-			event = "InsertEnter",
 		},
 		{
 			"saadparwaiz1/cmp_luasnip",
-			event = "InsertEnter",
 		},
 		{
 			"L3MON4D3/LuaSnip",
-			event = "InsertEnter",
 			dependencies = {
 				"rafamadriz/friendly-snippets",
 			},
 		},
 		{
 			"hrsh7th/cmp-nvim-lua",
-			event = "InsertEnter",
 		},
         {
             "hrsh7th/cmp-nvim-lsp-signature-help",
-            event = "InsertEnter",
         },
         {
             "hrsh7th/cmp-calc",
-            event = "InsertEnter",
         },
         {
             "FoamScience/cmp-nvim-lsp-document-symbol",
             branch = "override_kinds",
-            event = "InsertEnter",
         },
         {
             "SergioRibera/cmp-dotenv",
-            event = "InsertEnter",
         },
 	},
-	event = "InsertEnter",
+    event = { "LspAttach", "InsertCharPre" },
 }
 
 function M.config()

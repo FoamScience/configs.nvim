@@ -1,7 +1,6 @@
 local M = {
 	"lewis6991/gitsigns.nvim",
-	event = "BufEnter",
-	cmd = "Gitsigns",
+    event = {"BufReadPre", "BufNewFile"},
 }
 M.config = function()
 	local icons = require("user.lspicons")

@@ -150,5 +150,8 @@ return {
 		Smiley = "",
 		Package = "",
 		CircuitBoard = "",
+        Unix = " ",
+        Dos = " ",
+        Mac = " ",
 	},
 }

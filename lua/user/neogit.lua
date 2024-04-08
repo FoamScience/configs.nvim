@@ -1,6 +1,6 @@
 local M = {
 	"neogitorg/neogit",
-	event = "VeryLazy",
+    event = {"BufReadPre", "BufNewFile"},
 }
 
 function M.config()
