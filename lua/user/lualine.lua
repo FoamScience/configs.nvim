@@ -64,15 +64,23 @@ function M.config()
 		},
 		sections = {
 			lualine_a = { "mode" },
-			lualine_b = { { "branch", icon = "" } },
-			lualine_c = { diff },
+			lualine_b = { { "branch", icon = icons.git.Branch }, diff },
+			lualine_c = { },
 			lualine_x = {
                 { git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available },
                 "diagnostics",
                 clients_lsp,
                 copilot,
             },
-			lualine_y = { "filetype" },
+			lualine_y = { {
+                'fileformat',
+                icons_enabled = true,
+                symbols = {
+                    unix = icons.misc.Unix,
+                    dos = icons.misc.Dos,
+                    mac = icons.misc.Mac,
+                },
+            }, "filetype", },
 			lualine_z = { "progress" },
 		},
         inactive_sections = {
