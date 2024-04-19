@@ -70,7 +70,7 @@ In particular, this configuration will never support the following features:
   - `<space>e` to toggle
 - [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline and winbar
 - [indentline.lua:](lua/user/indentline.lua) improves code indentation
-- [noice.lua:](lua/user/optional/noice.lua) nicer UI. Not relevant for users
+- [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
   - Setup for proper dimming of OpenFOAM entries
@@ -133,7 +133,8 @@ In particular, this configuration will never support the following features:
   - Type `:Copilot` in normal mode to login for the first time
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
 - ~~[sg.lua:](lua/user/optional/sg.lua) public code search through [sourcegraph](https://sourcegraph.com)~~
-- [ai.lua:](lua/user/optional/ai.lua) a custom plugin for AI-assisted programming
+- ~~[ai.lua:](lua/user/ai.lua) a custom plugin for AI-assisted programming~~
+  - This is temporarily disabled, looking for better ways...
   - `<space>ac` in visual mode to send selected test to the AI agent.
   - `<space>ad` in visual mode to send selected code to the AI agent for diagnostics explanation.
   - `<space>ar` in visual mode to review selected lines of code.
@@ -155,7 +156,7 @@ In particular, this configuration will never support the following features:
   - Most options from `<space>g` use it
   - too good to leave behind
   - But no keymaps are set, intended for command-line use
-- [blame.lua:](lua/user/optional/blame.lua) shows git blame info in the status line
+- [blame.lua:](lua/user/blame.lua) shows git blame info in the status line
 
 ### Miscellaneous
 
