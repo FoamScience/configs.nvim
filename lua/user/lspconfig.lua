@@ -60,7 +60,6 @@ function M.config()
 		"bashls",
 		"jsonls",
 		"yamlls",
-		"marksman",
 		"tailwindcss",
 		"glsl_analyzer",
 		"foam_ls",

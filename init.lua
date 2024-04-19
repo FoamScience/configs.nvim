@@ -9,6 +9,9 @@ spec "user.devicons"
 
 -- TODO what else?
 
+-- UX
+spec "user.noice"
+
 -- lsp setup
 spec "user.treesitter"
 spec "user.comments"
@@ -18,6 +21,13 @@ spec "user.none-ls"
 spec "user.treesj"
 spec "user.todocomments"
 spec "user.garbage"
+
+-- git
+spec "user.gitsigns"
+spec "user.neogit"
+spec "user.diffview"
+spec "user.gitconflicts"
+spec "user.blame"
 
 -- winbar and statusline
 spec "user.navic"
@@ -38,11 +48,6 @@ spec "user.whichkey"
 spec "user.arrow"
 spec "user.dashboard"
 
--- git
-spec "user.gitsigns"
-spec "user.neogit"
-spec "user.diffview"
-spec "user.gitconflicts"
 
 -- projects
 spec "user.project"
@@ -52,16 +57,11 @@ spec "user.optional.colorizer"
 spec "user.optional.dial"
 spec "user.optional.dressing"
 spec "user.optional.hop"
-spec "user.optional.fugitive"
+--spec "user.optional.fugitive"
 spec "user.optional.csv"
 spec "user.optional.dim"
-spec "user.optional.blame"
 spec "user.optional.lens"
-spec "user.optional.leetcode"
-spec "user.optional.noice"
+
 
 -- lazy needs to be loaded last
 require "user.lazy"
-
--- Non-plugin stuff
-require "user.ai"

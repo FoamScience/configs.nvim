@@ -135,7 +135,8 @@ M.run_chat = function(promptstring, buf_ft)
     local lines = vim.fn.getline(line_start, line_end)
     local counter = 0
     lines = vim.tbl_map(function(line)
-        line = "@" .. line_start + counter .. "@" .. line
+        if counter == 0 then return line end
+        line = "@" .. line_start + counter .. "@ " .. line
         counter = counter + 1
         return line
     end, lines)
@@ -144,31 +145,37 @@ M.run_chat = function(promptstring, buf_ft)
     if is_code_review then
         code_promptstring = promptstring
             .. ".\nProvide no introductory text and no explanations."
-            .. "\nCode line numbers are indicated at thestart of each line by the format `@<line>@`."
+            .. "\nCode line numbers are indicated at the start of each line by the format `@<line>@`."
             .. "\nThe code is written in the "
             .. vim.bo.ft
             .. " language:\n```\n"
     end
     table.insert(lines, 1, code_promptstring)
-    local prompt = table.concat(lines, "\n")
+    table.remove(lines, 1)
+    local prompt = table.concat(lines, "\n ")
     if is_code_review then
         prompt = prompt .. "\n```"
     end
 
     -- Chat command
-    local chat = { "chat", "-q", prompt }
+    local chat = { "/usr/local/bin/chat", "-q", prompt }
     -- Set up virtual text
     local ns = vim.api.nvim_create_namespace("chat")
     local pos = vim.api.nvim_win_get_cursor(0)[1] - 1
+    --local anim = require('significant')
+    --anim.start_animated_sign(pos+1, 'dots4', 300)
     vim.api.nvim_buf_set_extmark(0, ns, pos, 0, { virt_text = { { " ■ AI engine is thinking...", "@constructor" } } })
     local oldbuf = vim.api.nvim_get_current_buf()
     -- Create new buffer in vsplit if not reviewing code
     if not is_code_review then
         vim.cmd("vsplit")
+        vim.print("here1")
         local win = vim.api.nvim_get_current_win()
         local buf = vim.api.nvim_create_buf(true, true)
         vim.api.nvim_buf_set_name(buf, "AI Chat")
         vim.api.nvim_win_set_buf(win, buf)
+        vim.print("here2")
+        --anim.start_animated_sign(0, 'dots4', 300)
         vim.api.nvim_buf_set_extmark(
             buf,
             ns,
@@ -177,12 +184,15 @@ M.run_chat = function(promptstring, buf_ft)
             { virt_text = { { " ■ AI engine is thinking...", "@constructor" } } }
         )
         -- Run chat command
+        vim.print("here3")
         vim.fn.jobstart(chat, {
-            stdout_buffered = true,
+            stdout_buffered = false,
             on_stdout = function(_, data)
+                vim.print("here4")
                 vim.api.nvim_buf_set_lines(buf, 0, 0, false, data)
                 vim.api.nvim_buf_clear_namespace(oldbuf, ns, 0, -1)
                 vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+                --anim.stop_animated_sign(pos+1, {unplace_sign=true})
                 vim.bo[buf].ft = buf_ft
             end,
         })
@@ -190,6 +200,7 @@ M.run_chat = function(promptstring, buf_ft)
         vim.fn.jobstart(chat, {
             stdout_buffered = true,
             on_stdout = function(_, data)
+                --anim.stop_animated_sign(1, {unplace_sign=true})
                 vim.api.nvim_buf_clear_namespace(oldbuf, ns, 0, -1)
                 M.process_data(data)
             end,

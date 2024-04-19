@@ -87,7 +87,7 @@ In particular, this configuration will never support the following features:
     Todos to Github issues.
 - ~~[waka.lua:](lua/user/optional/waka.lua) a plugin for tracking your coding time~~
   - ~~It will ask for an [API key](https://wakatime.com/settings/api-key) on installation~~
-- [leetcode.lua:](lua/user/optional/leetcode.lua) a plugin for solving LeetCode problems
+- ~~[leetcode.lua:](lua/user/optional/leetcode.lua) a plugin for solving LeetCode problems~~
   - `nvim leetcode.nvim` to open
   - Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)
     for more info.

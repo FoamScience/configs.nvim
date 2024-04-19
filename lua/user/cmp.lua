@@ -48,7 +48,6 @@ local M = {
 
 function M.config()
 	vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
-	vim.api.nvim_set_hl(0, "CmpItemKindTabnine", { fg = "#CA42F0" })
 	vim.api.nvim_set_hl(0, "CmpItemKindCrate", { fg = "#F64D00" })
 	vim.api.nvim_set_hl(0, "CmpItemKindEmoji", { fg = "#FDE030" })
 
@@ -63,6 +62,18 @@ function M.config()
 	end
 
 	local icons = require("user.lspicons")
+
+    local source_display = {
+        dotenv = { icon = icons.misc.Tag, hl_group = "CmpItemKindDefault" },
+		copilot = { icon = icons.git.Octoface, hl_group = "CmpItemKindCopilot"},
+        nvim_lsp_signature_help = { icon = icons.ui.SignIn, hl_group = "CmpItemKindInterface" },
+		buffer = { icon = icons.kind.File, hl_group = "CmpItemKindAbbr" },
+		path = { icon = icons.ui.Files, hl_group = "CmpItemKindFile" },
+		emoji = { icon = ":) ", hl_group = "CmpItemKindEmoji" },
+		treesitter = { icon = icons.ui.Tree, hl_group = "CmpItemKindClass" },
+		crates = { icon = icons.ui.Package, hl_group = "CmpItemKindCrate" },
+		tmux = { icon = icons.misc.Dos, hl_group = "CmpItemKindUnit" },
+    }
 
 	cmp.setup({
         preselect = cmp.PreselectMode.None,
@@ -118,78 +129,30 @@ function M.config()
 		formatting = {
 			fields = { "kind", "abbr", "menu" },
 			format = function(entry, vim_item)
-				vim_item.kind = icons.kind[vim_item.kind]
-				vim_item.menu = ({
-					nvim_lsp = "",
-					nvim_lua = "",
-					luasnip = "",
-					buffer = "",
-					path = "",
-					emoji = "",
-				})[entry.source.name]
-				if entry.source.name == "copilot" then
-					vim_item.kind = icons.git.Octoface
-					vim_item.kind_hl_group = "CmpItemKindCopilot"
-				end
-
-				if entry.source.name == "cmp_tabnine" then
-					vim_item.kind = icons.misc.Robot
-					vim_item.kind_hl_group = "CmpItemKindTabnine"
-				end
-
-				if entry.source.name == "crates" then
-					vim_item.kind = icons.misc.Package
-					vim_item.kind_hl_group = "CmpItemKindCrate"
-				end
-
-				if entry.source.name == "lab.quick_data" then
-					vim_item.kind = icons.misc.CircuitBoard
-					vim_item.kind_hl_group = "CmpItemKindConstant"
-				end
-
-				if entry.source.name == "emoji" then
-					vim_item.kind = icons.misc.Smiley
-					vim_item.kind_hl_group = "CmpItemKindEmoji"
-				end
-
-				return vim_item
+            if source_display[entry.source.name] ~= nil then
+                vim_item.kind = source_display[entry.source.name].icon
+                vim_item.kind_hl_group = source_display[entry.source.name].hl_group
+            else
+			    vim_item.kind = icons.kind[vim_item.kind]
+            end
+			return vim_item
 			end,
 		},
 		sources = {
-			{
-              name = "nvim_lsp_signature_help",
-            },
-			{
-				name = "nvim_lsp",
-				entry_filter = function(entry, ctx)
-					local kind = require("cmp.types.lsp").CompletionItemKind[entry:get_kind()]
-					if kind == "Snippet" and ctx.prev_context.filetype == "java" then
-						return false
-					end
-
-					if ctx.prev_context.filetype == "markdown" then
-						return true
-					end
-
-					if kind == "Text" then
-						return false
-					end
-
-					return true
-				end,
-			},
-			{ name = "copilot" },
-			{ name = "luasnip" },
-			{ name = "cmp_tabnine" },
-			{ name = "nvim_lua" },
 			{ name = "buffer" },
 			{ name = "path" },
-			{ name = "calc" },
+			{ name = "copilot" },
+			{ name = "luasnip" },
+			{ name = "nvim_lua" },
+			{ name = "quick_data" },
 			{ name = "emoji" },
 			{ name = "treesitter" },
 			{ name = "crates" },
 			{ name = "tmux" },
             { name = "dotenv" },
+			{ name = "nvim_lsp" },
+            { name = "nvim_lsp_document_symbol" },
+            { name = "nvim_lsp_signature_help" },
 		},
 		confirm_opts = {
 			behavior = cmp.ConfirmBehavior.Replace,
@@ -198,18 +161,6 @@ function M.config()
 		window = {
             completion = cmp.config.window.bordered(),
             documentation = cmp.config.window.bordered(),
-			--completion = {
-			--	border = "rounded",
-			--	winhighlight = "Normal:Pmenu,CursorLine:PmenuSel,FloatBorder:FloatBorder,Search:None",
-			--	col_offset = -3,
-			--	side_padding = 1,
-			--	scrollbar = false,
-			--	scrolloff = 8,
-			--},
-			--documentation = {
-			--	border = "rounded",
-			--	winhighlight = "Normal:Pmenu,FloatBorder:FloatBorder,Search:None",
-			--},
 		},
 		experimental = {
 			ghost_text = false,

@@ -52,6 +52,7 @@ vim.opt.fillchars:append {
 }
 
 vim.opt.laststatus = 3
+vim.opt.splitkeep = "screen"
 
 vim.opt.undodir = "/tmp/.vim-undo-dir"
 if not vim.fn.isdirectory("/tmp/.vim-undo-dir") then

@@ -1,5 +1,11 @@
+local repo_branch = "master"
+if vim.version().major == 0 and vim.version().minor >= 10 then
+    repo_branch = "nightly"
+end
+
 local M = {
 	"neogitorg/neogit",
+    branch = repo_branch,
     event = {"BufReadPre", "BufNewFile"},
 }
 
