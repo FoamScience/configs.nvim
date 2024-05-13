@@ -8,9 +8,9 @@ function M.config()
     arrow.setup {
         show_icons = true,
         leader_key = ",",
-        separate_by_branch = true,
+        separate_by_branch =false,
         always_show_path = true,
-        save_key="git_root",
+        save_key="cwd",
     }
 end
 
