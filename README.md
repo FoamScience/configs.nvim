@@ -194,7 +194,7 @@ docker run -it --rm nvim-config:latest bash
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which colorizes CSV columns
 
-[Screenshots]: /screenshots/screenshots.md "Screenshots"
+[Screenshots]: /screenshots/README.md "Screenshots"
 [Neovim]: https://github.com/neovim/neovim/releases "Neovim"
 [NVM]: https://github.com/nvm-sh/nvm "NVM"
 [NodeJS]: https://nodejs.org "NodeJS"
