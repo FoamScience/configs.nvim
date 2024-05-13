@@ -49,7 +49,7 @@ function M.config()
 		sync_install = false,
 		highlight = {
 			enable = true,
-			disable = { "markdown" },
+			disable = {},
 			additional_vim_regex_highlighting = false,
 		},
 
