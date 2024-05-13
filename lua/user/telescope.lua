@@ -3,9 +3,9 @@ local M = {
 	dependencies = {
 		{ "nvim-telescope/telescope-fzf-native.nvim", build = "make", lazy = true },
 		{ "nvim-telescope/telescope-symbols.nvim" },
-        { "polirritmico/telescope-lazy-plugins.nvim" },
-        { "isak102/telescope-git-file-history.nvim", dependencies = {"tpope/vim-fugitive"} },
-        { "debugloop/telescope-undo.nvim" },
+		{ "polirritmico/telescope-lazy-plugins.nvim" },
+		{ "isak102/telescope-git-file-history.nvim", dependencies = { "tpope/vim-fugitive" } },
+		{ "debugloop/telescope-undo.nvim" },
 	},
 	lazy = true,
 	cmd = "Telescope",
@@ -14,16 +14,24 @@ local M = {
 function M.config()
 	local icons = require("user.lspicons")
 	local actions = require("telescope.actions")
-    local layout_ops = {
-        layout_strategy = "flex",
-        layout_config = {
-            width = 0.95,
-            horizontal = {
-                prompt_position = 'top',
-                preview_width = 0.65,
-            },
-        },
-    }
+	local layout_ops = {
+		layout_config = {
+			horizontal = {
+				prompt_position = "top",
+				preview_width = 0.55,
+				results_width = 0.8,
+			},
+			vertical = {
+				mirror = false,
+			},
+			width = 0.87,
+			height = 0.80,
+			preview_cutoff = 120,
+		},
+		layout_strategy = "flex",
+        winblend = 0,
+        border = {},
+	}
 
 	require("telescope").setup({
 		defaults = {
@@ -38,8 +46,8 @@ function M.config()
 			sorting_strategy = nil,
 			layout_strategy = nil,
 			layout_config = {
-                width = 0.95,
-            },
+				width = 0.95,
+			},
 			vimgrep_arguments = {
 				"rg",
 				"--color=never",
@@ -126,12 +134,12 @@ function M.config()
 				override_file_sorter = true, -- override the file sorter
 				case_mode = "smart_case", -- or "ignore_case" or "respect_case"
 			},
-            lazy_plugins = { },
-            git_file_history = { },
-            undo = {
-                use_delta = true,
-                diff_context_lines = 10,
-            },
+			lazy_plugins = {},
+			git_file_history = {},
+			undo = {
+				use_delta = true,
+				diff_context_lines = 10,
+			},
 		},
 	})
 end
