@@ -12,6 +12,12 @@ function M.config()
 		["o"] = { "<cmd>Navbuddy<cr>", icons.ui.Forward .. " Navigate" },
         ["m"] = { "<cmd>lua require('treesj').toggle()<cr>", icons.ui.Stacks .. "  Split/join code blocks"},
 
+        c = {
+            name = icons.misc.Robot .. " Cody",
+            c = { "<cmd>CodyChat<cr>", "Code Chat" },
+            t = { "<cmd>CodyToggle<cr>", "Toggle Cody window" },
+        },
+
         d = {
             name = icons.git.Diff .. " Diffing",
             d = { "<cmd>DiffviewOpen<cr>", "Open Diff" },
@@ -135,17 +141,10 @@ function M.config()
 	-- see https://neovim.io/doc/user/map.html#:map-cmd
 	local vmappings = {
 		["/"] = { "<Plug>(comment_toggle_linewise_visual)", "Comment toggle linewise (visual)" },
-        a = {
-            name = "AI",
-            c = { "<cmd>Chat<cr>", "Chat" },
-            d = { "<cmd>ChatDiagnostics<cr>", "Chat diagnostics" },
-            p = { "<cmd>ChatProofread<cr>", "Chat proofread" },
-            r = { "<cmd>ChatCodeSmells<cr>", "Chat code review" },
-            R = { "<cmd>ChatOldCodeSmells<cr>", "Chat old code review" },
-        },
 		l = {
 			name = "LSP",
 			a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
+            e = { ":CodyExplain<cr>", "Cody Explain" },
 		},
 	}
 
