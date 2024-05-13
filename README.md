@@ -19,29 +19,52 @@ In particular, this configuration will never support the following features:
 - Auto-formatting, because trying to auto-format C++ is a pain!
 
 > [!IMPORTANT]
-> Check out the [screenshots](/screenshots/screenshots.md) for a preview of what this configuration has to offer.
+> Check out the [Screenshots][] for a preview of what this configuration has to offer.
+
+![screenshot](/screenshots/ai-diffs.gif)
 
 ## Requirements
 
-- [Neovim](https://github.com/neovim/neovim/releases) 0.9+, [NodeJS]() **v18** preferably
-  installed with [nvm](https://github.com/nvm-sh/nvm),
-  Python 3 and (optionally) Rust installed
+- [Neovim][] 0.9.5 (or later), [NodeJS][] **v18** (or later), preferably installed with [NVM][],
+- Python 3 and (optionally) [Rust][]
 - For installing some LSP servers, you will need the `unzip` command
-- For Todo-comments and various other searching tasks, you will need [ripgrep](https://github.com/BurntSushi/ripgrep)
-- A terminal with ligature support ([**Kitty**](https://sw.kovidgoyal.net/kitty/binary/), Alacritty, etc.)
+- For Todo-comments and various other searching tasks, you will need [RIPGrep][]
+- A terminal with ligature support ([**Kitty**][], Warp, Alacritty, etc.)
   - For kitty, I like to set (after installing Comic Code Ligatures, Font Awesome and Symbols Nerd Font Mono):
     ```
     font_family      ComicCodeLigatures
     symbol_map U+f000-U+f0e2 fontawesome
     symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
     ```
-- An OpenAI-like AI agent in the form of a CLI binary called `chat` 
+- A command-line chat engine: [TGPT][]
+
+## Set up
+
+1. Make sure you have all the requirements installed. [this docker file](/dockerImages/config.dockerfile) shows how to install
+   them on latest Ubuntu LTS release.
+2. Then, applying this configuration is as easy as:
+```sh
+# Backup old configs and clone the new ones
+mv ~/.config/nvim ~/.config/nvim.bak
+git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
+# also, update with git pull
+```
 
 ## List of plugins and important configs
 
+### Notes
+
+- The canonical way to move between tabs and splits is `<C-w><C-w>`; too fundamental to change.
+- The canonical way to move on visible screen portion is by pressing `S` and `s` in normal mode.
+- The canonical way to move between open buffers is `<tab>` and `<S-tab>` in normal mode.
+- Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
+- You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
+- `<space>fk` lists all available key bindings.
+- `<space>tP` will take you to individual plugin configuration!
+
 ### General
 
-- [keymaps.lua:](lua/user/keymaps.lua) very few keymaps
+- [keymaps.lua:](lua/user/keymaps.lua) very few key bindings to get you started
   - `<space>` is the leader key, which is used to open `which-key` menu in normal mode
   - `s` and `S` in normal mode are used for word hoping
   - `<tab>` and `<S-tab>` in normal mode are used for buffer switching
@@ -68,7 +91,8 @@ In particular, this configuration will never support the following features:
 
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer. Simple as that
   - `<space>e` to toggle
-- [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline and winbar
+- [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline
+- [unclutter.lua:](lua/user/unclutter.lua) to handle the winbar
 - [indentline.lua:](lua/user/indentline.lua) improves code indentation
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
@@ -78,6 +102,8 @@ In particular, this configuration will never support the following features:
 - [treesj.lua:](lua/user/treesj.lua) a tree-sitter based arguments expander
   - Try `<space>m` on a function call to split its arguments on multiple lines, and join them back
   - Needs tree-sitter grammar for the target language to be installed.
+- [winsep:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
+- [neoscroll:](lua/user/optional/neoscroll.lua) scrolling animations for page movement.
 
 ### Productivity
 
@@ -126,15 +152,15 @@ In particular, this configuration will never support the following features:
   - Also provides command line completion on `:`
 - [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
 - [lens.lua:](lua/user/optional/lens.lua) not so annoying code lens
+- [navic.lua:](lua/user/optional/navic.lua) shows code structure at the cursor in the winbar
 
 ### AI
 
 - [copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot
   - Type `:Copilot` in normal mode to login for the first time
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
-- ~~[sg.lua:](lua/user/optional/sg.lua) public code search through [sourcegraph](https://sourcegraph.com)~~
-- ~~[ai.lua:](lua/user/ai.lua) a custom plugin for AI-assisted programming~~
-  - This is temporarily disabled, looking for better ways...
+- [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
+- [ai:](lua/user/ai) a set of custom scripts for AI-assisted programming
   - `<space>ac` in visual mode to send selected test to the AI agent.
   - `<space>ad` in visual mode to send selected code to the AI agent for diagnostics explanation.
   - `<space>ar` in visual mode to review selected lines of code.
@@ -162,3 +188,13 @@ In particular, this configuration will never support the following features:
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which colorizes CSV columns
+
+[Screenshots]: /screenshots/screenshots.md "Screenshots"
+[Neovim]: https://github.com/neovim/neovim/releases "Neovim"
+[NVM]: https://github.com/nvm-sh/nvm "NVM"
+[NodeJS]: https://nodejs.org "NodeJS"
+[RIPGrep]: https://github.com/BurntSushi/ripgrep "RIPGrep"
+[Kitty]: https://sw.kovidgoyal.net/kitty/binary/ "Kitty"
+[Rust]: https://www.rust-lang.org/tools/install "Rust"
+[TGPT]: https://github.com/aandrew-me/tgpt "TGPT"
+[SourceGraph]: https://sourcegraph.com "SourceGraph"
