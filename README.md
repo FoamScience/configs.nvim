@@ -161,13 +161,10 @@ git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
 - [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
 - [ai:](lua/user/ai) a set of custom scripts for AI-assisted programming
-  - `<space>ac` in visual mode to send selected test to the AI agent.
-  - `<space>ad` in visual mode to send selected code to the AI agent for diagnostics explanation.
-  - `<space>ar` in visual mode to review selected lines of code.
-  - `<space>aR` in visual mode to check old code smells.
-  - Requires a CLI binary called `chat` which must:
-    - Be invoked as in `chat -q <prompt>`
-    - Write response to `stdout`
+  - `:Chat*` commands set; see [Screenshots][]
+  - Requires a CLI binary called `tgpt` which must:
+    - Be invoked as in `tgpt -q <prompt>`
+    - Writes response to `stdout`
 
 ### Git integration
 
