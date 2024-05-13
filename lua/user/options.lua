@@ -27,7 +27,7 @@ vim.opt.smartcase = true -- smart case
 vim.opt.smartindent = true -- smart indenting
 vim.opt.termguicolors = true -- set term gui colors
 
-vim.opt.timeoutlen = 1000 -- time to wait for a mapped sequence to complete
+vim.opt.timeoutlen = 300 -- time to wait for a mapped sequence to complete
 vim.opt.updatetime = 100 -- faster completion (4000ms default)
 
 vim.opt.number = true -- set numbered lines
