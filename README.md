@@ -25,7 +25,7 @@ In particular, this configuration will never support the following features:
 
 ## Requirements
 
-- [Neovim][] 0.9.5 (or later), [NodeJS][] **v18** (or later), preferably installed with [NVM][],
+- [Neovim][] **nightly** (v0.10.0 or later), [NodeJS][] **v18** (or later), preferably installed with [NVM][],
 - Python 3 and (optionally) [Rust][]
 - For installing some LSP servers, you will need the `unzip` command
 - For Todo-comments and various other searching tasks, you will need [RIPGrep][]
@@ -48,6 +48,14 @@ In particular, this configuration will never support the following features:
 mv ~/.config/nvim ~/.config/nvim.bak
 git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
 # also, update with git pull
+```
+
+Or you can give it a try in a Docker container:
+```sh
+cd dockerImages
+docker build -t nvim-config:latest -f config.dockerfile . 
+docker run -it --rm nvim-config:latest bash
+(container)> nvim
 ```
 
 ## List of plugins and important configs

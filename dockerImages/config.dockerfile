@@ -3,7 +3,7 @@ FROM ubuntu:latest
 # Install basic packages
 RUN apt update && apt install -y python3 python3-pip git curl unzip ripgrep
 # Install neovim
-RUN curl -L https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage -o nvim.appimage
+RUN curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o nvim.appimage
 RUN chmod +x nvim.appimage 
 RUN ./nvim.appimage --appimage-extract
 RUN cp -r squashfs-root/usr/* /usr/ 
