@@ -15,20 +15,20 @@ M.servers = {
 	"bashls",
 	"jsonls",
 	"yamlls",
-	"tailwindcss",
 	"foam_ls",
-	"clangd"
+	"clangd",
+	"marksman",
 }
 
 function M.config()
-	require("mason").setup {
+	require("mason").setup({
 		ui = {
 			border = "rounded",
 		},
-	}
-	require("mason-lspconfig").setup {
+	})
+	require("mason-lspconfig").setup({
 		ensure_installed = M.servers,
-	}
+	})
 end
 
 return M
