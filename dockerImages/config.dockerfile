@@ -19,7 +19,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | b
 # Install rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 # Install AI chatbot
-RUN curl -L https://github.com/aandrew-me/tgpt/releases/download/v2.7.3/tgpt-linux-amd64 -o /usr/local/bin/chat
-RUN chmod +x /usr/local/bin/chat
-# Install the configuration
+RUN curl -L https://github.com/aandrew-me/tgpt/releases/download/v2.7.3/tgpt-linux-amd64 -o /usr/local/bin/tgpt
+RUN chmod +x /usr/local/bin/tgpt
+# Set up the configuration
 RUN git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
