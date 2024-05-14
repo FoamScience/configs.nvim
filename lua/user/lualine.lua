@@ -88,7 +88,17 @@ function M.config()
 			},
 		},
 		sections = {
-			lualine_a = { "mode" },
+			lualine_a = {
+				"mode",
+				{
+					function()
+						return require("arrow.statusline").text_for_statusline_with_icons()
+					end,
+					cond = function()
+						return require("arrow.statusline").is_on_arrow_file() ~= nil
+					end,
+				},
+			},
 			lualine_b = { { "branch", icon = icons.git.Branch }, diff },
 			lualine_c = {},
 			lualine_x = {
