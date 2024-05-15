@@ -1,5 +1,7 @@
 -- general stuff
 vim.loader.enable()
+vim.g.loaded_netrw = 1                                                                                                                       
+vim.g.loaded_netrwPlugin = 1 
 require "user.base"
 require "user.options"
 require "user.keymaps"
