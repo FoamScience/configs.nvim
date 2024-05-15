@@ -6,7 +6,7 @@ local M = {
         {
             "folke/neodev.nvim",
             "williamboman/mason.nvim",
-            "williamboman/mason.nvim",
+            "p00f/clangd_extensions.nvim",
         },
     },
 }
@@ -23,6 +23,17 @@ local function lsp_keymaps(bufnr)
 end
 
 M.on_attach = function(client, bufnr)
+    if client.name == "clangd" then
+        require("clangd_extensions").setup({
+            inlay_hints = {
+                inline = vim.fn.has("nvim-0.10") == 1,
+                only_current_line = true,
+                highlight = "LspInlayHint",
+            },
+        })
+        require("clangd_extensions.inlay_hints").setup_autocmd()
+        require("clangd_extensions.inlay_hints").set_inlay_hints()
+    end
     lsp_keymaps(bufnr)
 end
 
@@ -48,6 +59,7 @@ end
 
 function M.config()
     local lspconfig = require("lspconfig")
+    local util = require("lspconfig.util")
     local icons = require("user.lspicons")
 
     local servers = {
@@ -98,16 +110,8 @@ function M.config()
     end
 
     vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
---function(_, _, result, _, bufnr)
---            return nil
---        end
-
-    --vim.lsp.handlers["textDocument/signatureHelp"] =
-    --	vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
     require("lspconfig.ui.windows").default_options.border = "rounded"
 
-    for _, server in ipairs(lspconfig) do
-    end
     for _, server in pairs(servers) do
         local opts = {
             on_attach = M.on_attach,
@@ -126,6 +130,7 @@ function M.config()
 
         if server == "clangd" then
             opts.cmd = { "clangd", "--offset-encoding=utf-16" }
+            opts.root_dir = util.root_pattern("compile_commands.json", ".git", "Make")
         end
 
         lspconfig[server].setup(opts)
