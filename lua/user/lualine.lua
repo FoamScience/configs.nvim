@@ -98,6 +98,16 @@ function M.config()
 						return require("arrow.statusline").is_on_arrow_file() ~= nil
 					end,
 				},
+				{
+					function()
+						local rec = vim.fn.reg_recording()
+						if rec == "" then
+							return ""
+						else
+							return "Recording @" .. rec
+						end
+					end,
+				},
 			},
 			lualine_b = { { "branch", icon = icons.git.Branch }, diff },
 			lualine_c = {},
