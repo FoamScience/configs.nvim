@@ -3,16 +3,6 @@ local M = {
 	dependencies = { "SmiteshP/nvim-navic" },
 }
 
-local session = function()
-	local ok, _ = pcall(require, "auto-session")
-	if ok then
-		return require("auto-session.lib").current_session_name
-	end
-	return function()
-		return nil
-	end
-end
-
 local clients_lsp = function()
 	local clients = vim.lsp.get_clients({ bufnr = 0 })
 	if next(clients) == nil then
@@ -62,9 +52,9 @@ function M.config()
 		return ""
 	end
 
-	local navic = require("nvim-navic")
-	local git_blame = require("gitblame")
-	local arrow = require("arrow.statusline")
+	local navic_ok, navic = pcall(require, "nvim-navic")
+	local git_blame_ok, git_blame = pcall(require, "gitblame")
+    local arrow_ok, arrow = pcall(require, "arrow.statusline")
 	require("lualine").setup({
 		options = {
 			theme = "auto",
@@ -92,10 +82,12 @@ function M.config()
 				"mode",
 				{
 					function()
-						return require("arrow.statusline").text_for_statusline_with_icons()
+                        if not arrow_ok then return nil end
+						return arrow.text_for_statusline_with_icons()
 					end,
 					cond = function()
-						return require("arrow.statusline").is_on_arrow_file() ~= nil
+                        if not arrow_ok then return nil end
+						return arrow.is_on_arrow_file() ~= nil
 					end,
 				},
 				{
@@ -112,7 +104,16 @@ function M.config()
 			lualine_b = { { "branch", icon = icons.git.Branch }, diff },
 			lualine_c = {},
 			lualine_x = {
-				{ git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available },
+				{
+                    function()
+                        if not git_blame_ok then return nil end
+                        return git_blame.get_current_blame_text()
+                    end,
+                    cond = function()
+                        if not git_blame_ok then return false end
+                        return git_blame.is_blame_text_available
+                    end
+                },
 				"diagnostics",
 				clients_lsp,
 				copilot,
@@ -128,12 +129,7 @@ function M.config()
 					},
 				},
 				"filetype",
-				{
-					arrow.text_for_statusline_with_icons(),
-					--cond = true, -- arrow.is_on_arrow_file(),
-				},
 			},
-			lualine_z = { "progress", session() },
 		},
 		inactive_sections = {
 			lualine_a = {},
@@ -150,9 +146,11 @@ function M.config()
 			lualine_a = {
 				{
 					function()
+                        if not navic_ok then return nil end
 						return navic.get_location()
 					end,
 					cond = function()
+                        if not navic_ok then return false end
 						return navic.is_available()
 					end,
 					color = "WarningMsg",

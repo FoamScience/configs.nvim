@@ -1,6 +1,6 @@
 local M = {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPost", "BufNewFile" },
+    event = { "BufReadPost", "BufNewFile", "LspAttach" },
     cmd = { "LspInfo", "LspInstall", "LspUninstall" },
     dependencies = {
         {
@@ -23,8 +23,9 @@ local function lsp_keymaps(bufnr)
 end
 
 M.on_attach = function(client, bufnr)
-    if client.name == "clangd" then
-        require("clangd_extensions").setup({
+    local status_ok, clangd_ext = pcall(require, "clangd_extensions")
+    if client.name == "clangd" and status_ok then
+        clangd_ext.setup({
             inlay_hints = {
                 inline = vim.fn.has("nvim-0.10") == 1,
                 only_current_line = true,

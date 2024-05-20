@@ -43,9 +43,6 @@ local M = {
             "SergioRibera/cmp-dotenv",
         },
         {
-            "sourcegraph/sg.nvim",
-        },
-        {
             "p00f/clangd_extensions.nvim",
         },
     },
@@ -176,7 +173,11 @@ function M.config()
                 cmp.config.compare.offset,
                 cmp.config.compare.exact,
                 cmp.config.compare.recently_used,
-                require("clangd_extensions.cmp_scores"),
+                function(e1, e2)
+                    local clangd_ext_ok, clangd_ext_scores = pcall(require, "clangd_extensions.cmp_scores")
+                    if not clangd_ext_ok then return nil end
+                    return clangd_ext_scores(e1, e2)
+                end,
                 cmp.config.compare.kind,
                 cmp.config.compare.sort_text,
                 cmp.config.compare.length,
@@ -189,7 +190,6 @@ function M.config()
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
             { name = "buffer" },
-            --{ name = 'nvim_lsp_document_symbol' },
             {
                 name = "nvim_lsp_document_symbol",
                 option = {
@@ -239,7 +239,9 @@ function M.config()
 
     pcall(function()
         local function on_confirm_done(...)
-            require("nvim-autopairs.completion.cmp").on_confirm_done()(...)
+            local autopairs_cmp_ok, autopairs_cmp = pcall(require, "nvim-autopairs.completion.cmp")
+            if not autopairs_cmp_ok then return nil end
+            autopairs_cmp.on_confirm_done()(...)
         end
         require("cmp").event:off("confirm_done", on_confirm_done)
         require("cmp").event:on("confirm_done", on_confirm_done)

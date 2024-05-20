@@ -14,6 +14,4 @@ function M.config()
 	}
 end
 
--- Compute average of a list of numbers
-
 return M

@@ -78,7 +78,7 @@ end
 
 -- search for commit diffs using sourcegraph
 -- this is a placeholder for the same feature in sg.nvim (not yet implemented)
-local diffs_search = function(input)
+M.diffs_search = function(input)
 	local graphqlQuery = [[
 query ($query: String!) {
   search(query: $query, version: V2) {
@@ -256,7 +256,7 @@ M.chat_git_commitdiffs = function()
 	end
 	local quick_parser = function(parsed_data)
         local input = parsed_data[1] -- TODO: handle multiple inputs, the AI engine returns 3 by default
-        vim.schedule(function() diffs_search(input) end)
+        vim.schedule(function() M.diffs_search(input) end)
 	end
 	_get_user_input(function()
 		local prm = [[What is the keyword to search Git diffs for if I want to know ]]
