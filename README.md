@@ -70,6 +70,14 @@ docker run -it --rm nvim-config:latest bash
 - `<space>fk` lists all available key bindings.
 - `<space>tP` will take you to individual plugin configuration!
 
+The plugins are organized into categories, and it takes my machine **60ms** to load a C++ file.
+If you find it slow, you can still disable some categories in `init.lua`.
+
+If you want to load only certain categories:
+```sh
+nvim --cmd "lua vim.g.plugin_settings = 'ux=true,git=true,lsp=true'" file.cpp
+```
+
 ### General
 
 - [keymaps.lua:](lua/user/keymaps.lua) very few key bindings to get you started
@@ -93,7 +101,6 @@ docker run -it --rm nvim-config:latest bash
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
   - Try `:Telescope colorscheme` (or just `<space>fc`) to see a live demo of all available color schemes
   - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
-- [dashboard.lua:](lua/user/dashboard.lua) a startup screen
 
 ### UI
 
@@ -107,9 +114,6 @@ docker run -it --rm nvim-config:latest bash
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
   - Setup for proper dimming of OpenFOAM entries
   - `<space>wt` to toggle
-- [treesj.lua:](lua/user/treesj.lua) a tree-sitter based arguments expander
-  - Try `<space>m` on a function call to split its arguments on multiple lines, and join them back
-  - Needs tree-sitter grammar for the target language to be installed.
 - [winsep:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
 - [neoscroll:](lua/user/optional/neoscroll.lua) scrolling animations for page movement.
 
@@ -143,7 +147,6 @@ docker run -it --rm nvim-config:latest bash
 - [treesitter.lua:](lua/user/treesitter.lua) syntax highlighting and code folding
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
   - Auto-installs tree-sitter grammars for languages the first time they are encountered
-- [comments.lua:](lua/user/comments.lua) comment and uncomment lines with `gcc` and `gbc` keymaps
 - [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
   - Type `:Mason` in normal mode for more.
@@ -151,7 +154,6 @@ docker run -it --rm nvim-config:latest bash
   - `gd` and `gD` for go to definition and declaration
   - `K` for hover info
   - You can also get to similar functionality through `<space>l` which uses which-key
-- [none-ls.lua:](lua/user/none-ls.lua) an LSP client for formatters and linters
 - [cmp.lua:](lua/user/cmp.lua) autocompletion engine
   - `<tab>` to cycle through suggestions, `<cr>` to confirm
   - Autocompletes emojies, buffer text, file paths, snippets, and also shows copilot suggestions as virtual text
