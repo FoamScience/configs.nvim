@@ -1,3 +1,5 @@
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/FoamScience/configs.nvim/.github%2Fworkflows%2Fci.yaml?branch=master&style=for-the-badge&logo=neovim&label=Neovim%20(stable%20%2B%20unstable)&labelColor=grey) ![Speed Badge](https://img.shields.io/badge/Fast-as%20in%2060ms-huh?style=for-the-badge&logo=lightning) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/FoamScience/configs.nvim?style=for-the-badge&logo=gitlfs&logoColor=green) ![Static Badge](https://img.shields.io/badge/supports%20nvim-v0.10%20%7C%20v0.11-huh?style=for-the-badge&logo=neovim&logoColor=green)
+
 This is my minimal(?), clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
 
 > [!TIP]
