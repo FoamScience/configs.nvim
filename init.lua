@@ -63,9 +63,6 @@ if vim.g.loaded_categories.lsp then
     spec "user.todocomments"
     spec "user.garbage"
 end
---spec "user.comments"
---spec "user.none-ls"
---spec "user.treesj"
 
 -- git startup: 17.14/17.39
 if vim.g.loaded_categories.git then
@@ -112,7 +109,6 @@ end
 if vim.g.loaded_categories.whichkey then
     spec "user.whichkey"
 end
---spec "user.dashboard"
 
 -- AI startup: 16.84/17.18
 if vim.g.loaded_categories.ai then
