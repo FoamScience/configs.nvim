@@ -1,0 +1,56 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        neovim_version: ['unstable', 'stable']
+        plugin_category: [
+          'ux',
+          'lsp',
+          'git',
+          'winbar',
+          'telescope',
+          'autocomplete',
+          'edit',
+          'navigation',
+          'whichkey',
+          'ai',
+          'custom_ai',
+          'optional',
+        ]
+
+    steps:
+      - name: Install Node.js v18
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Python and Rust
+        run: |
+          sudo apt-get install python3 -y
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          export PATH="$HOME/.cargo/bin:$PATH"
+
+      - name: Set up Neovim
+        run: |
+          sudo add-apt-repository ppa:neovim-ppa/${{ matrix.neovim_version }} -y
+          sudo apt-get update
+          sudo apt-get install neovim -y
+
+      - name: Set up Neovim configuration directory
+        run: |
+          cp -rT . ~/.config/nvim
+
+      - name: Test Neovim configs
+        run: |
+          nvim --version
+          for category in "${{ matrix.plugin_category }}"; do
+            cmd="lua vim.g.plugin_settings = '"$category"=true'"
+            nvim --headless --cmd "$cmd" +'q' init.lua
+          done
