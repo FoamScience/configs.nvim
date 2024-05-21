@@ -103,6 +103,7 @@ if vim.g.loaded_categories.navigation then
     spec "user.arrow"
     spec "user.hop"
     spec "user.navbuddy"
+    spec "user.qf"
 end
 
 -- whichkey 16.22/16.73
