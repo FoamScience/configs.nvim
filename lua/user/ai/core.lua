@@ -324,7 +324,11 @@ end
 -- @param: preview: function: the function to preview the edits
 M.chat_code_command = function(label, command_prompt, parser, diagnoser, preview)
     M.check_tgpt()
-    local prompt = command_prompt()
+    local status, prompt = pcall(command_prompt)
+    if not status then
+        vim.notify("Error getting prompt for AI command", vim.log.levels.ERROR)
+        return nil
+    end
     local args = vim.list_extend({}, options[label].code_args)
     vim.list_extend(args, options.code_args)
     table.insert(args, prompt)
