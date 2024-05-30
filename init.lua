@@ -132,7 +132,27 @@ end
 
 -- lazy needs to be loaded last
 require "user.lazy"
+
 -- custom AI configuration; startup: 16.60/16.65
 if vim.g.loaded_categories.custom_ai then
     require "user.ai"
 end
+
+-- load user-specific lua modules
+local usr_dir = vim.fn.stdpath("config") .. "/lua/" .. vim.loop.os_getenv("USER")
+local usr_stat = vim.loop.fs_stat(usr_dir)
+if usr_stat and usr_stat.type == "directory" then
+    local files = vim.fn.glob(usr_dir .. "/*.lua", false, true)
+    for _, file in ipairs(files) do
+        local base_name = vim.fn.fnamemodify(file, ":t:r")
+        local module_name = base_name:gsub("/", ".")
+        local ok, m = pcall(require, vim.loop.os_getenv("USER") .. "." .. module_name)
+        if ok and m.config ~= nil then
+            m.config()
+        end
+        if not ok then
+            vim.notify("Error loading " .. module_name .. ": " .. m)
+        end
+    end
+end
+
