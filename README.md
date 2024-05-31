@@ -80,6 +80,9 @@ If you want to load only certain categories:
 nvim --cmd "lua vim.g.plugin_settings = 'ux=true,git=true,lsp=true'" file.cpp
 ```
 
+You can also load your custom configuration by putting it in `~/.config/nvim/$USER/` where `$USER` is your username.
+`config()` functions will be called from your custom lua files if they exist.
+
 ### General
 
 - [keymaps.lua:](lua/user/keymaps.lua) very few key bindings to get you started
