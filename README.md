@@ -120,7 +120,7 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - Setup for proper dimming of OpenFOAM entries
   - `<space>wt` to toggle
 - [winsep:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
-- [neoscroll:](lua/user/optional/neoscroll.lua) scrolling animations for page movement.
+- [cinnamon:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
 
 ### Productivity
 
