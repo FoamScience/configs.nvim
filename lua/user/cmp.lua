@@ -50,7 +50,7 @@ local M = {
 }
 
 function M.config()
-    vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
+    --vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
     vim.api.nvim_set_hl(0, "CmpItemKindCrate", { fg = "#F64D00" })
     vim.api.nvim_set_hl(0, "CmpItemKindEmoji", { fg = "#FDE030" })
 
@@ -68,7 +68,7 @@ function M.config()
 
     local source_display = {
         dotenv = { icon = icons.misc.Tag, hl_group = "CmpItemKindDefault" },
-        copilot = { icon = icons.git.Octoface, hl_group = "CmpItemKindCopilot" },
+        --copilot = { icon = icons.git.Octoface, hl_group = "CmpItemKindCopilot" },
         nvim_lsp_signature_help = { icon = icons.ui.SignIn, hl_group = "CmpItemKindInterface" },
         buffer = { icon = icons.kind.File, hl_group = "CmpItemKindAbbr" },
         path = { icon = icons.ui.Files, hl_group = "CmpItemKindFile" },
@@ -143,7 +143,7 @@ function M.config()
         },
         sources = {
             { name = "path" },
-            { name = "copilot" },
+            --{ name = "copilot" },
             { name = "luasnip" },
             { name = "nvim_lua" },
             { name = "quick_data" },

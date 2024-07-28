@@ -1,25 +1,12 @@
 local M = {
-	"cameron-wags/rainbow_csv.nvim",
-	event = "VeryLazy",
-    ft = {
-        'csv',
-        'tsv',
-        'csv_semicolon',
-        'csv_whitespace',
-        'csv_pipe',
-        'rfc_csv',
-        'rfc_semicolon'
-    },
-    cmd = {
-        'RainbowDelim',
-        'RainbowDelimSimple',
-        'RainbowDelimQuoted',
-        'RainbowMultiDelim'
-    }
+	"theKnightsOfRohan/csvlens.nvim",
+	dependencies = {
+		"akinsho/toggleterm.nvim",
+	},
 }
 
 function M.config()
-	require("rainbow_csv").setup {}
+	require("csvlens").setup({})
 end
 
 return M

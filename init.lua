@@ -113,8 +113,8 @@ end
 
 -- AI startup: 16.84/17.18
 if vim.g.loaded_categories.ai then
-    spec "user.sg"
-    spec "user.copilot"
+    --spec "user.sg"
+    --spec "user.copilot"
 end
 
 -- optional plugins startup: 17.93/18.03
@@ -135,7 +135,7 @@ require "user.lazy"
 
 -- custom AI configuration; startup: 16.60/16.65
 if vim.g.loaded_categories.custom_ai then
-    require "user.ai"
+    --require "user.ai"
 end
 
 -- load user-specific lua modules
