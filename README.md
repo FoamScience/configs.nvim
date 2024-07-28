@@ -171,11 +171,11 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 
 ### AI
 
-- [copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot
+- ~~[copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot~~
   - Type `:Copilot` in normal mode to login for the first time
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
-- [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
-- [ai:](lua/user/ai) a set of custom scripts for AI-assisted programming
+- ~~[sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]~~
+- ~~[ai:](lua/user/ai) a set of custom scripts for AI-assisted programming~~
   - `:Chat*` commands set; see [Screenshots][]
   - Requires a CLI binary called `tgpt` which must:
     - Be invoked as in `tgpt -q <prompt>`
@@ -199,7 +199,7 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 ### Miscellaneous
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
-- [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which colorizes CSV columns
+- [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVLens.
 
 [Screenshots]: /screenshots/README.md "Screenshots"
 [Neovim]: https://github.com/neovim/neovim/releases "Neovim"
