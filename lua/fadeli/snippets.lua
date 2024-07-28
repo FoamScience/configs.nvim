@@ -1,5 +1,9 @@
 local M = {}
 
+if not pcall(require, 'luasnip') then
+    return M
+end
+
 local ls = require 'luasnip'
 local s = ls.snippet
 local sn = ls.snippet_node
@@ -30,7 +34,7 @@ end
 
 local get_debug_info = function(args, parent)
     local filename = vim.fn.expand('%:t')
-    local line = vim.fn.line('.') + 1
+    local line = vim.fn.line('.')
     local next_line = vim.fn.getline(line + 1):gsub("^%s+", "")
     local print_statement, ft = get_print_statement()
 
