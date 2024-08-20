@@ -12,7 +12,7 @@ vim.g.loaded_categories = {
     navigation = true,
     whichkey = true,
     ai = true,
-    custom_ai = true,
+    customai = true,
     optional = true,
 }
 -- function to override vim.g.loaded_categories from the command line
@@ -47,6 +47,11 @@ require "user.keymaps"
 require "user.autocmds"
 spec "user.colorscheme"
 spec "user.devicons"
+
+-- whichkey 16.22/16.73
+if vim.g.loaded_categories.whichkey then
+    spec "user.whichkey"
+end
 
 -- UX startup: 16.37/16.50
 if vim.g.loaded_categories.ux then
@@ -106,14 +111,9 @@ if vim.g.loaded_categories.navigation then
     spec "user.qf"
 end
 
--- whichkey 16.22/16.73
-if vim.g.loaded_categories.whichkey then
-    spec "user.whichkey"
-end
-
 -- AI startup: 16.84/17.18
 if vim.g.loaded_categories.ai then
-    --spec "user.sg"
+    spec "user.sg"
     --spec "user.copilot"
 end
 
@@ -134,8 +134,8 @@ end
 require "user.lazy"
 
 -- custom AI configuration; startup: 16.60/16.65
-if vim.g.loaded_categories.custom_ai then
-    --require "user.ai"
+if vim.g.loaded_categories.customai then
+    require "user.ai"
 end
 
 -- load user-specific lua modules
