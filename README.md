@@ -69,8 +69,8 @@ docker run -it --rm nvim-config:latest bash
 - The canonical way to move between open buffers is `<tab>` and `<S-tab>` in normal mode.
 - Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
 - You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
-- `<space>fk` lists all available key bindings.
-- `<space>tP` will take you to individual plugin configuration!
+- `<space>fk` lists all available key bindings and `<leader>fC` lists commands.
+- `<space>fP` will take you to individual plugin configuration!
 
 The plugins are organized into categories, and it takes my machine **60ms** to load a C++ file.
 If you find it slow, you can still disable some categories in `init.lua`.
@@ -94,13 +94,13 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - Shows Vim keymaps on `` ` `` (marks), `"` (registers), `z` (folds and spelling), `g` (operators)
   and `<c-w>` (window navigation)
 - [telescope.lua:](lua/user/telescope.lua) fuzzy finder for files, buffers, etc.
-  - `<space>f` and `<space>t` take advantage of it
+  - `<space>f` take advantage of it
   - In particular `<space>fk` shows all configured keymaps 
-  - Open the file from its Git history without checking out earlier commits with `<space>tF` 
-  - Browse the Undo tree (including diffs!) with `<space>tu`
-  - Open Plugin configuration files with `<space>tP`
+  - Open the file from its Git history without checking out earlier commits with `<space>fF` 
+  - Browse the Undo tree (including diffs!) with `<space>fu`
+  - Open Plugin configuration files with `<space>fP`
 - [projects.lua:](lua/user/projects.lua) a project manager, mostly for detecting root directories
-  - `<space>tp` to open the recent projects list
+  - `<space>fp` to open the recent projects list
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
@@ -174,8 +174,8 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 - ~~[copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot~~
   - Type `:Copilot` in normal mode to login for the first time
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
-- ~~[sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]~~
-- ~~[ai:](lua/user/ai) a set of custom scripts for AI-assisted programming~~
+- [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
+- [ai:](lua/user/ai) a set of custom scripts for AI-assisted programming
   - `:Chat*` commands set; see [Screenshots][]
   - Requires a CLI binary called `tgpt` which must:
     - Be invoked as in `tgpt -q <prompt>`
