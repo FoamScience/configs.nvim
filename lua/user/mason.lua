@@ -16,9 +16,13 @@ M.servers = {
 	"jsonls",
 	"yamlls",
 	"foam_ls",
-	"clangd",
 	"marksman",
 }
+
+local arch = vim.loop.os_uname().machine
+if not arch == "aarch64" then
+    table.insert(M.servers, "clangd")
+end
 
 function M.config()
 	require("mason").setup({
