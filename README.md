@@ -154,6 +154,7 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - Auto-installs tree-sitter grammars for languages the first time they are encountered
 - [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
+    - `clangd` is not managed through Mason on ARM machines, run `apt install clangd` instead
   - Type `:Mason` in normal mode for more.
 - [lspconfig.lua:](lua/user/lspconfig.lua) configures the LSP servers and sets up keymaps for some features
   - `gd` and `gD` for go to definition and declaration
