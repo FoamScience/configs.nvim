@@ -22,6 +22,14 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
 })
 
 
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+    desc = "Apptainer files as shell ft",
+    pattern = "*.def",
+    callback = function()
+        vim.bo.ft = "bash"
+    end,
+})
+
 --vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdlineLeave" }, {
 --    desc = "fix cmp completion in visual mode",
 --	callback = function()

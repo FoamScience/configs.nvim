@@ -1,6 +1,6 @@
 local M = {
 	"SmiteshP/nvim-navbuddy",
-    ft = {'cpp', 'lua', 'foam', 'python', 'rust', 'markdown', 'yaml'},
+    event = "VeryLazy",
 	dependencies = {
 		"SmiteshP/nvim-navic",
 		"MunifTanjim/nui.nvim",
