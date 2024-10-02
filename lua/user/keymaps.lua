@@ -11,13 +11,6 @@ if whichkey_ok then
 end
 keymap("n", "<C-i>", "<C-i>", opts)
 
--- hopping
-hop_ok, _ = pcall(require, "hop")
-if hop_ok then
-    keymap("n", "s", "<cmd>HopWord<cr>", opts)
-    keymap("n", "S", "<cmd>HopChar2<cr>", opts)
-end
-
 -- Buffer hopping
 keymap("n", "<Tab>", "<cmd>bn<cr>", opts)
 keymap("n", "<S-Tab>", "<cmd>bp<cr>", opts)
