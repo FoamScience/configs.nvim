@@ -171,9 +171,9 @@ function M.config()
             },
             {
                 "<leader>la",
-                ":lua vim.lsp.buf.code_action()<cr>",
-                desc = "Code Action",
-                mode = "v"
+                function() require("tiny-code-action").code_action() end,
+                desc = "Code actions",
+                icon = icons.ui.Target,
             },
 
             { "<leader>T", group = "TreeSitter", icon = icons.ui.Code },
