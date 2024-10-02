@@ -67,6 +67,7 @@ if vim.g.loaded_categories.lsp then
     spec "user.lspconfig"
     spec "user.todocomments"
     spec "user.garbage"
+    spec "user.code-actions"
 end
 
 -- git startup: 17.14/17.39
