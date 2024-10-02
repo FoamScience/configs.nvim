@@ -7,6 +7,7 @@ local M = {
             "folke/neodev.nvim",
             "williamboman/mason.nvim",
             "p00f/clangd_extensions.nvim",
+            "rachartier/tiny-inline-diagnostic.nvim",
         },
     },
 }
@@ -68,7 +69,7 @@ function M.config()
         "lua_ls",
         "cssls",
         "html",
-        "tsserver",
+        "ts_ls",
         "astro",
         "pyright",
         "bashls",
@@ -105,6 +106,7 @@ function M.config()
     }
 
     vim.diagnostic.config(default_diagnostic_config)
+    require("tiny-inline-diagnostic").setup()
 
     for _, sign in ipairs(vim.tbl_get(vim.diagnostic.config(), "signs", "values") or {}) do
         vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
@@ -132,7 +134,8 @@ function M.config()
         if server == "clangd" then
             opts.cmd = { "clangd", "--offset-encoding=utf-16", "--all-scopes-completion",
                 "--clang-tidy", "--malloc-trim", "--function-arg-placeholders", "--enable-config" }
-            opts.root_dir = util.root_pattern("compile_commands.json", ".git", "Make")
+            opts.root_dir = util.root_pattern("compile_commands.json")
+                or util.root_pattern(".git", "Make")
         end
 
         lspconfig[server].setup(opts)

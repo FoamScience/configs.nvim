@@ -1,6 +1,6 @@
 local M = {
-	"f-person/git-blame.nvim",
-	event = "VeryLazy",
+    "f-person/git-blame.nvim",
+    event = "VeryLazy",
     ft = {
         'cpp',
         'lua',
@@ -9,8 +9,15 @@ local M = {
 }
 
 function M.config()
-	require("gitblame").setup ({
-        display_virtual_text = false,
+    require("gitblame").setup({
+        display_virtual_text = true,
+        message_template = " <author> • <date>",
+        date_format = "%r",
+        virtual_text_column = 120,
+        highlight_group = "@lsp.type.comment",
+        set_extmark_options = {
+            hl_mode = "combine",
+        },
         message_when_not_committed = "Oh! Plz commit me!",
         ignored_filetypes = { "python" },
     })
