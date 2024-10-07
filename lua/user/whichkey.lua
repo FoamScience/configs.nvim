@@ -353,6 +353,112 @@ function M.config()
             },
         })
     end
+    if vim.g.loaded_categories.optional then
+        vim.list_extend(mappings, {
+            { "<leader>o", group = "Neorg", icons.ui.Project },
+            {
+                "<leader>ocm",
+                "<Plug>(neorg.looking-glass.magnify-code-block)",
+                desc = "Magnify code block",
+            },
+            { "<leader>oi", group = "Insert", icons.ui.Forward },
+            {
+                "<leader>oid",
+                "<Plug>(neorg.tempus.insert-date)",
+                desc = "Insertion date",
+            },
+            {
+                "<leader>oif",
+                "<cmd>Telescope neorg insert_file_link",
+                desc = "Insert file link",
+            },
+            {
+                "<leader>oil",
+                "<cmd>Telescope neorg insert_link",
+                desc = "Insert link",
+            },
+            { "<leader>ol", group = "List", icons.ui.List },
+            {
+                "<leader>oli",
+                "<Plug>(neorg.pivot.list.invert)",
+                desc = "List invert",
+            },
+            {
+                "<leader>olt",
+                "<Plug>(neorg.pivot.list.toggle)",
+                desc = "List toggle",
+            },
+            { "<leader>on", group = "Note", icons.ui.Note },
+            {
+                "<leader>onn",
+                "<Plug>(neorg.dirman.new-note)",
+                desc = "New note",
+            },
+            { "<leader>ot", group = "Task", icons.ui.Tab },
+            {
+                "<leader>ota",
+                "<Plug>(neorg.qol.todo-items.todo.task-ambiguous)",
+                desc = "Task ambiguous",
+            },
+            {
+                "<leader>ota",
+                "<Plug>(neorg.qol.todo-items.todo.task-ambiguous)",
+                desc = "Task ambiguous",
+            },
+            {
+                "<leader>otc",
+                "<Plug>(neorg.qol.todo-items.todo.task-cancelled)",
+                desc = "Task cancelled",
+            },
+            {
+                "<leader>otd",
+                "<Plug>(neorg.qol.todo-items.todo.task-done)",
+                desc = "Task done",
+            },
+            {
+                "<leader>oth",
+                "<Plug>(neorg.qol.todo-items.todo.task-on-hold)",
+                desc = "Task on hold",
+            },
+            {
+                "<leader>oti",
+                "<Plug>(neorg.qol.todo-items.todo.task-important)",
+                desc = "Task important",
+            },
+            {
+                "<leader>otp",
+                "<Plug>(neorg.qol.todo-items.todo.task-pending)",
+                desc = "Task pending",
+            },
+            {
+                "<leader>otr",
+                "<Plug>(neorg.qol.todo-items.todo.task-recurring)",
+                desc = "Task recurring",
+            },
+            {
+                "<leader>otu",
+                "<Plug>(neorg.qol.todo-items.todo.task-undone)",
+                desc = "Task undone",
+            },
+            { "<leader>of", group = "Find", icons.ui.Search },
+            {
+                "<leader>off",
+                "<cmd>Telescope neorg find_neorg_files<cr>",
+                desc = "Find files",
+            },
+            {
+                "<leader>ofl",
+                "<cmd>Telescope neorg find_linkable<cr>",
+                desc = "Find linkable",
+            },
+            { "<leader>ow", group = "Workspaces", icons.ui.Files },
+            {
+                "<leader>ows",
+                "<cmd>Telescope neorg switch_workspace<cr>",
+                desc = "Workspace switch",
+            },
+        })
+    end
 
     wk.setup {
         preset = "helix",
