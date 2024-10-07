@@ -201,6 +201,8 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVLens.
+- [neorg.lua:](lua/user/optional/neorg.lua) a Notes/task management system through `<leader>o`
+  using [Neorg][].
 
 [Screenshots]: /screenshots/README.md "Screenshots"
 [Neovim]: https://github.com/neovim/neovim/releases "Neovim"
@@ -211,3 +213,4 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 [Rust]: https://www.rust-lang.org/tools/install "Rust"
 [TGPT]: https://github.com/aandrew-me/tgpt "TGPT"
 [SourceGraph]: https://sourcegraph.com "SourceGraph"
+[Neorg]: https://github.com/nvim-neorg/neorg "Neorg"
