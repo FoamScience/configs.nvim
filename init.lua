@@ -128,6 +128,7 @@ if vim.g.loaded_categories.optional then
     spec "user.optional.lens"
     spec "user.optional.winsep"
     spec "user.optional.cinnamon"
+    spec "user.optional.neorg"
 end
 
 
