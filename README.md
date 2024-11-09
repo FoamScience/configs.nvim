@@ -121,6 +121,7 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - `<space>wt` to toggle
 - [winsep:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
 - [cinnamon:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
+- [render-markdown:](lua/user/render-markdown.lua) prettifying Markdown document editing.
 
 ### Productivity
 
@@ -176,6 +177,9 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - Type `:Copilot` in normal mode to login for the first time
   - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
 - [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
+- [avante.lua](lua/user/lavante.lua): chat with your open files.
+  - [Groq](https://console.groq.com/docs/models) models are the default.
+  - Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)
 - [ai:](lua/user/ai) a set of custom scripts for AI-assisted programming
   - `:Chat*` commands set; see [Screenshots][]
   - Requires a CLI binary called `tgpt` which must:
