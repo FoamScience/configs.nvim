@@ -116,6 +116,7 @@ end
 -- AI startup: 16.84/17.18
 if vim.g.loaded_categories.ai then
     spec "user.sg"
+    spec "user.avante"
     --spec "user.copilot"
 end
 
@@ -158,4 +159,3 @@ if usr_stat and usr_stat.type == "directory" then
         end
     end
 end
-
