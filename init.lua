@@ -58,6 +58,7 @@ if vim.g.loaded_categories.ux then
     spec "user.noice"
     spec "user.significant"
     spec "user.indentline" -- costs ~0.03 msecs
+    spec "user.render-markdown"
 end
 
 -- lsp setup startup: 36.39/37.50
