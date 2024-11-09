@@ -237,6 +237,12 @@ function M.config()
         }),
     })
 
+    vim.keymap.set({ "i", "s" }, "<C-j>", function()
+        if require("luasnip").choice_active() then
+            require("luasnip").change_choice(1)
+        end
+    end, { silent = true })
+
     pcall(function()
         local function on_confirm_done(...)
             local autopairs_cmp_ok, autopairs_cmp = pcall(require, "nvim-autopairs.completion.cmp")

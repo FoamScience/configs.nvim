@@ -9,6 +9,8 @@ local s = ls.snippet
 local sn = ls.snippet_node
 local t = ls.text_node
 local d = ls.dynamic_node
+local i = ls.insert_node
+local c = ls.choice_node
 
 local get_print_statement = function()
     local filetype = vim.bo.filetype
@@ -44,7 +46,8 @@ local get_debug_info = function(args, parent)
         })
     elseif ft == 'cpp' then
         return sn(nil, {
-            t(print_statement .. '"=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===" << std::endl;')
+            t(print_statement ..
+                '"=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===" << std::endl;')
         })
     elseif ft == 'foam' then
         return sn(nil, {
@@ -68,6 +71,31 @@ local snippets = {
 
 M.config = function()
     ls.add_snippets("all", snippets)
+
+    ls.add_snippets("markdown", {
+        s("adr", {
+            t({ "---", "layout: adr", "title: " }), i(1, "ADR Title"),
+            t({ "", "related:", "    - " }), i(2, "Related ADR Title"),
+            t({ "", "status: " }),
+            c(3, { t("enforced"), t("proposed"), t("rejected"), t("deprecated"), t("superseded"), t("under-review") }),
+            t({ "", "date: " }), t(os.date("%Y-%m-%d")),
+            t({ "", "decision_makers:", "    - " }), i(4, "elwardi"),
+            t({ "", "adr_tags:", "  - " }), i(5, "backend"),
+            t({ "", "---", "" }),
+            t({ "", "## Context and Problem Statement", "", "" }),
+            i(6, "Describe the context and problem statement in two-three sentences, ending with a question."),
+            t({ "", "",  "## Decision Drivers", "", "" }), i(7, "- Decision driver 1 (concern, force)"),
+            t({ "", "", "## Considered Options", "", "" }), i(8, "- Option 1"),
+            t({ "", "", "## Decision Outcome", "", "Chosen option: "}), i(9, "option"),
+            t({ " because " }), i(10, "reasons wrt. decision drivers"),
+            t({ "", "", "### Consequences", "", ""}),
+            i(11, "- Positive, improves this and that"), t({"",""}),
+            i(12, "- Neutral, changes this and that but has no significant effects"), t({"",""}),
+            i(13, "- Negative, affects this and that"), t({"",""}),
+            t({"", "", "### Confirmation", "", ""}), i(14, "How to confirm compliance with decision."),
+            t({"", "", "## More information", "", ""}), i(15, "Any more information clarifying components of the decision."),
+        }),
+    })
 end
 
 return M
