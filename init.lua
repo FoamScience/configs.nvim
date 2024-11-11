@@ -77,7 +77,6 @@ if vim.g.loaded_categories.git then
     spec "user.diffview"
     spec "user.neogit"
     spec "user.gitconflicts"
-    spec "user.blame"
 end
 
 ---- winbar and statusline startup: 26.92/26.94
