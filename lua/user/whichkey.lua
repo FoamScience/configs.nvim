@@ -175,6 +175,24 @@ function M.config()
                 desc = "Code actions",
                 icon = icons.ui.Target,
             },
+            {
+                "<leader>lor",
+                "<cmd>OverseerRun<cr>",
+                desc = "Overseer Run",
+                icon = icons.ui.Run
+            },
+            {
+                "<leader>lot",
+                "<cmd>OverseerToggle<cr>",
+                desc = "Overseer Toggle",
+                icon = icons.ui.Gear
+            },
+            {
+                "<leader>lob",
+                "<cmd>OverseerBuild<cr>",
+                desc = "Overseer Build",
+                icon = icons.ui.Gears
+            },
 
             { "<leader>T", group = "TreeSitter", icon = icons.ui.Code },
             {
@@ -355,7 +373,7 @@ function M.config()
     end
     if vim.g.loaded_categories.optional then
         vim.list_extend(mappings, {
-            { "<leader>o", group = "Neorg", icons.ui.Project },
+            { "<leader>o",  group = "Neorg",  icons.ui.Project },
             {
                 "<leader>ocm",
                 "<Plug>(neorg.looking-glass.magnify-code-block)",
