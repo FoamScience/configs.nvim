@@ -119,13 +119,14 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
   - Setup for proper dimming of OpenFOAM entries
   - `<space>wt` to toggle
-- [winsep:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
-- [cinnamon:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
-- [render-markdown:](lua/user/render-markdown.lua) prettifying Markdown document editing.
+- [winsep.lua:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
+- [cinnamon.lua:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
+- [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
+- [bufferline.lua](lua/user/bufferline.lua) for buffer names at the top
 
 ### Productivity
 
-- [todo-comments:](lua/user/todo-comments.lua) highlights `@todo:`, `@body:`, `@warn:`, etc. in comments
+- [todo-comments.lua:](lua/user/todo-comments.lua) highlights `@todo:`, `@body:`, `@warn:`, etc. in comments
   - `:TodoTelescope` command opens a fuzzy finder for all such comments in the current buffer
   - Use [todo-issue Github action](https://github.com/DerJuulsn/todo-issue) to convert your committed
     Todos to Github issues.
@@ -170,6 +171,8 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 - [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
 - [lens.lua:](lua/user/optional/lens.lua) not so annoying code lens
 - [navic.lua:](lua/user/optional/navic.lua) shows code structure at the cursor in the winbar
+- [overseer.lua:](lua/user/overseer.lua) helps running tasks like building and cleaning
+  - Access its features through `<leader>lo`
 
 ### AI
 
@@ -199,7 +202,6 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - Most options from `<space>g` use it
   - too good to leave behind
   - But no keymaps are set, intended for command-line use
-- [blame.lua:](lua/user/blame.lua) shows git blame info in the status line
 
 ### Miscellaneous
 
