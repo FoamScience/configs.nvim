@@ -69,6 +69,7 @@ if vim.g.loaded_categories.lsp then
     spec "user.todocomments"
     spec "user.garbage"
     spec "user.code-actions"
+    spec "user.overseer"
 end
 
 -- git startup: 17.14/17.39
@@ -84,6 +85,7 @@ if vim.g.loaded_categories.winbar then
     spec "user.navic"
     spec "user.lualine"
     spec "user.unclutter"
+    spec "user.bufferline"
 end
 
 -- telescope startup 17.07/17.08
