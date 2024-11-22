@@ -32,7 +32,7 @@ keymap("n", "<Tab>", function()
     then
         return
     end
-    if not vim.fn.winlayout()[1] == "leaf" then
+    if not (vim.fn.winlayout()[1] == "leaf") then
         vim.cmd('wincmd w')
     else
         vim.cmd("bn")
@@ -44,7 +44,7 @@ keymap("n", "<S-Tab>", function()
     then
         return
     end
-    if not vim.fn.winlayout()[1] == "leaf" then
+    if not (vim.fn.winlayout()[1] == "leaf") then
         vim.cmd('wincmd x')
     else
         vim.cmd("bp")
