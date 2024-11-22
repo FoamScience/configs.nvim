@@ -6,9 +6,7 @@ local M = {
         {
             "folke/neodev.nvim",
             "williamboman/mason.nvim",
-            {
-                "p00f/clangd_extensions.nvim",
-            },
+            "p00f/clangd_extensions.nvim",
             "rachartier/tiny-inline-diagnostic.nvim",
         },
     },
@@ -31,14 +29,12 @@ M.on_attach = function(client, bufnr)
         clangd_ext.setup({
             inlay_hints = {
                 inline = vim.fn.has("nvim-0.10") == 1,
-                only_current_line = false,
+                only_current_line = true,
                 highlight = "LspInlayHint",
-                parameter_hints_prefix = "<- ",
-                other_hints_prefix = "=> ",
             },
         })
-        --require("clangd_extensions.inlay_hints").setup_autocmd()
-        --require("clangd_extensions.inlay_hints").set_inlay_hints()
+        require("clangd_extensions.inlay_hints").setup_autocmd()
+        require("clangd_extensions.inlay_hints").set_inlay_hints()
     end
     lsp_keymaps(bufnr)
 end
