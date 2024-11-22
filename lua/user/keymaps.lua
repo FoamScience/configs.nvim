@@ -32,7 +32,11 @@ keymap("n", "<Tab>", function()
     then
         return
     end
-    vim.cmd("bn")
+    if not vim.fn.winlayout()[1] == "leaf" then
+        vim.cmd('wincmd w')
+    else
+        vim.cmd("bn")
+    end
 end, opts)
 keymap("n", "<S-Tab>", function()
     if disabled_tab_hopping[vim.bo.filetype]
@@ -40,5 +44,9 @@ keymap("n", "<S-Tab>", function()
     then
         return
     end
-    vim.cmd("bp")
+    if not vim.fn.winlayout()[1] == "leaf" then
+        vim.cmd('wincmd x')
+    else
+        vim.cmd("bp")
+    end
 end, opts)
