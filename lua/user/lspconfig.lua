@@ -132,8 +132,18 @@ function M.config()
         end
 
         if server == "clangd" then
-            opts.cmd = { "clangd", "--offset-encoding=utf-16", "--all-scopes-completion",
-                "--clang-tidy", "--malloc-trim", "--function-arg-placeholders", "--enable-config" }
+            opts.cmd = {
+                "clangd",
+                "--offset-encoding=utf-16",
+                "--all-scopes-completion",
+                "--completion-style=bundled",
+                "--clang-tidy",
+                "--malloc-trim",
+                "--function-arg-placeholders",
+                "--header-insertion=iwyu",
+                "--header-insertion-decorators",
+                "--enable-config",
+            }
             opts.root_dir = util.root_pattern("compile_commands.json")
                 or util.root_pattern(".git", "Make")
         end
