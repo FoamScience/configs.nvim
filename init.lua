@@ -12,7 +12,7 @@ vim.g.loaded_categories = {
     navigation = true,
     whichkey = true,
     ai = true,
-    customai = true,
+    customai = false,
     optional = true,
 }
 -- function to override vim.g.loaded_categories from the command line
