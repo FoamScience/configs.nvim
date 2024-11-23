@@ -156,6 +156,7 @@ function M.config()
             { name = "nvim_lsp_document_symbol" },
             { name = "nvim_lsp_signature_help" },
             { name = "buffer" },
+            { name = "lazydev", group_index = 0, },
         },
         confirm_opts = {
             behavior = cmp.ConfirmBehavior.Replace,

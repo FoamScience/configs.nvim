@@ -4,7 +4,7 @@ local M = {
     cmd = { "LspInfo", "LspInstall", "LspUninstall" },
     dependencies = {
         {
-            "folke/neodev.nvim",
+            "folke/lazydev.nvim",
             "williamboman/mason.nvim",
             "p00f/clangd_extensions.nvim",
             "rachartier/tiny-inline-diagnostic.nvim",
@@ -128,7 +128,9 @@ function M.config()
         end
 
         if server == "lua_ls" then
-            require("neodev").setup({})
+            require("lazydev").setup({
+                ft = "lua",
+            })
         end
 
         if server == "clangd" then
