@@ -104,6 +104,7 @@ if vim.g.loaded_categories.edit then
     spec "user.autopairs"
     spec "user.project"
     spec "user.nvimtree"
+    spec "user.guess-indent"
 end
 
 -- navigation startup: 17.04/16.71
