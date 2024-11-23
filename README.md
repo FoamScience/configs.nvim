@@ -123,6 +123,9 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 - [cinnamon.lua:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
 - [bufferline.lua](lua/user/bufferline.lua) for buffer names at the top
+- [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
+  for current file and setting global options accordingly.
+  - Should be automatic, but `:GuessIndent` helps
 
 ### Productivity
 
