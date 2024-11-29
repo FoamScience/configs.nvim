@@ -3,6 +3,7 @@ local M = {
     event = "VeryLazy",
     build = "make",
     lazy = false,
+    enable = not vim.env.GROQ_API_KEY == "",
     dependencies = {
         "nvim-treesitter/nvim-treesitter",
         "stevearc/dressing.nvim",
