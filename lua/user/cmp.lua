@@ -29,9 +29,9 @@ local M = {
         {
             "hrsh7th/cmp-nvim-lua",
         },
-        {
-            "hrsh7th/cmp-nvim-lsp-signature-help",
-        },
+        --{
+        --    "hrsh7th/cmp-nvim-lsp-signature-help",
+        --},
         {
             "hrsh7th/cmp-calc",
         },
@@ -154,7 +154,7 @@ function M.config()
             { name = "dotenv" },
             { name = "nvim_lsp" },
             { name = "nvim_lsp_document_symbol" },
-            { name = "nvim_lsp_signature_help" },
+            --{ name = "nvim_lsp_signature_help" },
             { name = "buffer" },
             { name = "lazydev", group_index = 0, },
         },
