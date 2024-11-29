@@ -74,6 +74,7 @@ docker run -it --rm nvim-config:latest bash
 - The canonical way to move between tabs and splits is `<C-w><C-w>`; too fundamental to change.
 - Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
 - You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
+- You can see registers content by pressing `"`, and marks positions by pressing the back-tick '`'
 - `<space>fk` lists all available key bindings and `<leader>fC` lists commands.
 - `<space>fP` will take you to individual plugin configuration!
 
