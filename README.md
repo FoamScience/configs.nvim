@@ -106,7 +106,7 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - Browse the Undo tree (including diffs!) with `<space>fu`
   - Open Plugin configuration files with `<space>fP`
 - [projects.lua:](lua/user/projects.lua) a project manager, mostly for detecting root directories
-  - `<space>fp` to open the recent projects list
+  - `<space>fp` to open recent projects list
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
@@ -132,6 +132,8 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 - [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
   for current file and setting global options accordingly.
   - Should be automatic, but `:GuessIndent` helps
+- [image.lua:](lua/user/optional/image.lua) optionally render Markdown images and Latex equations in the terminal
+  - Enabled only if running on `kitty` terminal and using `imagemagick` backend.
 
 ### Productivity
 
@@ -189,6 +191,8 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 - [avante.lua](lua/user/lavante.lua): chat with your open files.
   - [Groq](https://console.groq.com/docs/models) models are the default.
   - Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)
+- [lluminate.lua:](lua/user/lluminate.lua) for code context inclusion when copying code for LLM chats.
+  - Visual-select the code you want to get context for, and `<leader>ac` for AI-context
 - ~~[ai:](lua/user/ai) a set of custom scripts for AI-assisted programming~~
   - ~~`:Chat*` commands set; see [Screenshots][]~~
   - ~~Requires a CLI binary called `tgpt` which must:~~
