@@ -62,7 +62,8 @@ function M.config()
             {
                 "<leader>ac",
                 "<cmd>EnrichContext<cr>",
-                desc = "Entrich code context"
+                desc = "Entrich code context",
+                mode = "v",
             },
         })
     end
