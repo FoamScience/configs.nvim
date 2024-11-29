@@ -30,6 +30,7 @@ function M.config()
         vim.list_extend(mappings, {
             { "<leader>e",  group = "Edit",            icon = icons.ui.Pencil },
             { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Explorer",     icon = icons.ui.Folder },
+            { "<leader>er", "<cmd>Registers<CR>", desc = "Registers",     icon = icons.ui.List },
         })
     end
     if vim.g.loaded_categories.ai then
@@ -50,6 +51,18 @@ function M.config()
                 ":CodyExplain<CR>",
                 desc = "Cody Explain",
                 mode = "v",
+            },
+            { "<leader>s", group = "Sourcegraph", icon = icons.ui.Target, mode = { "n", "v" } },
+            {
+                "<leader>ss",
+                "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>",
+                desc = "Search public code"
+            },
+            { "<leader>a", group = "AI", icon = icons.ui.Target, mode = { "n", "v" } },
+            {
+                "<leader>ac",
+                "<cmd>EnrichContext<cr>",
+                desc = "Entrich code context"
             },
         })
     end
@@ -350,7 +363,8 @@ function M.config()
     end
     if vim.g.loaded_categories.optional then
         vim.list_extend(mappings, {
-            { "<leader>o",  group = "Neorg",  icons.ui.Project },
+            { "<leader>o",  group = "Neorg",  icon=icons.ui.Note },
+            { "<leader>oc", group = "Code", icons.ui.Files },
             {
                 "<leader>ocm",
                 "<Plug>(neorg.looking-glass.magnify-code-block)",
