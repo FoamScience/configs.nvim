@@ -12,7 +12,6 @@ vim.g.loaded_categories = {
     navigation = true,
     whichkey = true,
     ai = true,
-    customai = false,
     optional = true,
 }
 -- function to override vim.g.loaded_categories from the command line
@@ -138,11 +137,6 @@ end
 
 -- lazy needs to be loaded last
 require "user.lazy"
-
--- custom AI configuration; startup: 16.60/16.65
-if vim.g.loaded_categories.customai then
-    require "user.ai"
-end
 
 -- load user-specific lua modules
 local usr_dir = vim.fn.stdpath("config") .. "/lua/" .. vim.loop.os_getenv("USER")

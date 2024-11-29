@@ -53,29 +53,6 @@ function M.config()
             },
         })
     end
-    if vim.g.loaded_categories.customai then
-        local search_diffs = function()
-            local start_pos = vim.api.nvim_buf_get_mark(0, '<')
-            local end_pos = vim.api.nvim_buf_get_mark(0, '>')
-            local lines = vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1], false)
-            local text = table.concat(lines, ' ')
-            require('user.ai.git').diffs_search(string.format("%s type:diff", text))
-        end
-        vim.list_extend(mappings, {
-            { "<leader>s", group = "Sourcegraph", icon = icons.ui.Target, mode = { "n", "v" } },
-            {
-                "<leader>ss",
-                "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>",
-                desc = "Search public code"
-            },
-            {
-                "<leader>ss",
-                search_diffs,
-                desc = "Search public code",
-                mode = "v"
-            },
-        })
-    end
     if vim.g.loaded_categories.lsp then
         vim.list_extend(mappings, {
             { "<leader>l", group = "LSP",        icon = icons.kind.Class, mode = { "n", "v" } },
