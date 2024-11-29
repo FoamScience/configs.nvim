@@ -4,7 +4,8 @@ local M = {
     ft = "neorg",
     version = "*",
     dependencies = {
-        { "nvim-neorg/neorg-telescope" }
+        { "nvim-neorg/neorg-telescope" },
+        { "3rd/image.nvim" },
     },
 }
 
@@ -20,11 +21,18 @@ M.config = function()
                         Meshless = "~/notes/Meshless",
                         OpenFOAMOpt = "~/notes/OpenFOAMOpt",
                         UnitTesting = "~/notes/UnitTesting",
+                        TGradientAlongSolidificationPaths = "~/notes/TGradientAlongSolidificationPaths"
                     },
                     default_workspace = "tasks",
                 },
             },
             ["core.integrations.telescope"] = {},
+            ["core.integrations.image"] = { },
+            ["core.latex.renderer"] = {
+                conceal = true,
+                render_on_enter = true,
+                scale = 0.7,
+            },
         },
     }
     vim.wo.foldlevel = 99
