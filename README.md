@@ -1,29 +1,34 @@
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/FoamScience/configs.nvim/.github%2Fworkflows%2Fci.yaml?branch=master&style=for-the-badge&logo=neovim&label=Neovim%20(stable%20%2B%20unstable)&labelColor=grey) ![Speed Badge](https://img.shields.io/badge/Fast-as%20in%2060ms-huh?style=for-the-badge&logo=lightning) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/FoamScience/configs.nvim?style=for-the-badge&logo=gitlfs&logoColor=green) ![Static Badge](https://img.shields.io/badge/supports%20nvim-v0.10%20%7C%20v0.11-huh?style=for-the-badge&logo=neovim&logoColor=green)
+![](https://img.shields.io/github/actions/workflow/status/FoamScience/configs.nvim/.github%2Fworkflows%2Fci.yaml?branch=master&style=for-the-badge&logo=neovim&label=Neovim%20(stable%20%2B%20unstable)&labelColor=grey)
+![](https://img.shields.io/badge/Fast-as%20in%2060ms-huh?style=for-the-badge&logo=lightning)
+![](https://img.shields.io/github/languages/code-size/FoamScience/configs.nvim?style=for-the-badge&logo=gitlfs&logoColor=green)
+![](https://img.shields.io/badge/supports%20nvim-v0.10%20%7C%20v0.11-huh?style=for-the-badge&logo=neovim&logoColor=green)
 
 This is my minimal(?), clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
 
 > [!TIP]
-> Best used with Kitty terminal (or Alacritty if you prefer that) which runs a powerline font (or at least,
-> a font that supports ligatures)
+> Best used with **Kitty** terminal (or Alacritty if you prefer that), running a PowerLine font (or at least,
+> a font that has some ligatures support)
+
+
+> [!IMPORTANT]
+> Want to get started? -> Press `<space>` and discover what's possible from there
 
 Here are a few programming languages I usually write in:
 - C++/C (and OpenFOAM code)
 - Python, Lua as scripting languages
-- HTML, CSS, JavaScript for web development
+- HTML, CSS, JavaScript/TypeScript for web development
 - Markdown for writing READMEs and other documentation, LATEX for academic writing
 - GdScript, GLSL for game development
 - Obviously, Bash for shell scripting
 
-Want to get started? -> Press `<space>`
-
-In particular, this configuration will never support the following features:
+This configuration will never support the following features:
 - Debugging. Not an editor's job, use GDB and the like.
-- Auto-formatting, because trying to auto-format C++ is a pain!
+- Format-on-Save, because trying to auto-format C++ is a pain!
 
 > [!IMPORTANT]
 > Check out the [Screenshots][] for a preview of what this configuration has to offer.
 
-![screenshot](/screenshots/ai-diffs.gif)
+![screenshot](/screenshots/noice.gif)
 
 ## Requirements
 
@@ -31,14 +36,14 @@ In particular, this configuration will never support the following features:
 - Python 3 and (optionally) [Rust][]
 - For installing some LSP servers, you will need the `unzip` command
 - For Todo-comments and various other searching tasks, you will need [RIPGrep][]
-- A terminal with ligature support ([**Kitty**][], Warp, Alacritty, etc.)
+- A terminal with ligature support ([Kitty][], Warp, Alacritty, etc.)
   - For kitty, I like to set (after installing Comic Code Ligatures, Font Awesome and Symbols Nerd Font Mono):
     ```
     font_family      ComicCodeLigatures
     symbol_map U+f000-U+f0e2 fontawesome
     symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
     ```
-- A command-line chat engine: [TGPT][]
+- [ImageMagick][] for in-terminal image display, if your terminal supports
 
 ## Set up
 
@@ -62,18 +67,18 @@ docker run -it --rm nvim-config:latest bash
 
 ## List of plugins and important configs
 
-### Notes
+### General Notes
 
-- The canonical way to move between tabs and splits is `<C-w><C-w>`; too fundamental to change.
-- The canonical way to move on visible screen portion is by pressing `S` and `s` in normal mode.
 - The canonical way to move between open buffers is `<tab>` and `<S-tab>` in normal mode.
+- The canonical way to move on visible screen portion is by pressing `S` and `s` in normal mode.
+- The canonical way to move between tabs and splits is `<C-w><C-w>`; too fundamental to change.
 - Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
 - You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
 - `<space>fk` lists all available key bindings and `<leader>fC` lists commands.
 - `<space>fP` will take you to individual plugin configuration!
 
 The plugins are organized into categories, and it takes my machine **60ms** to load a C++ file.
-If you find it slow, you can still disable some categories in `init.lua`.
+If you find it slow, you can always disable some categories in `init.lua`, or specific plugins in their configuration file.
 
 If you want to load only certain categories:
 ```sh
@@ -86,7 +91,7 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 ### General
 
 - [keymaps.lua:](lua/user/keymaps.lua) very few key bindings to get you started
-  - `<space>` is the leader key, which is used to open `which-key` menu in normal mode
+  - `<space>` is the **leader key**, which is used to open `which-key` menu in normal mode
   - `s` and `S` in normal mode are used for word hoping
   - `<tab>` and `<S-tab>` in normal mode are used for buffer switching
 - [which-key.lua:](lua/user/which-key.lua) shows all available keymaps
@@ -179,18 +184,20 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 
 ### AI
 
-- ~~[copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot~~
-  - Type `:Copilot` in normal mode to login for the first time
-  - `<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any
 - [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
 - [avante.lua](lua/user/lavante.lua): chat with your open files.
   - [Groq](https://console.groq.com/docs/models) models are the default.
   - Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)
-- [ai:](lua/user/ai) a set of custom scripts for AI-assisted programming
-  - `:Chat*` commands set; see [Screenshots][]
-  - Requires a CLI binary called `tgpt` which must:
-    - Be invoked as in `tgpt -q <prompt>`
-    - Writes response to `stdout`
+- ~~[ai:](lua/user/ai) a set of custom scripts for AI-assisted programming~~
+  - ~~`:Chat*` commands set; see [Screenshots][]~~
+  - ~~Requires a CLI binary called `tgpt` which must:~~
+    - ~~Be invoked as in `tgpt -q <prompt>`~~
+    - ~~Writes response to `stdout`~~
+    - This is now retired, adopting avante as an alternative
+- ~~[copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot~~
+  - ~~Type `:Copilot` in normal mode to login for the first time~~
+  - ~~`<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any~~
+  - This is now retired, adopting avante as an alternative
 
 ### Git integration
 
@@ -223,3 +230,4 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 [TGPT]: https://github.com/aandrew-me/tgpt "TGPT"
 [SourceGraph]: https://sourcegraph.com "SourceGraph"
 [Neorg]: https://github.com/nvim-neorg/neorg "Neorg"
+[ImageMagick]: https://imagemagick.org/index.php "ImageMagick"
