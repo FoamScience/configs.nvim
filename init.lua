@@ -119,6 +119,9 @@ if vim.g.loaded_categories.ai then
     spec "user.sg"
     spec "user.avante"
     spec "user.lluminate"
+    spec "user.codecompanion"
+    --spec "user.sg"
+    --spec "user.avante"
     --spec "user.copilot"
 end
 
