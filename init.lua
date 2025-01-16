@@ -58,6 +58,7 @@ if vim.g.loaded_categories.ux then
     spec "user.significant"
     spec "user.indentline" -- costs ~0.03 msecs
     spec "user.render-markdown"
+    spec "user.img-clip"
 end
 
 -- lsp setup startup: 36.39/37.50
@@ -116,8 +117,6 @@ end
 
 -- AI startup: 16.84/17.18
 if vim.g.loaded_categories.ai then
-    spec "user.sg"
-    spec "user.avante"
     spec "user.lluminate"
     spec "user.codecompanion"
     --spec "user.sg"
