@@ -62,7 +62,7 @@ Or you can give it a try in a Docker container:
 cd dockerImages
 docker build -t nvim-config:latest -f config.dockerfile . 
 docker run -it --rm nvim-config:latest bash
-(container)> nvim
+(container)> USER=me nvim
 ```
 
 ## List of plugins and important configs
@@ -86,8 +86,22 @@ If you want to load only certain categories:
 nvim --cmd "lua vim.g.plugin_settings = 'ux=true,git=true,lsp=true'" file.cpp
 ```
 
-You can also load your custom configuration by putting it in `~/.config/nvim/$USER/` where `$USER` is your username.
+You can also load your custom configuration by putting it in `~/.config/nvim/lua/$USER/` where `$USER` is your username.
 `config()` functions will be called from your custom lua files if they exist.
+
+> [!IMPORTANT]
+> Some plugin configurations will attempt to read user-specific options from the return table in
+> `~/.config/nvim/lua/$USER/user-settings.lua`. This is useful for example to set your own Neorg
+> workspaces, or AI response language. Take a look at this
+> [user-settings.lua](lua/fadeli/user-settings.lua) for inspiration.
+
+Also, you can turn on automatic checking of configuration updates to keep
+your local configuration in sync with new commits from this repo. This only does the check though,
+you will have to run `git pull` on your own:
+```lua
+-- in init.lua
+vim.g.config_check_for_updates = false
+```
 
 ### General
 
@@ -187,10 +201,12 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
 
 ### AI
 
-- [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
-- [avante.lua](lua/user/lavante.lua): chat with your open files.
+- [codecompanion.lua:](lua/user/codecompanion.lua) The best AI companion; easy and fun to use
   - [Groq](https://console.groq.com/docs/models) models are the default.
   - Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)
+  - Can disable code sharing with LLM cloud services in `lua/<your-username>/user-settings.lua`
+  - `<leader>a` in normal and visual mode to get started.
+- [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
 - [lluminate.lua:](lua/user/lluminate.lua) for code context inclusion when copying code for LLM chats.
   - Visual-select the code you want to get context for, and `<leader>ac` for AI-context
 - ~~[ai:](lua/user/ai) a set of custom scripts for AI-assisted programming~~
@@ -203,6 +219,10 @@ You can also load your custom configuration by putting it in `~/.config/nvim/$US
   - ~~Type `:Copilot` in normal mode to login for the first time~~
   - ~~`<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any~~
   - This is now retired, adopting avante as an alternative
+- ~~[avante.lua](lua/user/lavante.lua): chat with your open files.~~
+  - ~~[Groq](https://console.groq.com/docs/models) models are the default.~~
+  - ~~Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)~~
+  - This is now also retired, adopting CodeCompanion as an alternative
 
 ### Git integration
 
