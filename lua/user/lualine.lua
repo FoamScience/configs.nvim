@@ -28,28 +28,44 @@ function M.config()
         symbols = { added = icons.git.LineAdded, modified = icons.git.LineModified, removed = icons.git.LineRemoved },
     }
 
-    local copilot = function()
-        local buf_clients = vim.lsp.active_clients({ bufnr = 0 })
-        if #buf_clients == 0 then
-            return "LSP Inactive"
+    local codecompanion = require("lualine.component"):extend()
+    codecompanion.processing = false
+    codecompanion.spinner_index = 1
+    local spinner_symbols = {
+        "⠋",
+        "⠙",
+        "⠹",
+        "⠸",
+        "⠼",
+        "⠴",
+        "⠦",
+        "⠧",
+        "⠇",
+        "⠏",
+    }
+    local spinner_symbols_len = 10
+    function codecompanion:init(options)
+        codecompanion.super.init(self, options)
+        local group = vim.api.nvim_create_augroup("CodeCompanionHooks", {})
+        vim.api.nvim_create_autocmd({ "User" }, {
+            pattern = "CodeCompanionRequest*",
+            group = group,
+            callback = function(request)
+                if request.match == "CodeCompanionRequestStarted" then
+                    self.processing = true
+                elseif request.match == "CodeCompanionRequestFinished" then
+                    self.processing = false
+                end
+            end,
+        })
+    end
+    function codecompanion:update_status()
+        if self.processing then
+            self.spinner_index = (self.spinner_index % spinner_symbols_len) + 1
+            return spinner_symbols[self.spinner_index]
+        else
+            return nil
         end
-
-        local buf_client_names = {}
-        local copilot_active = false
-
-        for _, client in pairs(buf_clients) do
-            if client.name ~= "null-ls" and client.name ~= "copilot" then
-                table.insert(buf_client_names, client.name)
-            end
-            if client.name == "copilot" then
-                copilot_active = true
-            end
-        end
-
-        if copilot_active then
-            return "%#Copilot#" .. icons.git.Octoface .. "%*"
-        end
-        return ""
     end
 
     local navic_ok, navic = pcall(require, "nvim-navic")
@@ -115,9 +131,10 @@ function M.config()
                     end
                 },
                 "overseer",
+                codecompanion,
                 "diagnostics",
                 clients_lsp,
-                copilot,
+                --copilot,
             },
             lualine_y = {
                 {

@@ -53,11 +53,11 @@ function M.config()
                 mode = "v",
             },
             { "<leader>s", group = "Sourcegraph", icon = icons.ui.Target, mode = { "n", "v" } },
-            {
-                "<leader>ss",
-                "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>",
-                desc = "Search public code"
-            },
+            --{
+            --    "<leader>ss",
+            --    "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>",
+            --    desc = "Search public code"
+            --},
             { "<leader>a", group = "AI", icon = icons.ui.Target, mode = { "n", "v" } },
             {
                 "<leader>ac",
@@ -65,17 +65,54 @@ function M.config()
                 desc = "Entrich code context",
                 mode = "v",
             },
+            {
+                "<leader>ax",
+                function() require("codecompanion").prompt("explain") end,
+                desc = "Explain with CodeCompanion",
+                mode = "v",
+            },
+            {
+                "<leader>at",
+                function() require("codecompanion").prompt("tests") end,
+                desc = "Generate Unit tests",
+                mode = "v",
+            },
+            {
+                "<leader>af",
+                function() require("codecompanion").prompt("fix") end,
+                desc = "Fix selected code",
+                mode = "v",
+            },
+            {
+                "<leader>ar",
+                function() require("codecompanion").prompt("review") end,
+                desc = "Review code with CodeCompanion",
+                icon = icons.git.Diff,
+                mode = "v",
+            },
+            {
+                "<leader>al",
+                function() require("codecompanion").prompt("lsp") end,
+                desc = "Explain LSP diagnostics",
+                mode = {"n", "v"},
+            },
+            {
+                "<leader>ag",
+                function() require("codecompanion").prompt("commit") end,
+                desc = "Generate Git Commit from Diffs",
+                mode = "n"
+            },
+            {
+                "<leader>aw",
+                function() require("codecompanion").prompt("workflow") end,
+                desc = "Write code with Workflow-Guided-LLM",
+                mode = "n"
+            },
         })
     end
     if vim.g.loaded_categories.lsp then
         vim.list_extend(mappings, {
-            { "<leader>l", group = "LSP",        icon = icons.kind.Class, mode = { "n", "v" } },
-            {
-                "<leader>la",
-                "<cmd>lua vim.lsp.buf.code_action()<cr>",
-                desc = "Code action",
-                icon = icons.ui.ArrowCircleRight
-            },
+            { "<leader>l", group = "LSP", icon = icons.kind.Class, mode = { "n", "v" } },
             {
                 "<leader>ld",
                 "<cmd>Telescope lsp_definitions<cr>",
@@ -405,11 +442,6 @@ function M.config()
                 desc = "New note",
             },
             { "<leader>ot", group = "Task", icons.ui.Tab },
-            {
-                "<leader>ota",
-                "<Plug>(neorg.qol.todo-items.todo.task-ambiguous)",
-                desc = "Task ambiguous",
-            },
             {
                 "<leader>ota",
                 "<Plug>(neorg.qol.todo-items.todo.task-ambiguous)",

@@ -13,6 +13,7 @@ function M.config()
             WARN = { icon = " ", color = "warning", alt = { "warn", } },
             TEST = { icon = "⏲ ", color = "test", alt = { "test", } },
             DEBUG = { icon = " ", color = "warning", alt = { "test", } },
+            NOTE = { icon = " ", color = "test", alt = {"todo", } },
         },
         merge_keywords = false,
         search = {

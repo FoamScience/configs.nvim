@@ -1,35 +1,35 @@
 local M = {
-	"lukas-reineke/indent-blankline.nvim",
+    "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
-	event = "VeryLazy",
+    event = "VeryLazy",
 }
 
 function M.config()
-	local icons = require "user.lspicons"
+    local icons = require "user.lspicons"
 
-	require("ibl").setup {
+    require("ibl").setup {
         indent = {
             smart_indent_cap = true,
-		    char = icons.ui.LineMiddle,
-		    tab_char = icons.ui.LineMiddle,
+            char = icons.ui.LineMiddle,
+            tab_char = icons.ui.LineMiddle,
         },
         exclude = {
-		    filetypes = {
+            filetypes = {
                 "lspinfo",
                 "checkhealth",
-		    	"help",
+                "help",
                 "man",
                 "gitcommit",
-		    	"dashboard",
+                "dashboard",
                 "TelescopePrompt",
                 "TelescopeResults",
-		    	"lazy",
-		    	"neogitstatus",
-		    	"NvimTree",
-		    	"text",
-		    },
+                "lazy",
+                "neogitstatus",
+                "NvimTree",
+                "text",
+            },
         },
-	}
+    }
 end
 
 return M

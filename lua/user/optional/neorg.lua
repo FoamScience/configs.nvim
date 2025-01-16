@@ -10,20 +10,22 @@ local M = {
 }
 
 M.config = function()
+    local ok, settings = pcall(require, vim.loop.os_getenv("USER") .. ".user-settings")
+    if not ok then
+        settings = {}
+    end
+    local neorg_settings = settings.neorg or {}
     require("neorg").setup {
         load = {
             ["core.defaults"] = {},
             ["core.concealer"] = {},
+            ["core.export"] = {},
             ["core.dirman"] = {
                 config = {
-                    workspaces = {
+                    workspaces = neorg_settings.workspaces or {
                         tasks = "~/notes/tasks",
-                        Meshless = "~/notes/Meshless",
-                        OpenFOAMOpt = "~/notes/OpenFOAMOpt",
-                        UnitTesting = "~/notes/UnitTesting",
-                        TGradientAlongSolidificationPaths = "~/notes/TGradientAlongSolidificationPaths"
                     },
-                    default_workspace = "tasks",
+                    default_workspace = neorg_settings.default_workspace or "tasks",
                 },
             },
             ["core.integrations.telescope"] = {},
