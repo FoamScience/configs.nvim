@@ -34,6 +34,9 @@ if vim.g.plugin_settings then
     vim.g.loaded_categories = override_load_plugins(vim.g.plugin_settings)
 end
 
+-- should check for new configuration commits?
+vim.g.config_check_for_updates = false
+
 -- -------- Actual configuration ---------
 
 -- average startup time is estimated for:
@@ -44,6 +47,7 @@ require "user.base"
 require "user.options"
 require "user.keymaps"
 require "user.autocmds"
+require "user.config-check"
 spec "user.colorscheme"
 spec "user.devicons"
 
