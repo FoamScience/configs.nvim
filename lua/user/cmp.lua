@@ -42,9 +42,6 @@ local M = {
         {
             "SergioRibera/cmp-dotenv",
         },
-        {
-            "p00f/clangd_extensions.nvim",
-        },
     },
     event = { "LspAttach", "InsertCharPre" },
 }
@@ -174,11 +171,6 @@ function M.config()
                 cmp.config.compare.offset,
                 cmp.config.compare.exact,
                 cmp.config.compare.recently_used,
-                function(e1, e2)
-                    local clangd_ext_ok, clangd_ext_scores = pcall(require, "clangd_extensions.cmp_scores")
-                    if not clangd_ext_ok then return nil end
-                    return clangd_ext_scores(e1, e2)
-                end,
                 cmp.config.compare.kind,
                 cmp.config.compare.sort_text,
                 cmp.config.compare.length,

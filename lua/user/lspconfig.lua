@@ -6,7 +6,6 @@ local M = {
         {
             "folke/lazydev.nvim",
             "williamboman/mason.nvim",
-            "p00f/clangd_extensions.nvim",
             "rachartier/tiny-inline-diagnostic.nvim",
         },
     },
@@ -24,17 +23,9 @@ local function lsp_keymaps(bufnr)
 end
 
 M.on_attach = function(client, bufnr)
-    local status_ok, clangd_ext = pcall(require, "clangd_extensions")
-    if client.name == "clangd" and status_ok then
-        clangd_ext.setup({
-            inlay_hints = {
-                inline = vim.fn.has("nvim-0.10") == 1,
-                only_current_line = true,
-                highlight = "LspInlayHint",
-            },
-        })
-        require("clangd_extensions.inlay_hints").setup_autocmd()
-        require("clangd_extensions.inlay_hints").set_inlay_hints()
+    if client.server_capabilities.inlayHintProvider then
+        vim.g.inlay_hints_visible = true
+        vim.lsp.inlay_hint.enable()
     end
     lsp_keymaps(bufnr)
 end
