@@ -19,6 +19,7 @@ Here are a few programming languages I usually write in:
 - HTML, CSS, JavaScript/TypeScript for web development
 - Markdown for writing READMEs and other documentation, LATEX for academic writing
 - GdScript, GLSL for game development
+- Latex2text command if you want to render Tex equations in Markdown
 - Obviously, Bash for shell scripting
 
 This configuration will never support the following features:
@@ -142,11 +143,12 @@ vim.g.config_check_for_updates = false
 - [winsep.lua:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
 - [cinnamon.lua:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
+  - With support for Latex equation rendering
 - [bufferline.lua](lua/user/bufferline.lua) for buffer names at the top
 - [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
   for current file and setting global options accordingly.
   - Should be automatic, but `:GuessIndent` helps
-- [image.lua:](lua/user/optional/image.lua) optionally render Markdown images and Latex equations in the terminal
+- [image.lua:](lua/user/optional/image.lua) optionally render Markdown images
   - Enabled only if running on `kitty` terminal and using `imagemagick` backend.
 
 ### Productivity
