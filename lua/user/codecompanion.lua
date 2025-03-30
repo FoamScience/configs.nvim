@@ -25,13 +25,16 @@ M.config = function()
                     url = "https://api.groq.com/openai/v1/chat/completions",
                     schema = {
                         model = {
-                            default = ai_settings.model or "mixtral-8x7b-32768",
+                            default = ai_settings.model or "distil-whisper-large-v3-en",
                             choices = {
-                                ["mixtral-8x7b-32768"] = "Mixtral 8x7B from Mistral",
-                                ["llama-3.1-8b-instant"] = "LLAMA 3.1 instant from Meta",
-                                ["llama-3.1-70b-versatile"] = "LLAMA 3.1 70B from Meta",
-                                ["whisper-large-v3-turbo"] = "Whisper large from OpenAI",
-                                ["gemma2-9b-it"] = "Gemma 2 9B from Google",
+                                ["distil-whisper-large-v3-en"] = "Whisper Large v3 English from HuggingFace [Prod]",
+                                ["gemma2-9b-it"] = "Gemma 2 9B from Google [Prod]",
+                                ["llama-3.3-70b-versatile"] = "LLAMA 3.3 70B from Meta [Prod]",
+                                ["whisper-large-v3-turbo"] = "Whisper large from OpenAI [Prod]",
+                                ["mistral-saba-24b"] = "SABA 24B from Mistral [Preview]",
+                                ["qwen-2.5-coder-32b"] = "QWAN 2.5 Coder 32B from Alibaba Cloud [Preview]",
+                                ["qwen-2.5-32b"] = "QWAN 2.5 32B from Alibaba Cloud [Preview]",
+                                ["deepseek-r1-distill-qwen-32b"] = "Deepseek R1 32B from DeepSeek[Preview]",
                             },
                         },
                     },
