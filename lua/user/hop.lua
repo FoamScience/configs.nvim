@@ -13,8 +13,8 @@ function M.config()
     local opts = { noremap = true, silent = true }
     hop_ok, _ = pcall(require, "hop")
     if hop_ok then
-        keymap("n", "s", "<cmd>HopWord<cr>", opts)
-        keymap("n", "S", "<cmd>HopChar2<cr>", opts)
+        keymap("n", "s", "<cmd>HopChar1<cr>", opts)
+        keymap("n", "S", "<cmd>HopWord<cr>", opts)
     end
 end
 
