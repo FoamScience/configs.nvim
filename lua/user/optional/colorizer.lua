@@ -11,6 +11,7 @@ function M.config()
 			"javascript",
 			"javascriptreact",
 			"css",
+			"scss",
 			"html",
 			"astro",
 			"lua",
