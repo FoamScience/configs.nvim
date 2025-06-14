@@ -10,11 +10,11 @@ RUN cp -r squashfs-root/usr/* /usr/
 RUN rm -rf squashfs-root
 # Install nodejs and tree-sitter
 WORKDIR /root/.config/nvim
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash \
     && export NVM_DIR="$HOME/.nvm" \
     && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
     && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" \
-    && nvm install v18 \
+    && nvm install v20 \
     && npm install -g tree-sitter-cli
 # Install rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
