@@ -140,6 +140,7 @@ if vim.g.loaded_categories.optional then
     spec "user.optional.cinnamon"
     spec "user.optional.image"
     spec "user.optional.neorg"
+    spec "user.optional.typst"
 end
 
 
