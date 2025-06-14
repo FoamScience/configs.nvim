@@ -1,7 +1,7 @@
 local M = {
     ai = {
         language = "German",          -- language that the AI reposnds in
-        model = "qwen-2.5-coder-32b", -- default LLM model to use
+        model = "compound-beta", -- default LLM model to use
         send_code = function() return true end, -- can skip specific root folders here
     },
     neorg = {
