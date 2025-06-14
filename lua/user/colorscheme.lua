@@ -1,18 +1,19 @@
 local M = {
-	"catppuccin/nvim",
-	--"p00f/alabaster.nvim",
+    "catppuccin/nvim",
+    --"p00f/alabaster.nvim",
     --"Shatur/neovim-ayu",
-	lazy = false, -- load at startup cuz it's the main colorscheme
-	priority = 1000, -- load it before anything else
+    lazy = false,    -- load at startup cuz it's the main colorscheme
+    priority = 1000, -- load it before anything else
     name = "catppuccin",
     init = function()
-      vim.cmd.colorscheme "catppuccin"
+        vim.cmd.colorscheme "catppuccin"
     end,
 }
 
 function M.config()
-	vim.cmd.colorscheme "catppuccin"
-	--vim.cmd.colorscheme "alabaster"
+    require("catppuccin").setup({})
+
+    --vim.cmd.colorscheme "alabaster"
     --local colors = require('ayu.colors')
     --colors.generate()
     --colors.black = colors.bg
@@ -34,7 +35,7 @@ function M.config()
     --        theme = custom_ayu,
     --    }
     --})
-	--vim.cmd.colorscheme "ayu"
+    --vim.cmd.colorscheme "ayu"
 end
 
 return M
