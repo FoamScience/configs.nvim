@@ -24,8 +24,8 @@ end
 
 M.on_attach = function(client, bufnr)
     if client.server_capabilities.inlayHintProvider then
-        vim.g.inlay_hints_visible = true
-        vim.lsp.inlay_hint.enable()
+        vim.g.inlay_hints_visible = false
+        --vim.lsp.inlay_hint.enable()
     end
     lsp_keymaps(bufnr)
 end
@@ -56,6 +56,7 @@ function M.config()
     local icons = require("user.lspicons")
 
     local servers = {
+        "buf_ls",
         "clangd",
         "lua_ls",
         "cssls",
@@ -142,6 +143,7 @@ function M.config()
                 "--header-insertion-decorators",
                 "--enable-config",
             }
+            opts.filetypes = {"c", "cpp"}
             opts.root_dir = util.root_pattern("compile_commands.json")
                 or util.root_pattern(".git", "Make")
         end
