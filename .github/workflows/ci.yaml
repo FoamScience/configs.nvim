@@ -21,7 +21,6 @@ jobs:
           'navigation',
           'whichkey',
           'ai',
-          'custom_ai',
           'optional',
         ]
 
