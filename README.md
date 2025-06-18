@@ -45,6 +45,8 @@ This configuration will never support the following features:
     symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
     ```
 - [ImageMagick][] for in-terminal image display, if your terminal supports
+- [PyWal16][] if you want to match the color scheme to the background and other apps. But this is optional
+  
 
 ## Set up
 
@@ -126,7 +128,8 @@ vim.g.config_check_for_updates = false
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
   - Try `:Telescope colorscheme` (or just `<space>fc`) to see a live demo of all available color schemes
-  - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
+  - By default, `pywal16` is used, and a `catppuccin` variant is set as a fallback in case `wal` command is
+    not found.
 
 ### UI
 
@@ -247,14 +250,15 @@ vim.g.config_check_for_updates = false
 - [neorg.lua:](lua/user/optional/neorg.lua) a Notes/task management system through `<leader>o`
   using [Neorg][].
 
-[Screenshots]: /screenshots/README.md "Screenshots"
-[Neovim]: https://github.com/neovim/neovim/releases "Neovim"
-[NVM]: https://github.com/nvm-sh/nvm "NVM"
-[NodeJS]: https://nodejs.org "NodeJS"
-[RIPGrep]: https://github.com/BurntSushi/ripgrep "RIPGrep"
-[Kitty]: https://sw.kovidgoyal.net/kitty/binary/ "Kitty"
-[Rust]: https://www.rust-lang.org/tools/install "Rust"
-[TGPT]: https://github.com/aandrew-me/tgpt "TGPT"
-[SourceGraph]: https://sourcegraph.com "SourceGraph"
-[Neorg]: https://github.com/nvim-neorg/neorg "Neorg"
 [ImageMagick]: https://imagemagick.org/index.php "ImageMagick"
+[Kitty]: https://sw.kovidgoyal.net/kitty/binary/ "Kitty"
+[NVM]: https://github.com/nvm-sh/nvm "NVM"
+[Neorg]: https://github.com/nvim-neorg/neorg "Neorg"
+[Neovim]: https://github.com/neovim/neovim/releases "Neovim"
+[NodeJS]: https://nodejs.org "NodeJS"
+[PyWal16]: https://github.com/eylles/pywal16
+[RIPGrep]: https://github.com/BurntSushi/ripgrep "RIPGrep"
+[Rust]: https://www.rust-lang.org/tools/install "Rust"
+[Screenshots]: /screenshots/README.md "Screenshots"
+[SourceGraph]: https://sourcegraph.com "SourceGraph"
+[TGPT]: https://github.com/aandrew-me/tgpt "TGPT"
