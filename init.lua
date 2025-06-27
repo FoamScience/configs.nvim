@@ -49,7 +49,6 @@ require "user.keymaps"
 require "user.autocmds"
 require "user.config-check"
 spec "user.colorscheme"
-spec "user.colorscheme-fallback"
 spec "user.devicons"
 
 -- whichkey 16.22/16.73

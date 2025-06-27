@@ -71,13 +71,9 @@ function M.config()
     local navic_ok, navic = pcall(require, "nvim-navic")
     local git_blame_ok, git_blame = pcall(require, "gitblame")
     local arrow_ok, arrow = pcall(require, "arrow.statusline")
-    local colorscheme = "auto"
-    if vim.fn.executable("wal") == 1 then
-        colorscheme = "pywal16"
-    end
     require("lualine").setup({
         options = {
-            theme = colorscheme,
+            theme = "auto",
             component_separators = { left = "", right = "" },
             section_separators = { left = "", right = "" },
             ignore_focus = { "NvimTree", "noice", "qf" },
