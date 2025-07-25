@@ -3,6 +3,21 @@ local M = {
     dependencies = { "SmiteshP/nvim-navic" },
 }
 
+local filetypes_to_ignore = {
+    nil,
+    "help",
+    "qf",
+    "nofile",
+    "NvimTree",
+    "terminal",
+    "fugitiveblame",
+    "fugitive",
+    "fzf",
+    "lazy",
+    "mason",
+    "trouble",
+}
+
 local clients_lsp = function()
     local clients = vim.lsp.get_clients({ bufnr = 0 })
     if next(clients) == nil then
@@ -31,18 +46,7 @@ function M.config()
     local codecompanion = require("lualine.component"):extend()
     codecompanion.processing = false
     codecompanion.spinner_index = 1
-    local spinner_symbols = {
-        "⠋",
-        "⠙",
-        "⠹",
-        "⠸",
-        "⠼",
-        "⠴",
-        "⠦",
-        "⠧",
-        "⠇",
-        "⠏",
-    }
+    local spinner_symbols = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏", }
     local spinner_symbols_len = 10
     function codecompanion:init(options)
         codecompanion.super.init(self, options)
@@ -79,18 +83,10 @@ function M.config()
             ignore_focus = { "NvimTree", "noice", "qf" },
             globalstatus = true,
             globalwinbar = true,
+            always_show_tabline = false,
             disabled_filetypes = {
-                "help",
-                "qf",
-                "nofile",
-                "NvimTree",
-                "terminal",
-                "fugitiveblame",
-                "fugitive",
-                "fzf",
-                "lazy",
-                "mason",
-                "trouble",
+                statusline = filetypes_to_ignore,
+                winbar = filetypes_to_ignore,
             },
         },
         sections = {
@@ -160,6 +156,36 @@ function M.config()
             winbar = { "NvimTree", "terminal", "glow" },
         },
 
+        tabline = {
+            lualine_a = {},
+            lualine_b = {
+                {
+                    'buffers',
+                    show_filename_only = true,
+                    hide_filename_extension = false,
+                    show_modified_status = true,
+                    mode = 2,
+                    buffers_color = {
+                        active = 'lualine_a_normal',
+                        inactive = 'lualine_a_inactive',
+                    },
+                    symbols = {
+                        alternate_file = icons.git.FileRenamed,
+                    },
+                    fmt = function(out, _)
+                        if out == "[No Name]" then
+                            return ""
+                        end
+                        return out
+                    end,
+                }
+            },
+            lualine_c = {},
+            lualine_x = {},
+            lualine_y = {},
+            lualine_z = {
+            }
+        },
         winbar = {
             lualine_a = {
                 {
