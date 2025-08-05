@@ -108,7 +108,6 @@ vim.g.config_check_for_updates = false
 
 - [keymaps.lua:](lua/user/keymaps.lua) very few key bindings to get you started
   - `<space>` is the **leader key**, which is used to open `which-key` menu in normal mode
-  - `s` and `S` in normal mode are used for word hoping
   - `<tab>` and `<S-tab>` in normal mode are used for buffer switching
 - [which-key.lua:](lua/user/which-key.lua) shows all available keymaps
   - Press `<space>` to check available keymaps
@@ -167,8 +166,12 @@ vim.g.config_check_for_updates = false
 
 ### Navigation
 
-- [hop.lua:](lua/user/optional/hop.lua) fast word hopping
-  - `s` and `S` to hop to words in normal mode
+- [flash.lua:](lua/user/flash.lua) fast word hopping
+  - `s` to hop to words in normal mode
+  - `S` to hop using tree-sitter syntax tree in normal mode
+  - `r` in operator mode to do operations between flash hops
+  - `R` in operator mode to do operations between flash tree-sitter searches
+  - `<ctrl-s>` to toggle flash in regular search mode. An icon at the bottom right will show up if this is enabled.
 - ~~[harpoon.lua:](lua/user/harpoon.lua) to bookmark your buffers, and come back to them in a blink of an eye~~
 - [arrow.lua:](lua/user/arrow.lua) to bookmark your buffers. Replacing Harpoon.
     - Just press `,` in normal mode, or `<leader>b`
