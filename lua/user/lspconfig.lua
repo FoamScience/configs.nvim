@@ -56,12 +56,10 @@ function M.config()
     local icons = require("user.lspicons")
 
     local servers = {
-        "buf_ls",
         "clangd",
         "lua_ls",
         "cssls",
         "html",
-        "ts_ls",
         "astro",
         "pyright",
         "bashls",

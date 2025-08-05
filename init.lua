@@ -114,7 +114,7 @@ end
 -- navigation startup: 17.04/16.71
 if vim.g.loaded_categories.navigation then
     spec "user.arrow"
-    spec "user.hop"
+    spec "user.flash"
     spec "user.navbuddy"
     spec "user.qf"
 end

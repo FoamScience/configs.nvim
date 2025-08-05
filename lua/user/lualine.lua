@@ -33,6 +33,14 @@ local clients_lsp = function()
     return "\u{f085}  " .. table.concat(c, "|")
 end
 
+local flash_in_search = function()
+    local flash_ok, _ = pcall(require, "flash")
+    if not flash_ok then return "" end
+    local icons = require("user.lspicons")
+    if not require("flash.plugins.search").enabled then  return "" end
+    return "/" .. icons.kind.Event
+end
+
 function M.config()
     local sl_hl = vim.api.nvim_get_hl_by_name("StatusLine", true)
     vim.api.nvim_set_hl(0, "Copilot", { fg = "#6CC644", bg = sl_hl.background })
@@ -133,6 +141,7 @@ function M.config()
                 --copilot,
             },
             lualine_y = {
+                flash_in_search,
                 {
                     "fileformat",
                     icons_enabled = true,
@@ -165,6 +174,7 @@ function M.config()
                     hide_filename_extension = false,
                     show_modified_status = true,
                     mode = 2,
+                    maxx_length = 6,
                     buffers_color = {
                         active = 'lualine_a_normal',
                         inactive = 'lualine_a_inactive',
