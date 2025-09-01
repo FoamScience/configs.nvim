@@ -132,7 +132,6 @@ vim.g.config_check_for_updates = false
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer. Simple as that
   - `<space>e` to toggle
 - [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline
-- [unclutter.lua:](lua/user/unclutter.lua) to handle the winbar
 - [indentline.lua:](lua/user/indentline.lua) improves code indentation
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
@@ -194,15 +193,13 @@ vim.g.config_check_for_updates = false
   - You can also get to similar functionality through `<space>l` which uses which-key
 - [cmp.lua:](lua/user/cmp.lua) autocompletion engine
   - `<tab>` to cycle through suggestions, `<cr>` to confirm
-  - Autocompletes emojies, buffer text, file paths, snippets, and also shows copilot suggestions as virtual text
+  - Autocompletes buffer text, file paths, snippets, and also shows copilot suggestions as virtual text
   - Even searches with `/`. Type `/@` to search through LSP symbols in code buffers!
   - Completes math functions in Vim's expression register (`<c-r>` in insert mode)
   - Also provides command line completion on `:`
 - [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
 - [lens.lua:](lua/user/optional/lens.lua) not so annoying code lens
 - [navic.lua:](lua/user/optional/navic.lua) shows code structure at the cursor in the winbar
-- [overseer.lua:](lua/user/overseer.lua) helps running tasks like building and cleaning
-  - Access its features through `<leader>lo`
 
 ### AI
 
