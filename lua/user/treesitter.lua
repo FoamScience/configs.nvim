@@ -11,14 +11,14 @@ local M = {
 		--	"JoosepAlviste/nvim-ts-context-commentstring",
 		--	event = "VeryLazy",
 		--},
-		{
-			"windwp/nvim-ts-autotag",
-			event = "VeryLazy",
-		},
-		{
-			"windwp/nvim-autopairs",
-			event = "InsertEnter",
-		},
+		--{
+		--	"windwp/nvim-ts-autotag",
+		--	event = "VeryLazy",
+		--},
+		--{
+		--	"windwp/nvim-autopairs",
+		--	event = "InsertEnter",
+		--},
         -- This is deprecated in favor of the default :InspectTree
 		--{
 		--	"nvim-treesitter/playground",

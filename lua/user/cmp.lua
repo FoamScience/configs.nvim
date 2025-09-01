@@ -4,9 +4,9 @@ local M = {
         {
             "hrsh7th/cmp-nvim-lsp",
         },
-        {
-            "hrsh7th/cmp-emoji",
-        },
+        --{
+        --    "hrsh7th/cmp-emoji",
+        --},
         {
             "hrsh7th/cmp-buffer",
         },
@@ -69,7 +69,7 @@ function M.config()
         nvim_lsp_signature_help = { icon = icons.ui.SignIn, hl_group = "CmpItemKindInterface" },
         buffer = { icon = icons.kind.File, hl_group = "CmpItemKindAbbr" },
         path = { icon = icons.ui.Files, hl_group = "CmpItemKindFile" },
-        emoji = { icon = ":) ", hl_group = "CmpItemKindEmoji" },
+        --emoji = { icon = ":) ", hl_group = "CmpItemKindEmoji" },
         treesitter = { icon = icons.ui.Tree, hl_group = "CmpItemKindClass" },
         crates = { icon = icons.ui.Package, hl_group = "CmpItemKindCrate" },
         tmux = { icon = icons.misc.Dos, hl_group = "CmpItemKindUnit" },
@@ -144,7 +144,7 @@ function M.config()
             { name = "luasnip" },
             { name = "nvim_lua" },
             { name = "quick_data" },
-            { name = "emoji" },
+            --{ name = "emoji" },
             { name = "treesitter" },
             { name = "crates" },
             { name = "tmux" },
