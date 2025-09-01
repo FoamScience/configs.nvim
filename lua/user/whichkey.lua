@@ -102,12 +102,6 @@ function M.config()
                 desc = "Generate Git Commit from Diffs",
                 mode = "n"
             },
-            {
-                "<leader>aw",
-                function() require("codecompanion").prompt("workflow") end,
-                desc = "Write code with Workflow-Guided-LLM",
-                mode = "n"
-            },
         })
     end
     if vim.g.loaded_categories.lsp then

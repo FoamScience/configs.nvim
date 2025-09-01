@@ -72,11 +72,22 @@ function M.config()
         })
     end
     function codecompanion:update_status()
+        if _G.codecompanion_chat_metadata ~= nil then
+            local buf = vim.api.nvim_get_current_buf()
+            self.metadata = _G.codecompanion_chat_metadata[buf]
+        end
+        local allowed_filetypes = {
+            codecompanion = true,
+        }
+        if not allowed_filetypes[vim.bo.filetype] then
+            return ""
+        end
+        local onstr = self.metadata.adapter.model .. "(" .. icons.ui.Gear .. self.metadata.tools .. ")"
         if self.processing then
             self.spinner_index = (self.spinner_index % spinner_symbols_len) + 1
-            return spinner_symbols[self.spinner_index]
+            return onstr .. icons.ui.BoldArrowRight .. spinner_symbols[self.spinner_index]
         else
-            return nil
+            return onstr
         end
     end
 
@@ -134,7 +145,6 @@ function M.config()
                         return git_blame.is_blame_text_available
                     end
                 },
-                "overseer",
                 codecompanion,
                 "diagnostics",
                 clients_lsp,
