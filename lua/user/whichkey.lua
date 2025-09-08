@@ -198,22 +198,13 @@ function M.config()
                 icon = icons.ui.Target,
             },
             {
-                "<leader>lor",
-                "<cmd>OverseerRun<cr>",
-                desc = "Overseer Run",
-                icon = icons.ui.Run
-            },
-            {
-                "<leader>lot",
-                "<cmd>OverseerToggle<cr>",
-                desc = "Overseer Toggle",
-                icon = icons.ui.Gear
-            },
-            {
-                "<leader>lob",
-                "<cmd>OverseerBuild<cr>",
-                desc = "Overseer Build",
-                icon = icons.ui.Gears
+                "<leader>ln",
+                function()
+                    local hints_on = vim.lsp.inlay_hint.is_enabled({})
+                    vim.lsp.inlay_hint.enable(not hints_on)
+                end,
+                desc = "Toggle inlay hints",
+                icon = icons.ui.Fire
             },
 
             { "<leader>T", group = "TreeSitter", icon = icons.ui.Code },
