@@ -3,6 +3,7 @@ local M = {
     event = "VeryLazy",
     enable = not vim.env.GROQ_API_KEY == "",
 }
+
 local function fetch_groq_models()
     if not vim.env.GROQ_API_KEY then
         return {}
@@ -32,7 +33,6 @@ M.config = function()
         opts = {
             language = ai_settings.language or "English",
             send_code = ai_settings.send_code or true,
-            log_level = "DEBUG",
         },
         adapters = {
             http = {
