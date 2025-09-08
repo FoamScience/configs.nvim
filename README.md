@@ -198,7 +198,6 @@ vim.g.config_check_for_updates = false
   - Completes math functions in Vim's expression register (`<c-r>` in insert mode)
   - Also provides command line completion on `:`
 - [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
-- [lens.lua:](lua/user/optional/lens.lua) not so annoying code lens
 - [navic.lua:](lua/user/optional/navic.lua) shows code structure at the cursor in the winbar
 
 ### AI
