@@ -1,105 +1,32 @@
 local M = {
 	"nvim-treesitter/nvim-treesitter",
+	branch = "main",
+	lazy = false,
 	event = { "BufReadPost", "BufNewFile" },
 	build = ":TSUpdate",
-	dependencies = {
-		{
-			"nvim-treesitter/nvim-treesitter-textobjects",
-			event = "VeryLazy",
-		},
-		--{
-		--	"JoosepAlviste/nvim-ts-context-commentstring",
-		--	event = "VeryLazy",
-		--},
-		--{
-		--	"windwp/nvim-ts-autotag",
-		--	event = "VeryLazy",
-		--},
-		--{
-		--	"windwp/nvim-autopairs",
-		--	event = "InsertEnter",
-		--},
-        -- This is deprecated in favor of the default :InspectTree
-		--{
-		--	"nvim-treesitter/playground",
-		--	cmd = "TSPlaygroundToggle",
-		--},
-	},
 }
 function M.config()
-	require("nvim-treesitter.configs").setup({
-		ensure_installed = {
-			"lua",
-			"vim",
-            "vimdoc",
-            "latex",
-            "regex",
-			"markdown",
-			"markdown_inline",
-			"bash",
-			"python",
-			"foam",
-			"cpp",
-			"c",
-			"rust",
-			"glsl",
-		},
-		ignore_install = { "" },
-        auto_install = true,
-		sync_install = false,
-		highlight = {
-			enable = true,
-			disable = {},
-			additional_vim_regex_highlighting = false,
-		},
 
-		indent = { enable = true },
-
-		matchup = {
-			enable = { "astro" },
-			disable = { "lua" },
-		},
-
-		autotag = { enable = true },
-
-		--context_commentstring = {
-		--	enable = true,
-		--	enable_autocmd = false,
-		--},
-
-		autopairs = { enable = true },
-
-		textobjects = {
-			select = {
-				enable = true,
-				lookahead = true,
-				keymaps = {
-					["af"] = "@function.outer",
-					["if"] = "@function.inner",
-					["at"] = "@class.outer",
-					["it"] = "@class.inner",
-					["ac"] = "@call.outer",
-					["ic"] = "@call.inner",
-					["aa"] = "@parameter.outer",
-					["ia"] = "@parameter.inner",
-					["al"] = "@loop.outer",
-					["il"] = "@loop.inner",
-					["ai"] = "@conditional.outer",
-					["ii"] = "@conditional.inner",
-					["a/"] = "@comment.outer",
-					["i/"] = "@comment.inner",
-					["ab"] = "@block.outer",
-					["ib"] = "@block.inner",
-					["as"] = "@statement.outer",
-					["is"] = "@scopename.inner",
-					["aA"] = "@attribute.outer",
-					["iA"] = "@attribute.inner",
-					["aF"] = "@frame.outer",
-					["iF"] = "@frame.inner",
-				},
-			},
-		},
+	local ensure_installed = {
+		"lua", "vim", "vimdoc",
+        "latex",
+        "regex",
+		"markdown", "markdown_inline",
+		"bash",
+		"python",
+		"foam", "cpp", "c",
+		"rust", "glsl",
+	}
+	vim.api.nvim_create_autocmd('FileType', {
+	  pattern = ensure_installed,
+	  callback = function() vim.treesitter.start() end,
 	})
+	vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+	vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+	require("nvim-treesitter").setup({
+		install_dir = vim.fn.stdpath('data') .. '/site'
+	})
+	require'nvim-treesitter'.install(ensure_installed)
 end
 
 return M
