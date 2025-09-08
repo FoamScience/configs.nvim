@@ -133,7 +133,7 @@ if vim.g.loaded_categories.optional then
     spec "user.optional.dressing"
     spec "user.optional.csv"
     spec "user.optional.dim"
-    spec "user.optional.lens"
+    --spec "user.optional.lens"
     spec "user.optional.winsep"
     spec "user.optional.cinnamon"
     spec "user.optional.image"
