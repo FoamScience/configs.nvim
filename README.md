@@ -205,7 +205,7 @@ vim.g.config_check_for_updates = false
 - [codecompanion.lua:](lua/user/codecompanion.lua) The best AI companion; easy and fun to use
   - [Groq](https://console.groq.com/docs/models) models are the default.
   - Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)
-  - If you intent to use the `@{search_web}`, obtain a free `TAVILY_API_KEY` from [tavily.com](https://app.tavily.com/home)
+  - If you intend to use the `@{search_web}` tool, obtain a free `TAVILY_API_KEY` from [tavily.com](https://app.tavily.com/home)
   - Can disable code sharing with LLM cloud services in `lua/<your-username>/user-settings.lua`
   - `<leader>a` in normal and visual mode to get started.
 - [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
