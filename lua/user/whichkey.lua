@@ -72,6 +72,12 @@ function M.config()
                 mode = "v",
             },
             {
+                "<leader>ax",
+                function() require("codecompanion").prompt("regexp") end,
+                desc = "Explain a regular expression",
+                mode = "n"
+            },
+            {
                 "<leader>at",
                 function() require("codecompanion").prompt("tests") end,
                 desc = "Generate Unit tests",

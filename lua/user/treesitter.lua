@@ -9,9 +9,8 @@ function M.config()
 
 	local ensure_installed = {
 		"lua", "vim", "vimdoc",
-        "latex",
         "regex",
-		"markdown", "markdown_inline",
+		"markdown", "markdown_inline", "html", "typst", "yaml", "latex",
 		"bash",
 		"python",
 		"foam", "cpp", "c",
