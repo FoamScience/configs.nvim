@@ -50,26 +50,27 @@ function M.common_capabilities()
     return capabilities
 end
 
+M.servers = {
+    "clangd",
+    "lua_ls",
+    "cssls",
+    "html",
+    "astro",
+    "pyright",
+    "bashls",
+    "jsonls",
+    "yamlls",
+    "glsl_analyzer",
+    "foam_ls",
+    "rust_analyzer",
+    "marksman",
+}
+
 function M.config()
     local lspconfig = require("lspconfig")
     local util = require("lspconfig.util")
     local icons = require("user.lspicons")
 
-    local servers = {
-        "clangd",
-        "lua_ls",
-        "cssls",
-        "html",
-        "astro",
-        "pyright",
-        "bashls",
-        "jsonls",
-        "yamlls",
-        "glsl_analyzer",
-        "foam_ls",
-        "rust_analyzer",
-        "marksman",
-    }
 
     local default_diagnostic_config = {
         signs = {
@@ -110,7 +111,7 @@ function M.config()
     vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
     require("lspconfig.ui.windows").default_options.border = "rounded"
 
-    for _, server in pairs(servers) do
+    for _, server in pairs(M.servers) do
         local opts = {
             on_attach = M.on_attach,
             capabilities = M.common_capabilities(),
@@ -141,7 +142,7 @@ function M.config()
                 "--header-insertion-decorators",
                 "--enable-config",
             }
-            opts.filetypes = {"c", "cpp"}
+            opts.filetypes = { "c", "cpp" }
             opts.root_dir = util.root_pattern("compile_commands.json")
                 or util.root_pattern(".git", "Make")
         end

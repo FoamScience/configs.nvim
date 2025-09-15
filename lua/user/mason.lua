@@ -3,20 +3,11 @@ local M = {
     dependencies = {
         "williamboman/mason.nvim",
         "nvim-lua/plenary.nvim",
+        "neovim/nvim-lspconfig"
     },
 }
 
-M.servers = {
-    "lua_ls",
-    "cssls",
-    "html",
-    "pyright",
-    "bashls",
-    "jsonls",
-    "yamlls",
-    "foam_ls",
-    "marksman",
-}
+M.servers = require("user.lspconfig").servers or {}
 
 local arch = vim.loop.os_uname().machine
 if not arch == "aarch64" then
@@ -31,6 +22,8 @@ function M.config()
     })
     require("mason-lspconfig").setup({
         ensure_installed = M.servers,
+        automatic_enable = false,
+        automatic_installation = true,
     })
 end
 
