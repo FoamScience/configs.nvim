@@ -33,8 +33,9 @@ This configuration will never support the following features:
 
 ## Requirements
 
-- [Neovim][] **nightly** (v0.10.0 or later), [NodeJS][] **v18** (or later), preferably installed with [NVM][],
+- [Neovim][] **nightly** (v0.11.0 or later), [NodeJS][] **v22** (or later), preferably installed with [NVM][],
 - Python 3 and (optionally) [Rust][]
+- The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`
 - For installing some LSP servers, you will need the `unzip` command
 - For Todo-comments and various other searching tasks, you will need [RIPGrep][]
 - A terminal with ligature support ([Kitty][], Warp, Alacritty, etc.)
@@ -76,8 +77,8 @@ docker run -it --rm nvim-config:latest bash
 - Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
 - You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
 - You can see registers content by pressing `"`, and marks positions by pressing the back-tick '`'
-- `<space>fk` lists all available key bindings and `<leader>fC` lists commands.
-- `<space>fP` will take you to individual plugin configuration!
+- `<leader>fk` lists all available key bindings and `<leader>fC` lists commands.
+- `<leader>fP` will take you to individual plugin configuration!
 
 The plugins are organized into categories, and it takes my machine **60ms** to load a C++ file.
 If you find it slow, you can always disable some categories in `init.lua`, or specific plugins in their configuration file.
@@ -110,34 +111,35 @@ vim.g.config_check_for_updates = false
   - `<space>` is the **leader key**, which is used to open `which-key` menu in normal mode
   - `<tab>` and `<S-tab>` in normal mode are used for buffer switching
 - [which-key.lua:](lua/user/which-key.lua) shows all available keymaps
-  - Press `<space>` to check available keymaps
+  - Press `<leader>` to check available keymaps
   - Shows Vim keymaps on `` ` `` (marks), `"` (registers), `z` (folds and spelling), `g` (operators)
   and `<c-w>` (window navigation)
 - [telescope.lua:](lua/user/telescope.lua) fuzzy finder for files, buffers, etc.
-  - `<space>f` take advantage of it
-  - In particular `<space>fk` shows all configured keymaps 
-  - Open the file from its Git history without checking out earlier commits with `<space>fF` 
-  - Browse the Undo tree (including diffs!) with `<space>fu`
-  - Open Plugin configuration files with `<space>fP`
+  - `<leader>f` take advantage of it
+  - In particular `<leader>fk` shows all configured keymaps 
+  - Open the file from its Git history without checking out earlier commits with `<leader>fF` 
+  - Browse the Undo tree (including diffs!) with `<leader>fu`
+  - Open Plugin configuration files with `<leader>fP`
 - [projects.lua:](lua/user/projects.lua) a project manager, mostly for detecting root directories
-  - `<space>fp` to open recent projects list
+  - `<leader>fp` to open recent projects list
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
-  - Try `:Telescope colorscheme` (or just `<space>fc`) to see a live demo of all available color schemes
+  - Try `:Telescope colorscheme` (or just `<leader>fc`) to see a live demo of all available color schemes
   - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
+- [undo.lua](lua/user/undo.lua) is an Undo tree visualizer, with diff views. `<leader>eu` to toggle. 
 
 ### UI
 
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer. Simple as that
-  - `<space>e` to toggle
+  - `<leader>e` to toggle
 - [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline
 - [indentline.lua:](lua/user/indentline.lua) improves code indentation
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
   - Setup for proper dimming of OpenFOAM entries
-  - `<space>wt` to toggle
+  - `<leader>wt` to toggle
 - [winsep.lua:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
 - [cinnamon.lua:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
@@ -175,7 +177,7 @@ vim.g.config_check_for_updates = false
 - [arrow.lua:](lua/user/arrow.lua) to bookmark your buffers. Replacing Harpoon.
     - Just press `,` in normal mode, or `<leader>b`
 - [navbuddy.lua:](lua/user/navbuddy.lua) fast local code navigation
-  - `<space>o` to toggle
+  - `<leader>o` to toggle
   - Only enabled on specific file types, such as OpenFOAM, C++, Python, Lua files
 
 ### Language support and LSPs
@@ -190,7 +192,7 @@ vim.g.config_check_for_updates = false
 - [lspconfig.lua:](lua/user/lspconfig.lua) configures the LSP servers and sets up keymaps for some features
   - `gd` and `gD` for go to definition and declaration
   - `K` for hover info
-  - You can also get to similar functionality through `<space>l` which uses which-key
+  - You can also get to similar functionality through `<leader>l` which uses which-key
 - [cmp.lua:](lua/user/cmp.lua) autocompletion engine
   - `<tab>` to cycle through suggestions, `<cr>` to confirm
   - Autocompletes buffer text, file paths, snippets, and also shows copilot suggestions as virtual text
@@ -230,13 +232,13 @@ vim.g.config_check_for_updates = false
 
 - [gitsigns.lua:](lua/user/gitsigns.lua) shows git diff in the sign column
 - [neogit.lua:](lua/user/neogit.lua) a git client
-  - `<space>gg` to open, `<space>g` in general to do git-related stuff, like staging hunks
+  - `<leader>gg` to open, `<leader>g` in general to do git-related stuff, like staging hunks
 - [diffview.lua:](lua/user/diffview.lua) a diff viewer for Git diffs
-  - `<space>gd` to open, or `:DiffviewOpen` in normal mode
+  - `<leader>gd` to open, or `:DiffviewOpen` in normal mode
 - [gitconflicts.lua:](lua/user/gitconflicts.lua) shows better diffs for git conflicts.
-  - `<space>gt` to open, or `:DiffConflicts` in normal mode
+  - `<leader>gt` to open, or `:DiffConflicts` in normal mode
 - [fugitive.lua:](lua/user/optional/fugitive.lua) The good old Git wrapper from Vim
-  - Most options from `<space>g` use it
+  - Most options from `<leader>g` use it
   - too good to leave behind
   - But no keymaps are set, intended for command-line use
 
