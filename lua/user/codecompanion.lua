@@ -78,6 +78,38 @@ M.config = function()
                     stop_context_insertion = true,
                 },
             },
+            ["Regex explainer"] = {
+                strategy = "chat",
+                opts = {
+                    modes = { "n" },
+                    short_name = "regexp",
+                    auto_submit = true,
+                },
+                prompts = {
+                    {
+                        role = "system",
+                        content = "You are an expert in " .. vim.bo.filetype .. " regular expressions."
+                    },
+                    {
+                        role = "user",
+                        content = function(ctx)
+                            local parser = vim.treesitter.get_parser(ctx.bufnr)
+                            local tree = parser:parse()[1]
+                            local root = tree:root()
+                            local row = ctx.cursor_pos[1]-1
+                            local col = ctx.cursor_pos[2]
+                            local node = root:named_descendant_for_range(row, col, row, col)
+                            if not node then
+                                return nil
+                            end
+                            local start_row, start_col, end_row, end_col = node:range()
+                            local lines = vim.api.nvim_buf_get_text(ctx.bufnr, start_row, start_col, end_row, end_col, {})
+                            local pattern = table.concat(lines, "\n")
+                            return "Draw a detailed railroad regexp diagram for the following pattern:\n`" .. pattern .. "`"
+                        end
+                    },
+                }
+            },
         },
         display = {
             diff = {
