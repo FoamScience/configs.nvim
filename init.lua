@@ -107,6 +107,7 @@ if vim.g.loaded_categories.edit then
     spec "user.project"
     spec "user.nvimtree"
     spec "user.guess-indent"
+    spec "user.undo"
 end
 
 -- navigation startup: 17.04/16.71

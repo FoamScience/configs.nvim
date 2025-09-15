@@ -31,6 +31,7 @@ function M.config()
             { "<leader>e",  group = "Edit",            icon = icons.ui.Pencil },
             { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Explorer",     icon = icons.ui.Folder },
             { "<leader>er", "<cmd>Registers<CR>", desc = "Registers",     icon = icons.ui.List },
+            { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",     icon = icons.ui.History },
         })
     end
     if vim.g.loaded_categories.ai then

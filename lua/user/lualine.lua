@@ -3,7 +3,7 @@ local M = {
     dependencies = { "SmiteshP/nvim-navic" },
 }
 
-local filetypes_to_ignore = {
+M.filetypes_to_ignore = {
     nil,
     "help",
     "qf",
@@ -16,6 +16,9 @@ local filetypes_to_ignore = {
     "lazy",
     "mason",
     "trouble",
+    "undotree",
+    "undotreeDiff",
+    "TelescopePrompt"
 }
 
 local clients_lsp = function()
@@ -104,8 +107,8 @@ function M.config()
             globalwinbar = true,
             always_show_tabline = false,
             disabled_filetypes = {
-                statusline = filetypes_to_ignore,
-                winbar = filetypes_to_ignore,
+                statusline = M.filetypes_to_ignore,
+                winbar = M.filetypes_to_ignore,
             },
         },
         sections = {
