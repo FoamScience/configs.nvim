@@ -1,12 +1,20 @@
+local filetypes = { "markdown", "codecompanion", "latex", "tex", "typst", "yaml", "rmd" }
+
 local M = {
     'MeanderingProgrammer/render-markdown.nvim',
-    ft = { 'markdown', 'codecompanion' },
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    event = 'VeryLazy'
 }
 
 M.config = function()
     require("render-markdown").setup {
         render_modes = true,
+        file_types = filetypes,
+        completions = {
+            lsp = {
+                enabled = true,
+            }
+        },
         heading = {
             icons = { '󰲡  ', ' 󰲣  ', '  󰲥  ', '   󰲧  ', '    󰲩  ', '     󰲫  ' },
             signs = { '󰫎 ' },
@@ -16,6 +24,9 @@ M.config = function()
         },
         code = {
             style = "full",
+            sign = false,
+            width = "block",
+            min_width = 80,
         },
         latex = {
             enabled = true,

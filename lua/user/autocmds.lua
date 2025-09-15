@@ -13,11 +13,10 @@ vim.api.nvim_create_autocmd({ "TextYankPost" }, {
 })
 
 vim.api.nvim_create_autocmd({ "FileType" }, {
-    desc = "Set wrap and spell for some file types",
-	pattern = { "gitcommit", "markdown", "latex", "tex", "NeogitCommitMessage" },
+    desc = "Set wrap for some file types",
+	pattern = { "gitcommit", "markdown", "latex", "tex", "NeogitCommitMessage", "typst", "rmd" },
 	callback = function()
 		vim.opt_local.wrap = true
-		vim.opt_local.spell = true
 	end,
 })
 
@@ -28,6 +27,13 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     callback = function()
         vim.bo.ft = "bash"
     end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "codecompanion",
+  callback = function()
+    vim.bo.filetype = "markdown"
+  end,
 })
 
 --vim.api.nvim_create_autocmd({"FileType", "BufReadPost"}, {
