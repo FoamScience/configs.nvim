@@ -4,9 +4,6 @@ local M = {
     opts = {
     },
     event = "VeryLazy",
-    keys = {
-        { "<leader>u", "<cmd>lua require('undotree').toggle()<cr>" },
-    },
 }
 
 function M.config()

@@ -105,7 +105,7 @@ M.config = function()
                             local start_row, start_col, end_row, end_col = node:range()
                             local lines = vim.api.nvim_buf_get_text(ctx.bufnr, start_row, start_col, end_row, end_col, {})
                             local pattern = table.concat(lines, "\n")
-                            return "Draw a detailed railroad regexp diagram for the following pattern:\n`" .. pattern .. "`"
+                            return "Draw a detailed railroad regexp diagram for the following " .. vim.bo.filetype .. " pattern:\n`" .. pattern .. "`"
                         end
                     },
                 }

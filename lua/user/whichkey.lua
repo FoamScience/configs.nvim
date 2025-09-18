@@ -36,35 +36,18 @@ function M.config()
     end
     if vim.g.loaded_categories.ai then
         vim.list_extend(mappings, {
-            { "<leader>c", group = "Cody", icon = icons.misc.Robot, mode = { "n", "v" } },
-            {
-                "<leader>cc",
-                "<cmd>CodyChat<CR>",
-                desc = "Cody Chat",
-            },
-            {
-                "<leader>cr",
-                "<cmd>CodyToggle<CR>",
-                desc = "Cody Toggle",
-            },
-            {
-                "<leader>ce",
-                ":CodyExplain<CR>",
-                desc = "Cody Explain",
-                mode = "v",
-            },
-            { "<leader>s", group = "Sourcegraph", icon = icons.ui.Target, mode = { "n", "v" } },
-            --{
-            --    "<leader>ss",
-            --    "<cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<cr>",
-            --    desc = "Search public code"
-            --},
             { "<leader>a", group = "AI", icon = icons.ui.Target, mode = { "n", "v" } },
             {
                 "<leader>ac",
                 "<cmd>EnrichContext<cr>",
                 desc = "Entrich code context",
                 mode = "v",
+            },
+            {
+                "<leader>ac",
+                "<cmd>CodeCompanionChat<cr>",
+                desc = "Code companion chat",
+                mode = "n",
             },
             {
                 "<leader>ax",
@@ -88,13 +71,6 @@ function M.config()
                 "<leader>af",
                 function() require("codecompanion").prompt("fix") end,
                 desc = "Fix selected code",
-                mode = "v",
-            },
-            {
-                "<leader>ar",
-                function() require("codecompanion").prompt("review") end,
-                desc = "Review code with CodeCompanion",
-                icon = icons.git.Diff,
                 mode = "v",
             },
             {
