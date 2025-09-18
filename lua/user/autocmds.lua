@@ -28,23 +28,3 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
         vim.bo.ft = "bash"
     end,
 })
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "codecompanion",
-  callback = function()
-    vim.bo.filetype = "markdown"
-  end,
-})
-
---vim.api.nvim_create_autocmd({"FileType", "BufReadPost"}, {
---  pattern = "python",
---  command = "setlocal noexpandtab tabstop=4 shiftwidth=4"
---})
-
-
---vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdlineLeave" }, {
---    desc = "fix cmp completion in visual mode",
---	callback = function()
---        require('cmp').setup.buffer({ enabled = vim.api.nvim_get_mode().mode == 'c' })
---	end,
---})
