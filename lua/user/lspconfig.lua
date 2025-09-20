@@ -67,7 +67,6 @@ M.servers = {
 }
 
 function M.config()
-    local lspconfig = require("lspconfig")
     local util = require("lspconfig.util")
     local icons = require("user.lspicons")
 
@@ -147,7 +146,7 @@ function M.config()
                 or util.root_pattern(".git", "Make")
         end
 
-        lspconfig[server].setup(opts)
+        vim.lsp.enable(server, opts)
     end
 end
 

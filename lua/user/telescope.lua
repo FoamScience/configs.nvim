@@ -21,12 +21,12 @@ function M.config()
     local actions = require("telescope.actions")
     local layout_ops = {
         layout_config = {
-            width = 0.90,
-            height = 0.85,
+            width = 0.99,
+            height = 0.99,
             preview_cutoff = 120,
             horizontal = {
                 prompt_position = "top",
-                preview_width = 0.55,
+                preview_width = 0.65,
             },
             vertical = {
                 mirror = false,
