@@ -11,7 +11,7 @@ local M = {
     }
 }
 
-function get_lualine_colors(lualine, props, ft_color)
+function M.get_lualine_colors(lualine, props, ft_color)
     local helpers = require 'incline.helpers'
     local fg, bg, ifg, ibg
     local theme_name = lualine.get_config().options.theme
@@ -61,8 +61,11 @@ function M.config()
             local ft_icon, ft_color = devicons.get_icon_color(filename)
             local modified = vim.bo[props.buf].modified
             local colors = {}
+            if ft_color == nil and lualine_ok then
+               ft_color = require('lualine.themes.' .. lualine.get_config().options.theme).normal.a.fg
+            end
             if lualine_ok then
-                colors = get_lualine_colors(lualine, props, ft_color)
+                colors = M.get_lualine_colors(lualine, props, ft_color)
             end
             local res = {
                 ft_icon and {
