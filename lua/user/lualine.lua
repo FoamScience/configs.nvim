@@ -1,6 +1,8 @@
 local M = {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "SmiteshP/nvim-navic" },
+    dependencies = {
+        "SmiteshP/nvim-navic",
+    },
 }
 
 M.filetypes_to_ignore = {
@@ -40,7 +42,7 @@ local flash_in_search = function()
     local flash_ok, _ = pcall(require, "flash")
     if not flash_ok then return "" end
     local icons = require("user.lspicons")
-    if not require("flash.plugins.search").enabled then  return "" end
+    if not require("flash.plugins.search").enabled then return "" end
     return "/" .. icons.kind.Event
 end
 
@@ -74,6 +76,7 @@ function M.config()
             end,
         })
     end
+
     function codecompanion:update_status()
         if _G.codecompanion_chat_metadata ~= nil then
             local buf = vim.api.nvim_get_current_buf()
@@ -94,8 +97,6 @@ function M.config()
         end
     end
 
-    local navic_ok, navic = pcall(require, "nvim-navic")
-    local git_blame_ok, git_blame = pcall(require, "gitblame")
     local arrow_ok, arrow = pcall(require, "arrow.statusline")
     require("lualine").setup({
         options = {
@@ -105,7 +106,7 @@ function M.config()
             ignore_focus = { "NvimTree", "noice", "qf" },
             globalstatus = true,
             globalwinbar = true,
-            always_show_tabline = false,
+            always_show_tabline = true,
             disabled_filetypes = {
                 statusline = M.filetypes_to_ignore,
                 winbar = M.filetypes_to_ignore,
@@ -135,23 +136,28 @@ function M.config()
                     end,
                 },
             },
-            lualine_b = { { "branch", icon = icons.git.Branch }, diff },
-            lualine_c = {},
-            lualine_x = {
+            lualine_b = {
+                { "branch", icon = icons.git.Branch },
+                diff,
                 {
                     function()
-                        if not git_blame_ok then return nil end
-                        return git_blame.get_current_blame_text()
+                        local blame = vim.b.gitsigns_blame_line or ""
+                        local max_len = 80
+                        if #blame > max_len then
+                            return blame:sub(1, max_len) .. "…"
+                        end
+                        return blame
                     end,
                     cond = function()
-                        if not git_blame_ok then return false end
-                        return git_blame.is_blame_text_available
+                        return vim.b.gitsigns_blame_line ~= nil
                     end
                 },
+            },
+            lualine_c = {},
+            lualine_x = {
                 codecompanion,
                 "diagnostics",
                 clients_lsp,
-                --copilot,
             },
             lualine_y = {
                 flash_in_search,
@@ -187,7 +193,6 @@ function M.config()
                     hide_filename_extension = false,
                     show_modified_status = true,
                     mode = 2,
-                    maxx_length = 6,
                     buffers_color = {
                         active = 'lualine_a_normal',
                         inactive = 'lualine_a_inactive',
@@ -210,19 +215,7 @@ function M.config()
             }
         },
         winbar = {
-            lualine_a = {
-                {
-                    function()
-                        if not navic_ok then return nil end
-                        return navic.get_location()
-                    end,
-                    cond = function()
-                        if not navic_ok then return false end
-                        return navic.is_available()
-                    end,
-                    color = "WarningMsg",
-                },
-            },
+            lualine_a = {},
         },
         inactive_winbar = {},
     })

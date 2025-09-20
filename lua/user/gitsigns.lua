@@ -16,9 +16,9 @@ M.config = function()
         attach_to_untracked          = true,
         current_line_blame           = true,
         current_line_blame_opts      = {
-            virt_text = true,
+            virt_text = false,
             virt_text_pos = 'right_align',
-            delay = 500,
+            delay = 300,
             ignore_whitespace = false,
             virt_text_priority = 100,
             use_focus = true,
@@ -40,6 +40,14 @@ M.config = function()
                 },
                 {
                     util.expand_format("<author_time:%R>", info),
+                    "@lsp.type.operator"
+                },
+                {
+                    " • ",
+                    "@lsp.type.variable"
+                },
+                {
+                    info.summary,
                     "@lsp.type.operator"
                 },
             }
