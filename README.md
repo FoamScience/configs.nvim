@@ -134,6 +134,7 @@ vim.g.config_check_for_updates = false
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer. Simple as that
   - `<leader>e` to toggle
 - [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline
+- [incline.lua](lua/user/incline.lua) for floating buffer names at top-right corners of windows
 - [indentline.lua:](lua/user/indentline.lua) improves code indentation
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
@@ -144,7 +145,6 @@ vim.g.config_check_for_updates = false
 - [cinnamon.lua:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
   - With support for Latex equation rendering
-- [bufferline.lua](lua/user/bufferline.lua) for buffer names at the top
 - [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
   for current file and setting global options accordingly.
   - Should be automatic, but `:GuessIndent` helps
