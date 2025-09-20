@@ -87,7 +87,7 @@ end
 if vim.g.loaded_categories.winbar then
     spec "user.navic"
     spec "user.lualine"
-    spec "user.bufferline"
+    spec "user.incline"
 end
 
 -- telescope startup 17.07/17.08
@@ -106,6 +106,7 @@ if vim.g.loaded_categories.edit then
     spec "user.autopairs"
     spec "user.project"
     spec "user.nvimtree"
+    spec "user.snippets"
     spec "user.guess-indent"
     spec "user.undo"
 end
