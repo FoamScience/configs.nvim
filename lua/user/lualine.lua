@@ -100,7 +100,6 @@ function M.config()
     local arrow_ok, arrow = pcall(require, "arrow.statusline")
     local theme_name = "auto"
     if vim.g.colors_name:find("catppuccin") then
-        print("setting theme to " .. vim.g.colors_name)
         theme_name = vim.g.colors_name
     end
     require("lualine").setup({
