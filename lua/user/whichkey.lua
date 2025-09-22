@@ -74,7 +74,7 @@ function M.config()
                 mode = "v",
             },
             {
-                "<leader>al",
+                "<leader>ad",
                 function() require("codecompanion").prompt("lsp") end,
                 desc = "Explain LSP diagnostics",
                 mode = {"n", "v"},
@@ -84,6 +84,12 @@ function M.config()
                 function() require("codecompanion").prompt("commit") end,
                 desc = "Generate Git Commit from Diffs",
                 mode = "n"
+            },
+            {
+                "<leader>al",
+                function() require("utils.ai").pick_language() end,
+                desc = "Set LLM response language",
+                mode = {"n"},
             },
         })
     end

@@ -109,6 +109,7 @@ if vim.g.loaded_categories.edit then
     spec "user.snippets"
     spec "user.guess-indent"
     spec "user.undo"
+    spec "user.markdown-toc"
 end
 
 -- navigation startup: 17.04/16.71
