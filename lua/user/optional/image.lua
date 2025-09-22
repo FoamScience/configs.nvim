@@ -11,8 +11,6 @@ M.config = function()
         integrations = {
             markdown = {
                 resolve_image_path = function(doc_path, image_path, fallback)
-                    vim.print("image path: ", image_path)
-                    vim.print("doc path: ", doc_path)
                     return fallback(doc_path, image_path)
                 end,
                 enabled = true,
