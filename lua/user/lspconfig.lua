@@ -56,7 +56,7 @@ M.servers = {
     "cssls",
     "html",
     "astro",
-    "pyright",
+    "pylsp",
     "bashls",
     "jsonls",
     "yamlls",
@@ -144,6 +144,23 @@ function M.config()
             opts.filetypes = { "c", "cpp" }
             opts.root_dir = util.root_pattern("compile_commands.json")
                 or util.root_pattern(".git", "Make")
+        end
+
+        if server == "pylsp" then
+            if vim.fn.executable("uv") == 1 then
+                local handle = io.popen('uv run python -c "import sys; print(sys.executable)"')
+                local python_path = handle:read("*a"):gsub("%s+", "")
+                handle:close()
+                opts.cmd = { python_path, "-m", "pylsp" }
+                opts.settings = {
+                    pylsp = {
+                        plugins = {
+                            pyflakes = { enabled = true },
+                            pycodestyle = { enabled = true },
+                        }
+                    }
+                }
+            end
         end
 
         vim.lsp.enable(server, opts)
