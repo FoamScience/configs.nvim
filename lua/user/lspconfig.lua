@@ -70,7 +70,6 @@ function M.config()
     local util = require("lspconfig.util")
     local icons = require("user.lspicons")
 
-
     local default_diagnostic_config = {
         signs = {
             text = {
@@ -88,13 +87,14 @@ function M.config()
         },
         virtual_text = false,
         update_in_insert = false,
-        underline = true,
+        underline = function(_, buf_nr)
+            return #vim.diagnostic.get(buf_nr) <= 10
+        end,
         severity_sort = true,
         float = {
             focusable = true,
-            style = "minimal",
             border = "rounded",
-            source = "always",
+            source = "if_many",
             header = "",
             prefix = "",
         },
@@ -164,6 +164,14 @@ function M.config()
         end
 
         vim.lsp.enable(server, opts)
+    end
+
+    local MAX_DIAGNOSTICS = 10
+    local diags = vim.diagnostic.get(0)
+    if #diags > MAX_DIAGNOSTICS then
+        vim.diagnostic.hide(nil, 0)
+    else
+        vim.diagnostic.show(nil, 0)
     end
 end
 
