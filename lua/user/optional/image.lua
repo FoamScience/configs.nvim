@@ -22,17 +22,25 @@ M.config = function()
             },
             neorg = {
                 enabled = true,
+                floating_windows = true,
+                only_render_image_at_cursor = true,
                 filetypes = { "norg" },
             },
             typst = {
                 enabled = true,
+                floating_windows = true,
+                only_render_image_at_cursor = true,
                 filetypes = { "typst" },
             },
             html = {
                 enabled = false,
+                floating_windows = true,
+                only_render_image_at_cursor = true,
             },
             css = {
                 enabled = false,
+                floating_windows = true,
+                only_render_image_at_cursor = true,
             },
         },
         max_width = nil,

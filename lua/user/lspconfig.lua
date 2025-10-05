@@ -62,6 +62,7 @@ M.servers = {
     "yamlls",
     "glsl_analyzer",
     "foam_ls",
+    "tinymist",
     "rust_analyzer",
     "marksman",
 }

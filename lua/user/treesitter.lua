@@ -35,7 +35,7 @@ function M.config()
 			end
 		end,
 	})
-	--require("nvim-treesitter").install(ensure_installed):wait(300000)
+	require("nvim-treesitter").install(ensure_installed)
 end
 
 return M
