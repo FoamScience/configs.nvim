@@ -1,3 +1,4 @@
+
 ![](https://img.shields.io/github/actions/workflow/status/FoamScience/configs.nvim/.github%2Fworkflows%2Fci.yaml?branch=master&style=for-the-badge&logo=neovim&label=Neovim%20(stable%20%2B%20unstable)&labelColor=grey)
 ![](https://img.shields.io/badge/Fast-as%20in%2060ms-huh?style=for-the-badge&logo=lightning)
 ![](https://img.shields.io/github/languages/code-size/FoamScience/configs.nvim?style=for-the-badge&logo=gitlfs&logoColor=green)
@@ -133,7 +134,8 @@ vim.g.config_check_for_updates = false
 
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer. Simple as that
   - `<leader>e` to toggle
-- [lualine.lua:](lua/user/lualine.lua) fast and pretty statusline
+- ~~[lualine.lua:](lua/user/lualine.lua) fast and pretty statusline~~
+- [mini-statusline.lua](./lua/user/mini-statusline.lua) for status and tabline configuration
 - [incline.lua](lua/user/incline.lua) for floating buffer names at top-right corners of windows
 - [indentline.lua:](lua/user/indentline.lua) improves code indentation
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
@@ -141,7 +143,7 @@ vim.g.config_check_for_updates = false
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
   - Setup for proper dimming of OpenFOAM entries
   - `<leader>wt` to toggle
-- [winsep.lua:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.
+- ~~[winsep.lua:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.~~
 - [cinnamon.lua:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
   - With support for Latex equation rendering
@@ -185,6 +187,7 @@ vim.g.config_check_for_updates = false
 - [treesitter.lua:](lua/user/treesitter.lua) syntax highlighting and code folding
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
   - Auto-installs tree-sitter grammars for languages the first time they are encountered
+  - Text objects for classes, functions, loops and conditions through [treesitter-textobjects.lua](lua/user/treesitter-textobjects.lua)
 - [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
     - `clangd` is not managed through Mason on ARM machines, run `apt install clangd` instead
@@ -200,7 +203,7 @@ vim.g.config_check_for_updates = false
   - Completes math functions in Vim's expression register (`<c-r>` in insert mode)
   - Also provides command line completion on `:`
 - [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
-- [navic.lua:](lua/user/optional/navic.lua) shows code structure at the cursor in the winbar
+- [navic.lua:](lua/user/navic.lua) shows code structure at the cursor in the winbar
 
 ### AI
 
@@ -210,9 +213,9 @@ vim.g.config_check_for_updates = false
   - If you intend to use the `@{search_web}` tool, obtain a free `TAVILY_API_KEY` from [tavily.com](https://app.tavily.com/home)
   - Can disable code sharing with LLM cloud services in `lua/<your-username>/user-settings.lua`
   - `<leader>a` in normal and visual mode to get started.
-- [sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]
-- [lluminate.lua:](lua/user/lluminate.lua) for code context inclusion when copying code for LLM chats.
-  - Visual-select the code you want to get context for, and `<leader>ac` for AI-context
+- ~~[sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]~~
+- ~~[lluminate.lua:](lua/user/lluminate.lua) for code context inclusion when copying code for LLM chats.~~
+  - ~~Visual-select the code you want to get context for, and `<leader>ac` for AI-context~~
 - ~~[ai:](lua/user/ai) a set of custom scripts for AI-assisted programming~~
   - ~~`:Chat*` commands set; see [Screenshots][]~~
   - ~~Requires a CLI binary called `tgpt` which must:~~
@@ -237,17 +240,17 @@ vim.g.config_check_for_updates = false
   - `<leader>gd` to open, or `:DiffviewOpen` in normal mode
 - [gitconflicts.lua:](lua/user/gitconflicts.lua) shows better diffs for git conflicts.
   - `<leader>gt` to open, or `:DiffConflicts` in normal mode
-- [fugitive.lua:](lua/user/optional/fugitive.lua) The good old Git wrapper from Vim
-  - Most options from `<leader>g` use it
-  - too good to leave behind
-  - But no keymaps are set, intended for command-line use
+- ~~[fugitive.lua:](lua/user/optional/fugitive.lua) The good old Git wrapper from Vim~~
+  - ~~Most options from `<leader>g` use it~~
+  - ~~too good to leave behind~~
+  - ~~But no keymaps are set, intended for command-line use~~
 
 ### Miscellaneous
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVLens.
-- [neorg.lua:](lua/user/optional/neorg.lua) a Notes/task management system through `<leader>o`
-  using [Neorg][].
+- ~~[neorg.lua:](lua/user/optional/neorg.lua) a Notes/task management system through `<leader>o`
+  using [Neorg][].~~
 
 [Screenshots]: /screenshots/README.md "Screenshots"
 [Neovim]: https://github.com/neovim/neovim/releases "Neovim"
