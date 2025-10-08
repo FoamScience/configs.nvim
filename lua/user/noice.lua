@@ -37,6 +37,9 @@ function M.config()
 					luasnip = true,
 					throttle = 500, -- wait for 150ms beforeshowing hover info
 				},
+				opts = {
+					zindex = 500,
+				},
 			},
 		},
 		notify = {

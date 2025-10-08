@@ -2,6 +2,7 @@ local M = {
     "3rd/image.nvim",
     build = false,
     enable = vim.env.TERM == "xterm-kitty" and vim.fn.executable("mogrify") == 1,
+    ft = { "markdown", "vimwiki", "norg", "typst" },
 }
 
 M.config = function()

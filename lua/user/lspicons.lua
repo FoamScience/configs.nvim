@@ -16,6 +16,7 @@ return {
         Interface = " ",
         Key = " ",
         Keyword = " ",
+        Loop = "⮔ ",
         Method = " ",
         Module = " ",
         Namespace = " ",

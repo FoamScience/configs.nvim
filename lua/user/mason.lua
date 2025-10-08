@@ -1,5 +1,6 @@
 local M = {
     "williamboman/mason-lspconfig.nvim",
+    lazy = true,
     dependencies = {
         "williamboman/mason.nvim",
         "nvim-lua/plenary.nvim",
@@ -8,11 +9,6 @@ local M = {
 }
 
 M.servers = require("user.lspconfig").servers or {}
-
-local arch = vim.loop.os_uname().machine
-if not arch == "aarch64" then
-    table.insert(M.servers, "clangd")
-end
 
 function M.config()
     require("mason").setup({

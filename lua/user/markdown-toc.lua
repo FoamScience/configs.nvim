@@ -7,7 +7,6 @@ local M = {
         "nvim-telescope/telescope.nvim",   -- for picker UI
     },
     build = ":TSInstall markdown",
-    event = "VeryLazy",
 }
 
 M.config = function()

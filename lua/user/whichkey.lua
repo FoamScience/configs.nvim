@@ -27,11 +27,27 @@ function M.config()
         })
     end
     if vim.g.loaded_categories.edit then
+        local mtoc_keys = {}
+        if vim.bo.filetype == "markdown" or vim.bo.filetype == "rmd" then
+            mtoc_keys = {
+                { "<leader>et",  group = "Markdown TOC", icon = icons.ui.List },
+                { "<leader>eti", "<cmd>Mtoc insert<CR>", desc = "Insert the ToC for current buffer",  icon = icons.ui.Plus,                 mode = { "n" } },
+                { "<leader>etu", "<cmd>Mtoc update<CR>", desc = "Update the ToC for current buffer",  icon = icons.ui.History },
+                { "<leader>etp", "<cmd>Mtoc pick<CR>",   desc = "Pick the ToC ",                      icon = icons.diagnostics.BoldQuestion },
+                { "<leader>etr", "<cmd>Mtoc remove<CR>", desc = "Remove the ToC from current buffer", icon = icons.diagnostics.BoldError },
+            }
+            vim.keymap.set({ 'x', 'o' }, 'aT',
+                function() return require('mtoc')._select_toc_textobj(false) end,
+                { expr = true, desc = 'outer ToC' })
+            vim.keymap.set({ 'x', 'o' }, 'iT',
+                function() return require('mtoc')._select_toc_textobj(true) end,
+                { expr = true, desc = 'inner ToC' })
+        end
         vim.list_extend(mappings, {
-            { "<leader>e",  group = "Edit",            icon = icons.ui.Pencil },
-            { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Explorer",     icon = icons.ui.Folder },
-            { "<leader>er", "<cmd>Registers<CR>", desc = "Registers",     icon = icons.ui.List },
-            { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",     icon = icons.ui.History },
+            { "<leader>e",  group = "Edit",                              icon = icons.ui.Pencil },
+            { "<leader>ee", "<cmd>NvimTreeToggle<CR>",                   desc = "Explorer",     icon = icons.ui.Folder },
+            { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",    icon = icons.ui.History },
+            unpack(mtoc_keys),
         })
     end
     if vim.g.loaded_categories.ai then
@@ -77,7 +93,7 @@ function M.config()
                 "<leader>ad",
                 function() require("codecompanion").prompt("lsp") end,
                 desc = "Explain LSP diagnostics",
-                mode = {"n", "v"},
+                mode = { "n", "v" },
             },
             {
                 "<leader>ag",
@@ -89,13 +105,13 @@ function M.config()
                 "<leader>al",
                 function() require("utils.ai").pick_language() end,
                 desc = "Set LLM response language",
-                mode = {"n"},
+                mode = { "n" },
             },
         })
     end
     if vim.g.loaded_categories.lsp then
         vim.list_extend(mappings, {
-            { "<leader>l", group = "LSP", icon = icons.kind.Class, mode = { "n", "v" } },
+            { "<leader>l", group = "LSP",        icon = icons.kind.Class, mode = { "n", "v" } },
             {
                 "<leader>ld",
                 "<cmd>Telescope lsp_definitions<cr>",
@@ -181,12 +197,6 @@ function M.config()
                 icon = icons.kind.Variable,
             },
             {
-                "<leader>la",
-                function() require("tiny-code-action").code_action() end,
-                desc = "Code actions",
-                icon = icons.ui.Target,
-            },
-            {
                 "<leader>ln",
                 function()
                     local hints_on = vim.lsp.inlay_hint.is_enabled({})
@@ -209,23 +219,67 @@ function M.config()
                 desc = "Inspect Tree",
                 icon = icons.ui.Search
             },
+            {
+                "]f",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next function start", icon = icons.kind.Method
+            },
+            {
+                "]F",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_end("@function.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next function end", icon = icons.kind.Method
+            },
+            {
+                "]c",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_start("@class.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next class start", icon = icons.kind.Class
+            },
+            {
+                "]C",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_end("@class.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next class end", icon = icons.kind.Class
+            },
+            {
+                "]l",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_start("@loop.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next loop start", icon = icons.kind.Loop
+            },
+            {
+                "]L",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_end("@loop.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next loop end", icon = icons.kind.Loop
+            },
+            {
+                "]i",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_start("condition.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next condition start", icon = icons.kind.Loop
+            },
+            {
+                "]I",
+                function()
+                    require("nvim-treesitter-textobjects.move").goto_next_end("condition.outer", "textobjects")
+                end,
+                mode = {"n", "x", "c"}, desc = "Next condition end", icon = icons.kind.Loop
+            },
         })
     end
     if vim.g.loaded_categories.git then
         vim.list_extend(mappings, {
-            { "<leader>d", group = "Diff", icon = icons.git.Diff },
-            {
-                "<leader>do",
-                "<cmd>DiffviewOpen<cr>",
-                desc = "Open Diff",
-            },
-            {
-                "<leader>dh",
-                "<cmd>DiffviewFileHistory<cr>",
-                desc = "File History",
-            },
-
-            { "<leader>g", group = "Git",  icon = icons.git.Branch },
+            { "<leader>g", group = "Git", icon = icons.git.Branch },
             {
                 "<leader>gn",
                 "<cmd>Neogit<cr>",
@@ -272,9 +326,19 @@ function M.config()
                 desc = "Undo Stage Hunk",
             },
             {
-                "<leader>gd",
+                "<leader>gdd",
                 "<cmd>Gitsigns diffthis HEAD<cr>",
-                desc = "Git Diff",
+                desc = "Diff this buffer against HEAD",
+            },
+            {
+                "<leader>gdv",
+                "<cmd>DiffviewOpen<cr>",
+                desc = "Open repo diff view",
+            },
+            {
+                "<leader>gh",
+                "<cmd>DiffviewFileHistory<cr>",
+                desc = "Git History for All files",
             },
             {
                 "<leader>gt",
@@ -307,9 +371,9 @@ function M.config()
                 desc = "Find files",
             },
             {
-                "<leader>fF",
-                "<cmd>Telescope git_file_history<cr>",
-                desc = "Git file history",
+                "<leader>fg",
+                "<cmd>lua require('user.git-file-history').git_file_history()<cr>",
+                desc = "This buffer's Git history",
             },
             {
                 "<leader>fs",
@@ -370,108 +434,6 @@ function M.config()
                 "<leader>fu",
                 "<cmd>Telescope undo<cr>",
                 desc = "Unto tree",
-            },
-        })
-    end
-    if vim.g.loaded_categories.optional then
-        vim.list_extend(mappings, {
-            { "<leader>o",  group = "Neorg",  icon=icons.ui.Note },
-            { "<leader>oc", group = "Code", icons.ui.Files },
-            {
-                "<leader>ocm",
-                "<Plug>(neorg.looking-glass.magnify-code-block)",
-                desc = "Magnify code block",
-            },
-            { "<leader>oi", group = "Insert", icons.ui.Forward },
-            {
-                "<leader>oid",
-                "<Plug>(neorg.tempus.insert-date)",
-                desc = "Insertion date",
-            },
-            {
-                "<leader>oif",
-                "<cmd>Telescope neorg insert_file_link",
-                desc = "Insert file link",
-            },
-            {
-                "<leader>oil",
-                "<cmd>Telescope neorg insert_link",
-                desc = "Insert link",
-            },
-            { "<leader>ol", group = "List", icons.ui.List },
-            {
-                "<leader>oli",
-                "<Plug>(neorg.pivot.list.invert)",
-                desc = "List invert",
-            },
-            {
-                "<leader>olt",
-                "<Plug>(neorg.pivot.list.toggle)",
-                desc = "List toggle",
-            },
-            { "<leader>on", group = "Note", icons.ui.Note },
-            {
-                "<leader>onn",
-                "<Plug>(neorg.dirman.new-note)",
-                desc = "New note",
-            },
-            { "<leader>ot", group = "Task", icons.ui.Tab },
-            {
-                "<leader>ota",
-                "<Plug>(neorg.qol.todo-items.todo.task-ambiguous)",
-                desc = "Task ambiguous",
-            },
-            {
-                "<leader>otc",
-                "<Plug>(neorg.qol.todo-items.todo.task-cancelled)",
-                desc = "Task cancelled",
-            },
-            {
-                "<leader>otd",
-                "<Plug>(neorg.qol.todo-items.todo.task-done)",
-                desc = "Task done",
-            },
-            {
-                "<leader>oth",
-                "<Plug>(neorg.qol.todo-items.todo.task-on-hold)",
-                desc = "Task on hold",
-            },
-            {
-                "<leader>oti",
-                "<Plug>(neorg.qol.todo-items.todo.task-important)",
-                desc = "Task important",
-            },
-            {
-                "<leader>otp",
-                "<Plug>(neorg.qol.todo-items.todo.task-pending)",
-                desc = "Task pending",
-            },
-            {
-                "<leader>otr",
-                "<Plug>(neorg.qol.todo-items.todo.task-recurring)",
-                desc = "Task recurring",
-            },
-            {
-                "<leader>otu",
-                "<Plug>(neorg.qol.todo-items.todo.task-undone)",
-                desc = "Task undone",
-            },
-            { "<leader>of", group = "Find", icons.ui.Search },
-            {
-                "<leader>off",
-                "<cmd>Telescope neorg find_neorg_files<cr>",
-                desc = "Find files",
-            },
-            {
-                "<leader>ofl",
-                "<cmd>Telescope neorg find_linkable<cr>",
-                desc = "Find linkable",
-            },
-            { "<leader>ow", group = "Workspaces", icons.ui.Files },
-            {
-                "<leader>ows",
-                "<cmd>Telescope neorg switch_workspace<cr>",
-                desc = "Workspace switch",
             },
         })
     end

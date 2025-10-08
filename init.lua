@@ -59,7 +59,7 @@ end
 -- UX startup: 16.37/16.50
 if vim.g.loaded_categories.ux then
     spec "user.noice"
-    spec "user.significant"
+    --spec "user.significant"
     spec "user.indentline" -- costs ~0.03 msecs
     spec "user.render-markdown"
     spec "user.img-clip"
@@ -68,11 +68,11 @@ end
 -- lsp setup startup: 36.39/37.50
 if vim.g.loaded_categories.lsp then
     spec "user.treesitter"
+    spec "user.treesitter-textobjects"
     spec "user.mason"
     spec "user.lspconfig"
     spec "user.todocomments"
     spec "user.garbage"
-    spec "user.code-actions"
 end
 
 -- git startup: 17.14/17.39
@@ -86,14 +86,13 @@ end
 ---- winbar and statusline startup: 26.92/26.94
 if vim.g.loaded_categories.winbar then
     spec "user.navic"
-    spec "user.lualine"
+    spec "user.mini-statusline"  -- Fast statusline using mini.nvim (<1ms)
     spec "user.incline"
 end
 
 -- telescope startup 17.07/17.08
 if vim.g.loaded_categories.telescope then
     spec "user.telescope"
-    spec "user.telescope-tabs"
 end
 
 -- autocomplete startup: 17.03/17.11
@@ -122,11 +121,8 @@ end
 
 -- AI startup: 16.84/17.18
 if vim.g.loaded_categories.ai then
-    spec "user.lluminate"
+    --spec "user.lluminate"
     spec "user.codecompanion"
-    --spec "user.sg"
-    --spec "user.avante"
-    --spec "user.copilot"
 end
 
 -- optional plugins startup: 17.93/18.03
@@ -137,10 +133,10 @@ if vim.g.loaded_categories.optional then
     spec "user.optional.csv"
     spec "user.optional.dim"
     --spec "user.optional.lens"
-    spec "user.optional.winsep"
+    --spec "user.optional.winsep"
     spec "user.optional.cinnamon"
     spec "user.optional.image"
-    spec "user.optional.neorg"
+    --spec "user.optional.neorg"
     spec "user.optional.typst"
 end
 

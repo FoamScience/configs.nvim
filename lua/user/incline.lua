@@ -62,7 +62,7 @@ function M.config()
             local modified = vim.bo[props.buf].modified
             local colors = {}
             if ft_color == nil and lualine_ok then
-               ft_color = require('lualine.themes.' .. lualine.get_config().options.theme).normal.a.fg
+                ft_color = require('lualine.themes.' .. lualine.get_config().options.theme).normal.a.fg
             end
             if lualine_ok then
                 colors = M.get_lualine_colors(lualine, props, ft_color)
@@ -81,16 +81,37 @@ function M.config()
                 guifg = colors.fg or helpers.contrast_color(ft_color),
             }
             if not navic_ok then return res end
+            local data_length = #res[3][1] + 6
+
+            local res_no_navic = {}
+            for i, v in ipairs(res) do
+                res_no_navic[i] = v
+            end
             if props.focused then
-                for _, item in ipairs(navic.get_data(props.buf) or {}) do
+                local data = navic.get_data(props.buf) or {}
+                for _, item in ipairs(data) do
+                    if item.name then
+                        data_length = data_length + #item.name + #"> {}"
+                    end
                     table.insert(res, {
-                        { ' > ',     },
+                        { ' > ', },
                         { item.icon, },
                         { item.name, },
                     })
                 end
             end
             table.insert(res, ' ')
+            local winid = vim.api.nvim_get_current_win()
+            local cursor_line = vim.fn.line("w0", winid)
+            local curpos = vim.fn.line(".", winid)
+            local win_width = vim.api.nvim_win_get_width(winid)
+            if curpos == cursor_line then
+                local first_line = vim.api.nvim_buf_get_lines(props.buf, cursor_line - 1, cursor_line, false)[1] or ""
+                local total_length = #first_line + data_length
+                if total_length > win_width then
+                    return res_no_navic
+                end
+            end
             return res
         end,
     }

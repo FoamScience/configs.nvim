@@ -2,6 +2,7 @@ local M = {
     "L3MON4D3/LuaSnip",
     build = "make install_jsregexp",
     event = "VeryLazy",
+    lazy = true,
     dependencies = {
         "rafamadriz/friendly-snippets",
     },

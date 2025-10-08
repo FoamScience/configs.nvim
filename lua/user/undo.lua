@@ -12,7 +12,7 @@ function M.config()
         window = {
             winblend = 0,
         },
-        ignore_filetype = require("user.lualine").filetypes_to_ignore or {
+        ignore_filetype = require("user.mini-statusline").sidebar_filetypes or {
             "undotree",
             'undotreeDiff',
             'qf',

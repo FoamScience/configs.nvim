@@ -9,33 +9,34 @@ local M = {
         },
         { "nvim-telescope/telescope-symbols.nvim" },
         { "polirritmico/telescope-lazy-plugins.nvim" },
-        { "isak102/telescope-git-file-history.nvim",  dependencies = { "tpope/vim-fugitive" } },
         { "debugloop/telescope-undo.nvim" },
     },
     lazy = true,
     cmd = "Telescope",
 }
 
+M.layout_ops = {
+    layout_config = {
+        width = 0.90,
+        height = 0.90,
+        preview_cutoff = 120,
+        anchor_padding = 1,
+        horizontal = {
+            prompt_position = "top",
+            preview_width = 0.60,
+        },
+        vertical = {
+            mirror = false,
+        },
+    },
+    layout_strategy = "horizontal",
+    winblend = 0,
+    border = {},
+}
+
 function M.config()
     local icons = require("user.lspicons")
     local actions = require("telescope.actions")
-    local layout_ops = {
-        layout_config = {
-            width = 0.99,
-            height = 0.99,
-            preview_cutoff = 120,
-            horizontal = {
-                prompt_position = "top",
-                preview_width = 0.65,
-            },
-            vertical = {
-                mirror = false,
-            },
-        },
-        layout_strategy = "horizontal",
-        winblend = 0,
-        border = {},
-    }
 
     require("telescope").setup({
         defaults = {
@@ -94,15 +95,15 @@ function M.config()
             },
         },
         pickers = {
-            live_grep = vim.tbl_extend("force", layout_ops, {
+            live_grep = vim.tbl_extend("force", M.layout_ops, {
                 previewer = true,
             }),
 
-            grep_string = vim.tbl_extend("force", layout_ops, {
+            grep_string = vim.tbl_extend("force", M.layout_ops, {
                 previewer = true,
             }),
 
-            find_files = vim.tbl_extend("force", layout_ops, {
+            find_files = vim.tbl_extend("force", M.layout_ops, {
                 previewer = true,
             }),
 
@@ -151,8 +152,9 @@ function M.config()
                 override_file_sorter = true,    -- override the file sorter
                 case_mode = "smart_case",       -- or "ignore_case" or "respect_case"
             },
-            lazy_plugins = {},
-            git_file_history = {},
+            lazy_plugins = {
+                picker_opts = M.layout_ops
+            },
             undo = {
                 use_delta = true,
                 diff_context_lines = 10,

@@ -1,6 +1,7 @@
 local M = {
     "olimorris/codecompanion.nvim",
-    event = "VeryLazy",
+    cmd = "CodeCompanionChat",
+    lazy = true,
     enable = not vim.env.GROQ_API_KEY == "",
 }
 

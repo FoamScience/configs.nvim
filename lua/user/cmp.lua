@@ -1,3 +1,4 @@
+local icons = require("user.lspicons")
 local M = {
     "hrsh7th/nvim-cmp",
     dependencies = {
@@ -46,6 +47,24 @@ local M = {
     event = { "LspAttach", "InsertCharPre" },
 }
 
+local function buffer_source()
+    local ft = vim.bo.filetype
+    local lsp_clients = vim.lsp.get_clients({ bufnr = 0 })
+    local is_non_lsp = #lsp_clients == 0
+    if is_non_lsp or ft:match("markdown") or ft:match("tex") then
+        return {
+            name = "buffer",
+            option = {
+                get_bufnrs = function()
+                    return { vim.api.nvim_get_current_buf() }
+                end,
+            }
+        }
+    else
+        return nil
+    end
+end
+
 function M.config()
     --vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
     vim.api.nvim_set_hl(0, "CmpItemKindCrate", { fg = "#F64D00" })
@@ -61,8 +80,6 @@ function M.config()
         return col == 0 or vim.fn.getline("."):sub(col, col):match("%s")
     end
 
-    local icons = require("user.lspicons")
-
     local source_display = {
         dotenv = { icon = icons.misc.Tag, hl_group = "CmpItemKindDefault" },
         --copilot = { icon = icons.git.Octoface, hl_group = "CmpItemKindCopilot" },
@@ -73,6 +90,12 @@ function M.config()
         treesitter = { icon = icons.ui.Tree, hl_group = "CmpItemKindClass" },
         crates = { icon = icons.ui.Package, hl_group = "CmpItemKindCrate" },
         tmux = { icon = icons.misc.Dos, hl_group = "CmpItemKindUnit" },
+    }
+
+    local cmp_important_sources = {
+        { name = "path" },
+        { name = "nvim_lsp" },
+        { name = "nvim_lsp_document_symbol" },
     }
 
     cmp.setup({
@@ -127,7 +150,7 @@ function M.config()
             }),
         }),
         formatting = {
-            fields = { "kind", "abbr", "menu" },
+            fields = { "kind", "abbr" },
             format = function(entry, vim_item)
                 if source_display[entry.source.name] ~= nil then
                     vim_item.kind = source_display[entry.source.name].icon
@@ -135,26 +158,14 @@ function M.config()
                 else
                     vim_item.kind = icons.kind[vim_item.kind]
                 end
+                local max_width = 50
+                if #vim_item.abbr > max_width then
+                    vim_item.abbr = string.sub(vim_item.abbr, 1, max_width - 3) .. "..."
+                end
                 return vim_item
             end,
         },
-        sources = {
-            { name = "path" },
-            --{ name = "copilot" },
-            { name = "luasnip" },
-            { name = "nvim_lua" },
-            { name = "quick_data" },
-            --{ name = "emoji" },
-            { name = "treesitter" },
-            { name = "crates" },
-            { name = "tmux" },
-            { name = "dotenv" },
-            { name = "nvim_lsp" },
-            { name = "nvim_lsp_document_symbol" },
-            --{ name = "nvim_lsp_signature_help" },
-            { name = "buffer" },
-            { name = "lazydev", group_index = 0, },
-        },
+        sources = cmp_important_sources,
         confirm_opts = {
             behavior = cmp.ConfirmBehavior.Replace,
             select = false,
@@ -179,60 +190,12 @@ function M.config()
         },
     })
 
-    cmp.setup.cmdline({ "/", "?" }, {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = {
-            { name = "buffer" },
-            {
-                name = "nvim_lsp_document_symbol",
-                option = {
-                    kinds_to_show = {
-                        foam = {
-                            "Variable",
-                            "Constant",
-                            "Number",
-                            "Boolean",
-                            "Array",
-                            "Object",
-                            "Key",
-                            "Struct",
-                        },
-                    },
-                },
-            },
-        },
-    })
-
-    cmp.setup.cmdline(":", {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources({
-            { name = "path" },
-        }, {
-            {
-                name = "cmdline",
-                option = {
-                    ignore_cmds = { "!", "x", "w" },
-                },
-            },
-        }),
-    })
-    cmp.setup.cmdline(":'<,'>", {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources({
-            { name = "path" },
-        }, {
-            {
-                name = "cmdline",
-                option = {
-                    ignore_cmds = { "!", "x", "w" },
-                },
-            },
-        }),
-    })
+    -- commandline and search mode cmpis configured through autocmds for
+    -- optimized startup
 
     vim.keymap.set({ "i", "s" }, "<C-j>", function()
-        if require("luasnip").choice_active() then
-            require("luasnip").change_choice(1)
+        if luasnip.choice_active() then
+            luasnip.change_choice(1)
         end
     end, { silent = true })
 

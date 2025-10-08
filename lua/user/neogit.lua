@@ -1,6 +1,7 @@
 local M = {
 	"neogitorg/neogit",
-    event = {"BufReadPre", "BufNewFile"},
+    --event = {"BufReadPre", "BufNewFile"},
+	cmd = { "Neogit", "NeogitCommit" },
     dependencies = {
         "nvim-lua/plenary.nvim",
         "sindrets/diffview.nvim",
