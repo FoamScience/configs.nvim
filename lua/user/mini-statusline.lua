@@ -168,7 +168,7 @@ function M.config()
             local win_config = vim.api.nvim_win_get_config(win)
 
             -- Check if it's a sidebar (left-side split with matching filetype)
-            if vim.tbl_contains(sidebar_filetypes, ft) and win_config.relative == "" then
+            if vim.tbl_contains(M.sidebar_filetypes, ft) and win_config.relative == "" then
                 local win_width = vim.api.nvim_win_get_width(win)
                 local win_pos = vim.api.nvim_win_get_position(win)
 
