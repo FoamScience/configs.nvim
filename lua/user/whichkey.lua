@@ -55,12 +55,6 @@ function M.config()
             { "<leader>a", group = "AI", icon = icons.ui.Target, mode = { "n", "v" } },
             {
                 "<leader>ac",
-                "<cmd>EnrichContext<cr>",
-                desc = "Entrich code context",
-                mode = "v",
-            },
-            {
-                "<leader>ac",
                 "<cmd>CodeCompanionChat<cr>",
                 desc = "Code companion chat",
                 mode = "n",
@@ -126,7 +120,7 @@ function M.config()
             },
             {
                 "<leader>lf",
-                "<cmd>lua vim.lsp.buf.format({timeout_ms = 1000000})<cr>",
+                "<cmd>lua vim.lsp.buf.format({async = true, timeout_ms = 1000000})<cr>",
                 desc = "Format",
                 icon = icons.kind.Namespace,
             },
@@ -218,62 +212,6 @@ function M.config()
                 "<cmd>InspectTree<cr>",
                 desc = "Inspect Tree",
                 icon = icons.ui.Search
-            },
-            {
-                "]f",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next function start", icon = icons.kind.Method
-            },
-            {
-                "]F",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_end("@function.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next function end", icon = icons.kind.Method
-            },
-            {
-                "]c",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_start("@class.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next class start", icon = icons.kind.Class
-            },
-            {
-                "]C",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_end("@class.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next class end", icon = icons.kind.Class
-            },
-            {
-                "]l",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_start("@loop.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next loop start", icon = icons.kind.Loop
-            },
-            {
-                "]L",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_end("@loop.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next loop end", icon = icons.kind.Loop
-            },
-            {
-                "]i",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_start("condition.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next condition start", icon = icons.kind.Loop
-            },
-            {
-                "]I",
-                function()
-                    require("nvim-treesitter-textobjects.move").goto_next_end("condition.outer", "textobjects")
-                end,
-                mode = {"n", "x", "c"}, desc = "Next condition end", icon = icons.kind.Loop
             },
         })
     end
@@ -438,13 +376,77 @@ function M.config()
         })
     end
 
+    -- Tutorial system (only if started without files)
+    local function started_with_files()
+        local args = vim.fn.argv()
+        for _, arg in ipairs(args) do
+            if not arg:match("^%-") then
+                return true
+            end
+        end
+        return false
+    end
+
+    if not started_with_files() then
+        vim.list_extend(mappings, {
+            { "<leader>t", group = "Tutorials", icon = icons.ui.BookMark },
+            {
+                "<leader>tt",
+                "<cmd>Tutorials<cr>",
+                desc = "Open tutorial picker",
+            },
+            {
+                "<leader>tn",
+                "<cmd>TutorialNext<cr>",
+                desc = "Next step",
+            },
+            {
+                "<leader>tp",
+                "<cmd>TutorialPrev<cr>",
+                desc = "Previous step",
+            },
+            {
+                "<leader>tq",
+                "<cmd>TutorialQuit<cr>",
+                desc = "Quit tutorial",
+            },
+            {
+                "<leader>tr",
+                "<cmd>TutorialRestart<cr>",
+                desc = "Restart tutorial",
+            },
+        })
+    end
+
+    if vim.env.USER then
+        local foamut_package = vim.env.USER .. ".foamut"
+        local foamut_ok, _ = pcall(require, foamut_package)
+        if foamut_ok and vim.bo.ft == "cpp" then
+            vim.list_extend(mappings, {
+                { "<leader>c", group = "Custom", icon = icons.ui.BookMark },
+                {
+                    "<leader>ct",
+                    "<cmd>lua require('" .. foamut_package .. "').FoamUtRunTestAtCursor()<cr>",
+                    desc = "Run foamUT test at cursor",
+                },
+                {
+                    "<leader>cT",
+                    "<cmd>lua require('" .. foamut_package .. "').FoamUtListTests()<cr>",
+                    desc = "Pick foamUT tests to run",
+                },
+            })
+        end
+    end
+
     wk.setup {
         preset = "helix",
         spec = mappings,
+        notify = true,
         keys = {
             scroll_down = "<c-d>",
             scroll_up = "<c-u>",
         },
+        sort = { "local", "order", "manual", "group", "alphanum", "mod" },
     }
 end
 

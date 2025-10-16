@@ -15,10 +15,10 @@ local M = {
 	opts = {
 		ensure_installed = ensure_installed,
 	},
-	dependencies = {
-		"nvim-treesitter/nvim-treesitter-textobjects",
-		branch = "main"
-	}
+	--dependencies = {
+	--	"nvim-treesitter/nvim-treesitter-textobjects",
+	--	branch = "main"
+	--}
 }
 function M.config()
 	require("nvim-treesitter").setup({

@@ -95,6 +95,7 @@ function M.config()
     local cmp_important_sources = {
         { name = "path" },
         { name = "nvim_lsp" },
+        { name = "luasnip" },
         { name = "nvim_lsp_document_symbol" },
     }
 

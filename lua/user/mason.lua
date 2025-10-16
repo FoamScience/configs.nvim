@@ -1,25 +1,20 @@
 local M = {
-    "williamboman/mason-lspconfig.nvim",
+    "mason-org/mason-lspconfig.nvim",
     lazy = true,
-    dependencies = {
-        "williamboman/mason.nvim",
-        "nvim-lua/plenary.nvim",
-        "neovim/nvim-lspconfig"
-    },
 }
 
-M.servers = require("user.lspconfig").servers or {}
+local ensure_installed = vim.tbl_deep_extend('keep',
+    require("user.lspconfig").servers,
+    require("user.lspconfig").flat_formatters) or {}
 
 function M.config()
-    require("mason").setup({
+    require("mason-lspconfig").setup({
+        ensure_installed = ensure_installed,
+        automatic_enable = false,
+        automatic_installation = true,
         ui = {
             border = "rounded",
         },
-    })
-    require("mason-lspconfig").setup({
-        ensure_installed = M.servers,
-        automatic_enable = false,
-        automatic_installation = true,
     })
 end
 

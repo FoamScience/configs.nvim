@@ -5,9 +5,23 @@ local M = {
     event = { "BufReadPost", "BufNewFile" },
     cmd = { "LspInfo", "LspInstall", "LspUninstall" },
     dependencies = {
+        {
+            "mason-org/mason.nvim",
+            config = function()
+                require("mason").setup({
+                    ui = {
+                        icons = {
+                            package_installed = "✓",
+                            package_pending = "➜",
+                            package_uninstalled = "✗"
+                        }
+                    }
+                })
+            end
+        },
         "folke/lazydev.nvim",
         "rachartier/tiny-inline-diagnostic.nvim",
-        "williamboman/mason-lspconfig.nvim",
+        "mason-org/mason-lspconfig.nvim"
     },
 }
 
@@ -50,40 +64,53 @@ function M.common_capabilities()
     return capabilities
 end
 
--- add stuff to servers_map, the rest is handled automatically
-M.servers_map = {
-    lua_ls = { "lua" },
-    cssls = { "css", "scss", "less" },
-    html = { "html" },
-    astro = { "astro" },
-    pyright = { "python" },
-    bashls = { "sh", "bash", "zsh" },
-    jsonls = { "json", "jsonc" },
-    yamlls = { "yaml", "yml" },
-    glsl_analyzer = { "glsl", "vert", "frag", "geom" },
-    foam_ls = { "foam", "OpenFOAM" },
-    tinymist = { "typst" },
-    rust_analyzer = { "rust" },
-    marksman = { "markdown" },
+M.servers = {
+    "clangd",
+    "lua_ls",
+    "cssls",
+    "html",
+    "astro",
+    "pyright",
+    "bashls",
+    "jsonls",
+    "yamlls",
+    "glsl_analyzer",
+    "foam_ls",
+    "tinymist",
+    "rust_analyzer",
+    "marksman",
 }
-local arch = vim.loop.os_uname().machine
-if arch ~= "aarch64" then
-    M.servers_map["clangd"] = { "c", "cpp", "objc", "objcpp" }
-end
 
-M.servers = vim.tbl_keys(M.servers_map)
-M.filetype_map = {}
-for server, filetypes in pairs(M.servers_map) do
-    for _, ft in ipairs(filetypes) do
-        M.filetype_map[ft] = server
+M.formatter_map = {
+    javascript = { "prettierd", "prettier", stop_after_first = true },
+    typescript = { "prettierd", "prettier", stop_after_first = true },
+    json = { "jq" }
+}
+local unique_formatter = {}
+for _, fmt_list in pairs(M.formatter_map) do
+    for _, v in pairs(fmt_list) do
+        if type(v) == "string" then
+            unique_formatter[v] = true
+        end
     end
 end
-M.served_filetypes = vim.tbl_keys(M.filetype_map)
-M._setup_servers = {} -- Track which servers have been setup
+M.flat_formatters = {}
+for name in pairs(unique_formatter) do
+    table.insert(M.flat_formatters, name)
+end
 
-function M.config()
-    -- Load mason when LSP config loads
-    require("user.mason").config()
+local ensure_installed = vim.tbl_deep_extend('keep', M.servers, M.flat_formatters) or {}
+
+M.config = vim.schedule_wrap(function()
+    require("mason-lspconfig").setup({
+        ensure_installed = ensure_installed,
+        automatic_enable = true,
+        automatic_installation = false,
+        ui = {
+            border = "rounded",
+        },
+    })
+    local util = require("lspconfig.util")
 
     local default_diagnostic_config = {
         signs = {
@@ -102,9 +129,7 @@ function M.config()
         },
         virtual_text = false,
         update_in_insert = false,
-        underline = function(_, buf_nr)
-            return #vim.diagnostic.get(buf_nr) <= 10
-        end,
+        underline = true,
         severity_sort = true,
         float = {
             focusable = true,
@@ -115,149 +140,98 @@ function M.config()
         },
     }
 
-    vim.schedule(function()
-        vim.diagnostic.config(default_diagnostic_config)
-        vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
-        require("tiny-inline-diagnostic").setup()
-        require("lspconfig.ui.windows").default_options.border = "rounded"
-    end)
+    vim.diagnostic.config(default_diagnostic_config)
+    require("tiny-inline-diagnostic").setup()
 
-    local MAX_DIAGNOSTICS = 10
-    local diags = vim.diagnostic.get(0)
-    if #diags > MAX_DIAGNOSTICS then
-        vim.diagnostic.hide(nil, 0)
-    else
-        vim.diagnostic.show(nil, 0)
-    end
+    --for _, sign in ipairs(vim.tbl_get(vim.diagnostic.config(), "signs", "values") or {}) do
+    --    vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
+    --end
 
-    -- Defer LSP start to reduce FileType event time
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = M.served_filetypes,
-        callback = function(args)
-            local ft = vim.bo[args.buf].filetype
-            -- Defer LSP initialization to after UI is ready
-            vim.defer_fn(function()
-                M.start_lsp_for_ft(ft)
-            end, 50)
-        end,
-    })
-end
+    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
+    require("lspconfig.ui.windows").default_options.border = "rounded"
 
-function M.start_lsp_for_current_ft()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local ft = vim.bo[bufnr].filetype
-    M.start_lsp_for_ft(ft, bufnr)
-end
-
-function M.start_lsp_for_ft(ft, bufnr)
-    local util = require("lspconfig.util")
-    bufnr = bufnr or vim.api.nvim_get_current_buf()
-    ft = ft or vim.bo[bufnr].filetype
-    local server = M.filetype_map[ft]
-
-    if not server then return end
-
-    -- Only configure server once
-    if M._setup_servers[server] then
-        return
-    end
-    M._setup_servers[server] = true
-
-    local opts = {
-        on_attach = M.on_attach,
-        capabilities = M.common_capabilities(),
-        handlers = vim.lsp.handlers,
-    }
-
-    local require_ok, settings = pcall(require, "user.lspsettings." .. server)
-    if require_ok then
-        opts = vim.tbl_deep_extend("force", settings, opts)
-    end
-
-    if server == "lua_ls" then
-        require("lazydev").setup({
-            ft = "lua",
-        })
-    end
-
-    if server == "clangd" then
-        opts.cmd = {
-            "clangd",
-            "--offset-encoding=utf-16",
-            "--all-scopes-completion",
-            "--completion-style=bundled",
-            "--clang-tidy",
-            "--malloc-trim",
-            "--function-arg-placeholders",
-            "--header-insertion=iwyu",
-            "--header-insertion-decorators",
-            "--enable-config",
+    for _, server in pairs(M.servers) do
+        local opts = {
+            on_attach = M.on_attach,
+            capabilities = M.common_capabilities(),
+            handlers = vim.lsp.handlers,
         }
-        opts.filetypes = { "c", "cpp" }
-        opts.root_dir = util.root_pattern("compile_commands.json")
-            or util.root_pattern(".git", "Make")
-    end
 
-    if server == "pyright" then
-        opts.cmd = { "pyright-langserver", "--stdio" }
-        opts.root_dir = util.root_pattern("pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile",
-            ".git")
-
-        -- Detect UV environment python path
-        local python_path = nil
-        if vim.fn.executable("uv") == 1 then
-            -- Cache python path to avoid shell call on every LSP start
-            if not M._uv_python_path then
-                local handle = io.popen('uv run python -c "import sys; print(sys.executable)" 2>/dev/null')
-                local result = handle:read("*a"):gsub("%s+", "")
-                handle:close()
-                if result ~= "" and vim.fn.filereadable(result) == 1 then
-                    M._uv_python_path = result
-                end
-            end
-            python_path = M._uv_python_path
+        local require_ok, settings = pcall(require, "user.lspsettings." .. server)
+        if require_ok then
+            opts = vim.tbl_deep_extend("force", settings, opts)
         end
 
-        -- Fallback to system python
-        if not python_path then
-            python_path = vim.fn.exepath("python3") or vim.fn.exepath("python")
+        if server == "lua_ls" then
+            require("lazydev").setup({
+                ft = "lua",
+            })
         end
 
-        opts.settings = {
-            python = {
-                pythonPath = python_path,
-                analysis = {
-                    autoSearchPaths = true,
-                    useLibraryCodeForTypes = true,
-                    diagnosticMode = "workspace",
+        if server == "clangd" then
+            opts.cmd = {
+                "clangd",
+                "--offset-encoding=utf-16",
+                "--all-scopes-completion",
+                "--completion-style=bundled",
+                "--clang-tidy",
+                "--malloc-trim",
+                "--function-arg-placeholders",
+                "--header-insertion=iwyu",
+                "--header-insertion-decorators",
+                "--enable-config",
+            }
+            opts.filetypes = { "c", "cpp" }
+            opts.root_dir = util.root_pattern("compile_commands.json", ".git", "Make")
+        end
+
+        if server == "pyright" then
+            opts.cmd = { "pyright-langserver", "--stdio" }
+            opts.root_dir = util.root_pattern("pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile",
+                ".git")
+
+            -- Start with system python, detect UV path after attach
+            local python_path = vim.fn.exepath("python3") or vim.fn.exepath("python")
+
+            opts.settings = {
+                python = {
+                    pythonPath = python_path,
+                    analysis = {
+                        autoSearchPaths = true,
+                        useLibraryCodeForTypes = true,
+                        diagnosticMode = "workspace",
+                    }
                 }
             }
-        }
-    end
 
-    vim.lsp.config(server, opts)
+            -- Defer UV python path detection to first attach
+            local base_on_attach = opts.on_attach or M.on_attach
+            opts.on_attach = function(client, bufnr)
+                base_on_attach(client, bufnr)
 
-    -- vim.lsp.enable() only affects future buffers, so manually start for current buffer
-    local bufname = vim.api.nvim_buf_get_name(bufnr)
-    local root_dir = opts.root_dir and opts.root_dir(bufname) or vim.fs.dirname(bufname)
-
-    if opts.cmd == nil then
-        vim.lsp.enable(server, true)
-    else
-        vim.lsp.start({
-            name = server,
-            cmd = opts.cmd,
-            root_dir = root_dir,
-            capabilities = opts.capabilities,
-            on_attach = function(client, buf)
-                if opts.on_attach then
-                    opts.on_attach(client, buf)
+                -- Only run once per session
+                if not M._uv_python_path_detected then
+                    M._uv_python_path_detected = true
+                    vim.schedule(function()
+                        if vim.fn.executable("uv") == 1 then
+                            local handle = io.popen('uv run python -c "import sys; print(sys.executable)" 2>/dev/null')
+                            if handle then
+                                local result = handle:read("*a"):gsub("%s+", "")
+                                handle:close()
+                                if result ~= "" and vim.fn.filereadable(result) == 1 then
+                                    client.config.settings.python.pythonPath = result
+                                    client.notify("workspace/didChangeConfiguration",
+                                        { settings = client.config.settings })
+                                end
+                            end
+                        end
+                    end)
                 end
-            end,
-            handlers = opts.handlers,
-            settings = opts.settings,
-        }, { bufnr = bufnr })
+            end
+        end
+
+        vim.lsp.config(server, opts)
     end
-end
+end)
 
 return M
