@@ -30,11 +30,29 @@ This configuration will never support the following features:
 > [!IMPORTANT]
 > Check out the [Screenshots][] for a preview of what this configuration has to offer.
 
-![screenshot](/screenshots/noice.gif)
+![screenshot](./screenshots/nvim.png)
+
+<!-- mtoc-start:cb9ef56 -->
+
+* [Requirements](#requirements)
+* [Set up](#set-up)
+* [Documentation](#documentation)
+* [List of plugins and important configs](#list-of-plugins-and-important-configs)
+  * [General Notes](#general-notes)
+  * [General](#general)
+  * [UI](#ui)
+  * [Productivity](#productivity)
+  * [Navigation](#navigation)
+  * [Language support and LSPs](#language-support-and-lsps)
+  * [AI](#ai)
+  * [Git integration](#git-integration)
+  * [Miscellaneous](#miscellaneous)
+
+<!-- mtoc-end:cb9ef56 -->
 
 ## Requirements
 
-- [Neovim][] **nightly** (v0.11.0 or later), [NodeJS][] **v22** (or later), preferably installed with [NVM][],
+- [Neovim][] **nightly** (v0.14.0 or later), [NodeJS][] **v22** (or later), preferably installed with [NVM][],
 - Python 3 and (optionally) [Rust][]
 - The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`
 - For installing some LSP servers, you will need the `unzip` command
@@ -47,11 +65,14 @@ This configuration will never support the following features:
     symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
     ```
 - [ImageMagick][] for in-terminal image display, if your terminal supports
+- Also [mermaid-cli][] for mermaid charts in markdown files
+  - Note that on Ubuntu 23+ this requires changes to apparmor policies on retricting user namespaces;
+    if you don't write mermaid charts often, don't bother with this
 
 ## Set up
 
 1. Make sure you have all the requirements installed. [this docker file](/dockerImages/config.dockerfile) shows how to install
-   them on latest Ubuntu LTS release.
+   most of them on latest Ubuntu LTS release.
 2. Then, applying this configuration is as easy as:
 ```sh
 # Backup old configs and clone the new ones
@@ -67,6 +88,18 @@ docker build -t nvim-config:latest -f config.dockerfile .
 docker run -it --rm nvim-config:latest bash
 (container)> USER=me nvim
 ```
+
+## Documentation
+
+A few tutorials can be accessed by `<leader>tt` when `nvim` command had no files
+passed in as a CLI. These are not meant to teach people basic Vim skills but
+rather explain my current approach to editing efficiency.
+
+Even though the tutorials act on Lua files, they mostly hold on any other filetype.
+
+Occasionally, you'd have to `:TutorialNext` to continue a tutorial, either becausse
+I was too lazy to implement proper step validation or implementing it would not
+have provided a good experience.
 
 ## List of plugins and important configs
 
@@ -132,12 +165,13 @@ vim.g.config_check_for_updates = false
 
 ### UI
 
+- [snacks.lua](lua/user/snacks.lua) a collection of UI niceties from folke
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer. Simple as that
   - `<leader>e` to toggle
 - ~~[lualine.lua:](lua/user/lualine.lua) fast and pretty statusline~~
 - [mini-statusline.lua](./lua/user/mini-statusline.lua) for status and tabline configuration
 - [incline.lua](lua/user/incline.lua) for floating buffer names at top-right corners of windows
-- [indentline.lua:](lua/user/indentline.lua) improves code indentation
+- ~~[indentline.lua:](lua/user/indentline.lua) improves code indentation~~
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
@@ -150,8 +184,9 @@ vim.g.config_check_for_updates = false
 - [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
   for current file and setting global options accordingly.
   - Should be automatic, but `:GuessIndent` helps
-- [image.lua:](lua/user/optional/image.lua) optionally render Markdown images
+- ~~[image.lua:](lua/user/optional/image.lua) optionally render Markdown images~~
   - Enabled only if running on `kitty` terminal and using `imagemagick` backend.
+  - Replaced with `snacks.image` which has similar constraints
 
 ### Productivity
 
@@ -170,8 +205,8 @@ vim.g.config_check_for_updates = false
 ### Navigation
 
 - [flash.lua:](lua/user/flash.lua) fast word hopping
-  - `s` to hop to words in normal mode
-  - `S` to hop using tree-sitter syntax tree in normal mode
+  - `s` (or `gs`) to hop to words in normal mode
+  - `S` (or `gS`) to hop using tree-sitter syntax tree in normal mode
   - `r` in operator mode to do operations between flash hops
   - `R` in operator mode to do operations between flash tree-sitter searches
   - `<ctrl-s>` to toggle flash in regular search mode. An icon at the bottom right will show up if this is enabled.
@@ -263,3 +298,4 @@ vim.g.config_check_for_updates = false
 [SourceGraph]: https://sourcegraph.com "SourceGraph"
 [Neorg]: https://github.com/nvim-neorg/neorg "Neorg"
 [ImageMagick]: https://imagemagick.org/index.php "ImageMagick"
+[mermaid-cli]: https://github.com/mermaid-js/mermaid-cli "Mermaid-cli"
