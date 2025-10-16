@@ -8,7 +8,7 @@ vim.api.nvim_create_autocmd({ "CmdWinEnter" }, {
 vim.api.nvim_create_autocmd({ "TextYankPost" }, {
     desc = "Highight when yanking",
     callback = function()
-        vim.highlight.on_yank { higroup = "@comment.warning", timeout = 40 }
+        vim.hl.on_yank { higroup = "@comment.warning", timeout = 40 }
     end,
 })
 
@@ -94,3 +94,13 @@ vim.api.nvim_create_autocmd("CmdlineEnter", {
 })
 
 -- Arrow setup moved to arrow.lua lazy config
+
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+    pattern = "*",
+    callback = function(args)
+        local path = args.file
+        if path:match("Make/files$") or path:match("Make/options$") then
+            vim.bo.commentstring = "/* %s */"
+        end
+    end,
+})
