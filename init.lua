@@ -58,9 +58,8 @@ end
 
 -- UX startup: 16.37/16.50
 if vim.g.loaded_categories.ux then
+    spec "user.snacks"
     spec "user.noice"
-    --spec "user.significant"
-    spec "user.indentline" -- costs ~0.03 msecs
     spec "user.render-markdown"
     spec "user.img-clip"
 end
@@ -68,11 +67,9 @@ end
 -- lsp setup startup: 36.39/37.50
 if vim.g.loaded_categories.lsp then
     spec "user.treesitter"
-    spec "user.treesitter-textobjects"
-    spec "user.mason"
     spec "user.lspconfig"
     spec "user.todocomments"
-    spec "user.garbage"
+    --spec "user.garbage"
 end
 
 -- git startup: 17.14/17.39
@@ -129,16 +126,14 @@ end
 if vim.g.loaded_categories.optional then
     spec "user.optional.colorizer"
     spec "user.optional.dial"
-    spec "user.optional.dressing"
     spec "user.optional.csv"
     spec "user.optional.dim"
-    --spec "user.optional.lens"
-    --spec "user.optional.winsep"
     spec "user.optional.cinnamon"
-    spec "user.optional.image"
-    --spec "user.optional.neorg"
     spec "user.optional.typst"
 end
+
+-- tutorials - lazy loaded only when :Tutorials is called
+spec "user.tutorials"
 
 
 -- lazy needs to be loaded last
