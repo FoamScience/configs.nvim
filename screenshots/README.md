@@ -14,7 +14,7 @@ Rename, delete and create files and directories, all from within Neovim.
 - Minimal statusline with git branch/commit/blame info, and LSP output 
 - A floating winbar with current code context
 
-![statusline](nvim.lua)
+![statusline](nvim.png)
 
 ## Nicer UI with Noice
 Command-line at the top, auto-completed. Messages at bottom-right corner.
@@ -57,8 +57,10 @@ All accessible through `<leader>l` menu, and a few through `g` (for default neov
 ## Git operations
 `<leader>g` is your Git hub, you could also use `:Diff*` commands
 
-![AI](ai.png)
+![git](git.png)
 
 ## AI-assisted programming
 
 CodeCompanion is used to hook AI agents. Get started with `:CodeCompanionChat` or `<leader>a` menu
+
+![AI](ai.png)
