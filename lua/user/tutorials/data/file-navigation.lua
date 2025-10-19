@@ -2,7 +2,7 @@
 return {
 	id = "02-file-navigation",
 	name = "File Navigation Basics",
-	description = "Learn how to navigate files using NvimTree and Telescope",
+	description = "Learn how to navigate files using NvimTree and Snacks.picker",
 	difficulty = "novice",
 
 	-- Setup runs before tutorial starts
@@ -50,8 +50,8 @@ return {
 			end,
 		},
 		{
-			title = "Open Telescope File Finder",
-			instruction = "Press `<space>ff` to open Telescope file finder",
+			title = "Open File Finder",
+			instruction = "Press `<space>ff` to open the file finder",
 			hints = {
 				"`ff` means find files",
 				"Can find many other things under the `<space>f` menu",
@@ -61,7 +61,7 @@ return {
 				if bufname:match("Tutorial$") then
 					return false
 				end
-				return vim.bo.filetype == "TelescopePrompt"
+				return vim.bo.filetype == "snacks_picker_input"
 			end,
 		},
 	},

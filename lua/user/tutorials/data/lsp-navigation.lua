@@ -51,7 +51,7 @@ return {
 			instruction = "Press `gD` while your cursor is on `dummy_func` (line 10) to jump to its definition",
 			hints = {
 				"`gD` is the standard LSP 'go to declaration' keymap",
-				"You can also use `<leader>ld` or `<leader>lD` to search definitions with Telescope",
+				"You can also use `<leader>ld` or `<leader>lD` to search definitions with Snacks.picker",
 			},
 			validate = function()
 				local bufname = vim.api.nvim_buf_get_name(0)
@@ -71,9 +71,9 @@ return {
 		},
 		{
 			title = "Find References",
-			instruction = "Press `<leader>lR` to find all references to `dummy_func` using Telescope, then close with `<Esc><Esc>` and use :TutorialNext",
+			instruction = "Press `<leader>lR` to find all references to `dummy_func` using Snacks.picker, then close with `<Esc><Esc>` and use :TutorialNext",
 			hints = {
-				"<leader>lR opens Telescope's LSP references picker",
+				"<leader>lR opens Snacks.picker's LSP references picker",
 				"This shows all places where the symbol is used in your code",
 			},
 		},
@@ -95,7 +95,7 @@ then close with <Esc><Esc> and use :TutorialNext
 			title = "Check Diagnostics",
 			instruction = "Press `<leader>lg` to view diagnostics, then close with <Esc><Esc> and use :TutorialNext",
 			hints = {
-				"<leader>lg shows all LSP diagnostics using Telescope",
+				"<leader>lg shows all LSP diagnostics using Snacks.picker",
 				"The undefined function on line 7 should show up as an error",
 				"You can also use <leader>lj and <leader>lk to jump between diagnostics",
 			},
