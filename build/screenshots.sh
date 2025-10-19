@@ -37,7 +37,7 @@ uvx --from=neovim-remote nvr --remote-send '<Esc>'
 uvx --from=neovim-remote nvr --remote-send ':TodoQuickFix<CR>'
 sleep 1
 scrot -f screenshots/todos.png
-uvx --from=neovim-remote nvr --remote-send '<Esc><Esc>'
+uvx --from=neovim-remote nvr --remote-send ':q<CR>'
 
 uvx --from=neovim-remote nvr --remote-send 'gg0'
 uvx --from=neovim-remote nvr --remote-send 's'
