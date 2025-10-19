@@ -120,7 +120,7 @@ M.config = function()
                 render_headers = false,
             },
             action_palette = {
-                provider = "telescope",
+                provider = "default", -- Uses vim.ui.select (handled by Snacks.picker)
             },
         }
     })

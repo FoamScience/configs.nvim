@@ -31,7 +31,41 @@ M.config = function()
         },
         picker = {
             enabled = true,
-        },
+            layout = {
+                width = 0.9,
+                --reverse = true,
+                --layout = {
+                --    box = "horizontal",
+                --    backdrop = false,
+                --    width = 0.9,
+                --    height = 0.9,
+                --    border = "none",
+                --    {
+                --        box = "vertical",
+                --        {
+                --            win = "list",
+                --            title = " Results ",
+                --            title_pos = "center",
+                --            border = "rounded"
+                --        },
+                --        {
+                --            win = "input",
+                --            height = 1,
+                --            border = "rounded",
+                --            title = "{title} {live} {flags}",
+                --            title_pos = "center"
+                --        },
+                --    },
+                --    {
+                --        win = "preview",
+                --        title = "{preview:Preview}",
+                --        width = 0.50,
+                --        border = "rounded",
+                --        title_pos = "center",
+                --    },
+                --},
+            }
+        }
     })
 end
 

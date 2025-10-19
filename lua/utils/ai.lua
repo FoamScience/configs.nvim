@@ -51,12 +51,6 @@ function M.set_language(lang)
 end
 
 function M.pick_language()
-  local pickers = require("telescope.pickers")
-  local finders = require("telescope.finders")
-  local conf = require("telescope.config").values
-  local actions = require("telescope.actions")
-  local action_state = require("telescope.actions.state")
-
   local languages = {
     "Arabic",
     "Chinese",
@@ -72,21 +66,24 @@ function M.pick_language()
     "Spanish",
   }
 
-  pickers.new({}, {
-    prompt_title = "Set AI Response Language (persisted in user-settings.lua)",
-    finder = finders.new_table(languages),
-    sorter = conf.generic_sorter({}),
-    attach_mappings = function(prompt_bufnr, map)
-      actions.select_default:replace(function()
-        actions.close(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        if selection then
-          M.set_language(selection[1])
-        end
-      end)
-      return true
+  -- Convert to items format
+  local items = {}
+  for _, lang in ipairs(languages) do
+    table.insert(items, {
+      text = lang,
+      value = lang,
+    })
+  end
+
+  require("snacks").picker.pick({
+    title = "Set AI Response Language (persisted in user-settings.lua)",
+    items = items,
+    confirm = function(picker, item)
+      if item then
+        M.set_language(item.value)
+      end
     end,
-  }):find()
+  })
 end
 
 return M

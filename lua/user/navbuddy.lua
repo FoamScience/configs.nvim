@@ -27,15 +27,7 @@ function M.config()
 			["c"] = actions.comment(),
 			["s"] = actions.toggle_preview(),
 			["<C-v>"] = actions.vsplit(),
-			["t"] = actions.telescope({
-				layout_config = {
-					height = 0.60,
-					width = 0.60,
-					prompt_position = "top",
-					preview_width = 0.50
-				},
-				layout_strategy = "horizontal"
-			}),
+			-- Note: telescope integration removed (was mapped to 't')
 			["g?"] = actions.help(),
 		},
 	}

@@ -4,7 +4,8 @@ local M = {
     branch = "no-nvim-clutter",
     dependencies = {
         "nvim-treesitter/nvim-treesitter", -- for efficient parsing
-        "nvim-telescope/telescope.nvim",   -- for picker UI
+        "folke/snacks.nvim",
+        --"nvim-telescope/telescope.nvim",   -- for picker UI
     },
     build = ":TSInstall markdown",
 }
@@ -12,14 +13,17 @@ local M = {
 M.config = function()
     require("mtoc").setup({
         debug = false,
+        picker = {
+            preferred = 'snacks',
+        },
         headings = {
             before_toc = false,
             min_depth = 1,
             max_depth = 4,
         },
         fences = {
-            start_text = {"mtoc-start", "mtoc-old-start"},
-            end_text = {"mtoc-end", "mtoc-old-end"},
+            start_text = { "mtoc-start", "mtoc-old-start" },
+            end_text = { "mtoc-end", "mtoc-old-end" },
         },
         auto_update = {
             enabled = true,

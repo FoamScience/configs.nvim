@@ -114,13 +114,13 @@ function M.config()
             { "<leader>l", group = "LSP",        icon = icons.kind.Class, mode = { "n", "v" } },
             {
                 "<leader>ld",
-                "<cmd>Telescope lsp_definitions<cr>",
+                function() require("snacks").picker.lsp_definitions() end,
                 desc = "Symbol definition",
                 icon = icons.kind.Function,
             },
             {
                 "<leader>lD",
-                "<cmd>Telescope lsp_type_definitions<cr>",
+                function() require("snacks").picker.lsp_type_definitions() end,
                 desc = "Type definition",
                 icon = icons.kind.TypeParameter,
             },
@@ -132,7 +132,7 @@ function M.config()
             },
             {
                 "<leader>lg",
-                "<cmd>Telescope diagnostics<cr>",
+                function() require("snacks").picker.diagnostics() end,
                 desc = "Diagnostics",
                 icon = icons.ui.Bug,
             },
@@ -180,19 +180,19 @@ function M.config()
             },
             {
                 "<leader>lR",
-                "<cmd>Telescope lsp_references<cr>",
+                function() require("snacks").picker.lsp_references() end,
                 desc = "References",
                 icon = icons.kind.Reference,
             },
             {
                 "<leader>ls",
-                "<cmd>Telescope lsp_document_symbols<cr>",
+                function() require("snacks").picker.lsp_symbols() end,
                 desc = "Document Symbols",
                 icon = icons.kind.Keyword,
             },
             {
                 "<leader>lS",
-                "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>",
+                function() require("snacks").picker.lsp_workspace_symbols() end,
                 desc = "Workspace Symbols",
                 icon = icons.kind.Variable,
             },
@@ -291,93 +291,98 @@ function M.config()
             },
         })
     end
-    if vim.g.loaded_categories.telescope then
+    if vim.g.loaded_categories.ux then
         vim.list_extend(mappings, {
-            { "<leader>f", group = "Telescope", icons.ui.Telescope },
+            { "<leader>f", group = "Find", icons.ui.Telescope },
+            {
+                "<leader>f:",
+                function() require("snacks").picker.command_history() end,
+                desc = "Command history",
+            },
             {
                 "<leader>fb",
-                "<cmd>Telescope git_branches<cr>",
+                function() require("snacks").picker.git_branches() end,
                 desc = "Checkout branch",
             },
             {
                 "<leader>fB",
-                "<cmd>Telescope buffers previewer=false<cr>",
+                function() require("snacks").picker.buffers() end,
                 desc = "Buffers",
             },
             {
                 "<leader>fc",
-                "<cmd>Telescope colorscheme<cr>",
+                function() require("snacks").picker.colorschemes() end,
                 desc = "Colorscheme",
             },
             {
                 "<leader>ff",
-                "<cmd>Telescope find_files<cr>",
+                function() require("snacks").picker.files() end,
                 desc = "Find files",
             },
             {
                 "<leader>fg",
-                "<cmd>lua require('user.git-file-history').git_file_history()<cr>",
+                function() require("snacks").picker.git_log_file() end,
                 desc = "This buffer's Git history",
             },
             {
                 "<leader>fs",
-                "<cmd>Telescope grep_string<cr>",
+                function() require("snacks").picker.grep_word() end,
                 desc = "Find String",
             },
             {
                 "<leader>fh",
-                "<cmd>Telescope help_tags<cr>",
+                function() require("snacks").picker.help() end,
                 desc = "Help",
             },
             {
                 "<leader>fH",
-                "<cmd>Telescope highlights<cr>",
+                function() require("snacks").picker.highlights() end,
                 desc = "Highlights",
             },
             {
                 "<leader>fl",
-                "<cmd>Telescope resume<cr>",
+                function() require("snacks").picker.resume() end,
                 desc = "Last Search",
             },
             {
                 "<leader>fM",
-                "<cmd>Telescope man_pages<cr>",
+                function() require("snacks").picker.man() end,
                 desc = "Man Pages",
             },
             {
                 "<leader>fr",
-                "<cmd>Telescope oldfiles<cr>",
+                function() require("snacks").picker.recent() end,
                 desc = "Recent File",
             },
             {
                 "<leader>fR",
-                "<cmd>Telescope registers<cr>",
+                function() require("snacks").picker.registers() end,
                 desc = "Registers",
             },
             {
                 "<leader>fk",
-                "<cmd>Telescope keymaps<cr>",
+                function() require("snacks").picker.keymaps() end,
                 desc = "Keymaps",
             },
             {
                 "<leader>fC",
-                "<cmd>Telescope commands<cr>",
+                function() require("snacks").picker.commands() end,
                 desc = "Commands",
             },
             {
                 "<leader>fp",
-                "<cmd>Telescope projects<cr>",
+                function() require("snacks").picker.projects() end,
                 desc = "List projects",
             },
             {
                 "<leader>fP",
-                "<cmd>Telescope lazy_plugins<cr>",
+                function() require("snacks").picker.lazy() end,
                 desc = "Plugin configs",
             },
             {
                 "<leader>fu",
-                "<cmd>Telescope undo<cr>",
-                desc = "Unto tree",
+                function() require("snacks").picker.undo() end,
+                desc = "Undo tree",
             },
         })
     end

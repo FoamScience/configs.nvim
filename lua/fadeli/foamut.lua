@@ -370,77 +370,48 @@ M._run_async_alltest          = function(args, callback)
 end
 
 M._select_unit_tests          = function(tests, callback)
-    local pickers = require('telescope.pickers')
-    local finders = require('telescope.finders')
-    local sorters = require('telescope.sorters')
-    local actions = require('telescope.actions')
-    local action_state = require('telescope.actions.state')
+    -- Convert tests to items format for Snacks.picker
+    local items = {}
+    for _, entry in ipairs(tests) do
+        local filename = entry["source-location"].filename
+        local libfile = entry.lib .. ":" .. filename
+        local tags_str = table.concat(entry.tags, " | ")
 
-    -- Use Telescope to display and select the names
-    pickers.new({}, {
-        prompt_title = "Select a Unit Test",
-        results_title = "Unit Tests",
-        finder = finders.new_table {
-            results = tests,
-            entry_maker = function(entry)
-                local result_width = vim.api.nvim_win_get_width(0)
-                local display = require('telescope.pickers.entry_display').create {
-                    separator = " | ",
-                    items = {
-                        { width = 25, },
-                        { width = 12, },
-                        { width = 20, },
-                        { remaining = true, },
-                    },
-                }
-                local filename = entry["source-location"].filename
-                local libfile = entry.lib .. ":" .. filename
-                local tags_str = table.concat(entry.tags, " | ")
-                return {
-                    display = function(e)
-                        return display {
-                            { libfile,    "LspInfoFiletype" },
-                            { entry.mode, "TelescopePreviewExecute" },
-                            { tags_str,   "TelescopeResultsOperator" },
-                            { entry.name, "TelescopeResultsNumber" },
-                        }
-                    end,
-                    value = entry.name,
-                    properties = entry,
-                    ordinal = libfile .. " " .. entry.mode .. " " .. tags_str .. " " .. entry.name,
-                }
-            end,
-        },
-        sorter = sorters.get_generic_fuzzy_sorter(),
-        attach_mappings = function(_, map)
-            local run_selected_tests = function(prompt_bufnr)
-                local picker = action_state.get_current_picker(prompt_bufnr)
-                local multi = picker:get_multi_selection()
-                actions.close(prompt_bufnr)
+        table.insert(items, {
+            text = string.format("%-25s | %-12s | %-20s | %s", libfile, entry.mode, tags_str, entry.name),
+            libfile = libfile,
+            mode = entry.mode,
+            tags = tags_str,
+            name = entry.name,
+            value = entry.name,
+            properties = entry,
+        })
+    end
 
-                local selected_tests = {}
-
-                -- If no multi-selection, get the current selection
-                if vim.tbl_isempty(multi) then
-                    local selection = action_state.get_selected_entry()
-                    if selection then
-                        table.insert(selected_tests, selection)
-                    end
-                else
-                    -- Collect all multi-selected tests
-                    selected_tests = multi
-                end
-
-                if #selected_tests > 0 then
-                    callback(selected_tests)
-                end
-            end
-
-            map('i', '<CR>', run_selected_tests)
-            map('n', '<CR>', run_selected_tests)
-            return true
+    -- Use Snacks.picker to display and select the tests
+    require("snacks").picker.pick({
+        title = "Select Unit Tests",
+        items = items,
+        format = function(item)
+            return {
+                { item.libfile, "LspInfoFiletype" },
+                { " | " },
+                { item.mode, "DiagnosticInfo" },
+                { " | " },
+                { item.tags, "Comment" },
+                { " | " },
+                { item.name, "String" },
+            }
         end,
-    }):find()
+        confirm = function(picker, item)
+            local selected = picker:selected()
+            if #selected > 0 then
+                callback(selected)
+            elseif item then
+                callback({ item })
+            end
+        end,
+    })
 end
 
 -- Internal function to discover tests (serial + standalone)
