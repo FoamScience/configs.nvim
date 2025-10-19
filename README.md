@@ -1,8 +1,4 @@
-
-![](https://img.shields.io/github/actions/workflow/status/FoamScience/configs.nvim/.github%2Fworkflows%2Fci.yaml?branch=master&style=for-the-badge&logo=neovim&label=Neovim%20(stable%20%2B%20unstable)&labelColor=grey)
-![](https://img.shields.io/badge/Fast-as%20in%2060ms-huh?style=for-the-badge&logo=lightning)
-![](https://img.shields.io/github/languages/code-size/FoamScience/configs.nvim?style=for-the-badge&logo=gitlfs&logoColor=green)
-![](https://img.shields.io/badge/supports%20nvim-v0.10%20%7C%20v0.11-huh?style=for-the-badge&logo=neovim&logoColor=green)
+![](https://img.shields.io/badge/supports%20nvim-v0.11.4%20%7C%20v0.12-huh?style=for-the-badge&logo=neovim&logoColor=green)
 
 This is my minimal(?), clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
 
@@ -52,7 +48,7 @@ This configuration will never support the following features:
 
 ## Requirements
 
-- [Neovim][] **nightly** (v0.14.0 or later), [NodeJS][] **v22** (or later), preferably installed with [NVM][],
+- [Neovim][] **nightly** (v0.11.4 or later), [NodeJS][] **v22** (or later), preferably installed with [NVM][],
 - Python 3 and (optionally) [Rust][]
 - The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`
 - For installing some LSP servers, you will need the `unzip` command
