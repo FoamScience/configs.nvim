@@ -83,7 +83,7 @@ end
 ---- winbar and statusline startup: 26.92/26.94
 if vim.g.loaded_categories.winbar then
     spec "user.navic"
-    spec "user.mini-statusline"  -- Fast statusline using mini.nvim (<1ms)
+    spec "user.mini-statusline" -- Fast statusline using mini.nvim (<1ms)
     spec "user.incline"
 end
 
@@ -135,24 +135,41 @@ end
 -- tutorials - lazy loaded only when :Tutorials is called
 spec "user.tutorials"
 
-
--- lazy needs to be loaded last
-require "user.lazy"
-
--- load user-specific lua modules
+-- load user-specific lua modules that return plugin specs (before lazy initialization)
 local usr_dir = vim.fn.stdpath("config") .. "/lua/" .. vim.loop.os_getenv("USER")
 local usr_stat = vim.loop.fs_stat(usr_dir)
+local user_modules_to_load_after = {}
 if usr_stat and usr_stat.type == "directory" then
     local files = vim.fn.glob(usr_dir .. "/*.lua", false, true)
     for _, file in ipairs(files) do
         local base_name = vim.fn.fnamemodify(file, ":t:r")
         local module_name = base_name:gsub("/", ".")
-        local ok, m = pcall(require, vim.loop.os_getenv("USER") .. "." .. module_name)
-        if ok and m.config ~= nil then
-            m.config()
+        local full_module_name = vim.loop.os_getenv("USER") .. "." .. module_name
+        local ok, m = pcall(require, full_module_name)
+        if ok then
+            if type(m) == "table" and m.config ~= nil then
+                -- treat as lazyvim spec - insert directly into LAZY_PLUGIN_SPEC
+                table.insert(LAZY_PLUGIN_SPEC, m)
+            else
+                -- not a plugin spec, unload and defer loading until after lazy initialization
+                package.loaded[full_module_name] = nil
+                table.insert(user_modules_to_load_after, full_module_name)
+            end
+        else
+            -- module errored (likely depends on lazy plugins), unload and defer
+            package.loaded[full_module_name] = nil
+            table.insert(user_modules_to_load_after, full_module_name)
         end
-        if not ok then
-            vim.notify("Error loading " .. module_name .. ": " .. m)
-        end
+    end
+end
+
+-- lazy needs to be loaded last
+require "user.lazy"
+
+-- load remaining user-specific modules that aren't plugin specs
+for _, module_name in ipairs(user_modules_to_load_after) do
+    local ok, err = pcall(require, module_name)
+    if not ok then
+        vim.notify("Error loading " .. module_name .. ": " .. err)
     end
 end
