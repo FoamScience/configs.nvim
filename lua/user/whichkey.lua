@@ -1,15 +1,21 @@
 local M = {
     "folke/which-key.nvim",
     event = "VeryLazy",
-    dependencies = {
-        "echasnovski/mini.nvim"
-    },
 }
 
 function M.config()
     local wk = require "which-key"
     local icons = require("user.lspicons")
-    local mappings = {}
+    local mappings = {
+        {
+            "<leader>?",
+            function()
+                require("which-key").show({ global = false })
+            end,
+            desc = "Buffer Local Keymaps",
+        },
+    }
+
     if vim.g.loaded_categories.navigation then
         vim.list_extend(mappings, {
             { "<leader>n", group = "navigation", icon = icons.ui.Forward },

@@ -83,6 +83,38 @@ M.sidebar_filetypes = {
 }
 
 function M.config()
+    require('mini.ai').setup()
+    require('mini.operators').setup({
+        multiply = { prefix = nil },
+        sort = { prefix = nil },
+    })
+    require('mini.splitjoin').setup({
+        mappings = {
+            toggle = 'gj'
+        }
+    })
+    require('which-key').add({
+        { "<leader>s", group = "Surround", icon = icons.git.FileIgnored },
+    })
+    require('mini.surround').setup({
+        mappings = {
+            add = '<leader>sa',
+            delete = '<leader>sd',
+            find = '<leader>sf',
+            find_left = '<leader>sF',
+            highlight = '<leader>sh',
+            replace = '<leader>sr',
+        },
+    })
+    require('mini.diff').setup()
+    require('which-key').add({
+        "<leader>gdD",
+        function()
+            MiniDiff.toggle_overlay()
+        end,
+        desc = "Toggle hunk overlay",
+        icon = icons.kind.Boolean
+    })
     local statusline = require('mini.statusline')
 
     -- Custom content function matching old lualine layout
@@ -95,14 +127,14 @@ function M.config()
         local git = statusline.section_git({ trunc_width = 75 })
 
         -- Powerline-style separators - slanted triangles (matching lualine)
-        local sep_left = ""   -- U+E0B2 (left-pointing filled triangle)
-        local sep_right = ""  -- U+E0B0 (right-pointing filled triangle)
+        local sep_left = ""  -- U+E0B2 (left-pointing filled triangle)
+        local sep_right = "" -- U+E0B0 (right-pointing filled triangle)
 
         -- Get mode color for dynamic separators
-        local mode_color = vim.api.nvim_get_hl(0, {name = mode_hl}).bg
-        local devinfo_color = vim.api.nvim_get_hl(0, {name = 'MiniStatuslineDevinfo'}).bg
-        local fileinfo_color = vim.api.nvim_get_hl(0, {name = 'MiniStatuslineFileinfo'}).bg
-        local bg_color = vim.api.nvim_get_hl(0, {name = 'StatusLine'}).bg
+        local mode_color = vim.api.nvim_get_hl(0, { name = mode_hl }).bg
+        local devinfo_color = vim.api.nvim_get_hl(0, { name = 'MiniStatuslineDevinfo' }).bg
+        local fileinfo_color = vim.api.nvim_get_hl(0, { name = 'MiniStatuslineFileinfo' }).bg
+        local bg_color = vim.api.nvim_get_hl(0, { name = 'StatusLine' }).bg
 
         -- Dynamic separator highlights
         vim.api.nvim_set_hl(0, 'StatusLineSep1', { fg = mode_color, bg = devinfo_color })
@@ -124,12 +156,12 @@ function M.config()
             { hl = 'StatusLineSep2',        strings = { sep_right } },
             '%<', -- Truncation point
             '%=', -- Right align
-            { hl = 'StatusLineSep3',        strings = { sep_left } },
+            { hl = 'StatusLineSep3',         strings = { sep_left } },
             { hl = 'MiniStatuslineFileinfo', strings = { section_x } },
             { hl = 'MiniStatuslineFileinfo', strings = { sep_left } },
             { hl = 'MiniStatuslineFileinfo', strings = { section_y } },
-            { hl = 'StatusLineSep4',        strings = { sep_left } },
-            { hl = mode_hl,                 strings = { section_z } },
+            { hl = 'StatusLineSep4',         strings = { sep_left } },
+            { hl = mode_hl,                  strings = { section_z } },
         })
     end
 
@@ -194,7 +226,7 @@ function M.config()
     vim.o.tabline = "%!v:lua.custom_tabline()"
 
     -- Refresh tabline when windows change
-    vim.api.nvim_create_autocmd({"WinNew", "WinClosed", "WinResized", "BufWinEnter", "FileType"}, {
+    vim.api.nvim_create_autocmd({ "WinNew", "WinClosed", "WinResized", "BufWinEnter", "FileType" }, {
         callback = function()
             vim.cmd("redrawtabline")
         end,
