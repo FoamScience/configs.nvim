@@ -6,7 +6,7 @@ vim.g.loaded_categories = {
     lsp = true,
     git = true,
     winbar = true,
-    telescope = true,
+    finder = true,
     autocomplete = true,
     edit = true,
     navigation = true,
@@ -85,11 +85,6 @@ if vim.g.loaded_categories.winbar then
     spec "user.navic"
     spec "user.mini-statusline" -- Fast statusline using mini.nvim (<1ms)
     spec "user.incline"
-end
-
--- telescope startup 17.07/17.08
-if vim.g.loaded_categories.telescope then
-    spec "user.telescope"
 end
 
 -- autocomplete startup: 17.03/17.11
