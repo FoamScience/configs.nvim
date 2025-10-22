@@ -44,7 +44,11 @@ local function git_blame()
     local gitsigns_ok, _ = pcall(require, "gitsigns")
     if not gitsigns_ok then return "" end
     if not vim.b.gitsigns_blame_line then return "" end
-    return vim.b.gitsigns_blame_line
+    local blame_line = vim.b.gitsigns_blame_line
+    if #blame_line > 25 then
+        blame_line = blame_line:sub(1, 100) .. "…"
+    end
+    return blame_line
 end
 
 local function diagnostics()
