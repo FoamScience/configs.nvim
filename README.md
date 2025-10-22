@@ -265,8 +265,8 @@ vim.g.config_check_for_updates = false
 ### Git integration
 
 - [gitsigns.lua:](lua/user/gitsigns.lua) shows git diff in the sign column
-- [neogit.lua:](lua/user/neogit.lua) a git client
-  - `<leader>gg` to open, `<leader>g` in general to do git-related stuff, like staging hunks
+- ~[neogit.lua:](lua/user/neogit.lua) a git client~
+  - ~`<leader>gg` to open,~ `<leader>g` in general to do git-related stuff, like staging hunks
 - [diffview.lua:](lua/user/diffview.lua) a diff viewer for Git diffs
   - `<leader>gd` to open, or `:DiffviewOpen` in normal mode
 - [gitconflicts.lua:](lua/user/gitconflicts.lua) shows better diffs for git conflicts.

@@ -225,11 +225,6 @@ function M.config()
         vim.list_extend(mappings, {
             { "<leader>g", group = "Git", icon = icons.git.Branch },
             {
-                "<leader>gn",
-                "<cmd>Neogit<cr>",
-                desc = "Neogit",
-            },
-            {
                 "<leader>gj",
                 "<cmd>lua require 'gitsigns'.next_hunk({navigation_message = false})<cr>",
                 desc = "Next Hunk"

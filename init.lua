@@ -76,7 +76,6 @@ end
 if vim.g.loaded_categories.git then
     spec "user.gitsigns"
     spec "user.diffview"
-    spec "user.neogit"
     spec "user.gitconflicts"
 end
 
