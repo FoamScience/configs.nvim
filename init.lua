@@ -100,6 +100,7 @@ if vim.g.loaded_categories.edit then
     spec "user.guess-indent"
     spec "user.undo"
     spec "user.markdown-toc"
+    spec "user.sticky-notes"
 end
 
 -- navigation startup: 17.04/16.71

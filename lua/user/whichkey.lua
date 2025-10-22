@@ -55,6 +55,27 @@ function M.config()
             { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",    icon = icons.ui.History },
             unpack(mtoc_keys),
         })
+        local sticky_ok, _ = pcall(require, "stickynotes")
+        if sticky_ok then
+            vim.list_extend(mappings, {
+                { "<leader>k", group = "StickyNotes", icon = icons.ui.BookMark },
+                {
+                    "<leader>kk",
+                    "<cmd>StickyNotes<cr>",
+                    desc = "Create a default note",
+                },
+                {
+                    "<leader>kl",
+                    "<cmd>StickyNotesList<cr>",
+                    desc = "List current project notes",
+                },
+                {
+                    "<leader>kn",
+                    "<cmd>StickyNotesNew<cr>",
+                    desc = "Create a named project note",
+                },
+            })
+        end
     end
     if vim.g.loaded_categories.ai then
         vim.list_extend(mappings, {
@@ -424,24 +445,22 @@ function M.config()
         })
     end
 
-    if vim.env.USER then
-        local foamut_package = vim.env.USER .. ".foamut"
-        local foamut_ok, _ = pcall(require, foamut_package)
-        if foamut_ok and vim.bo.ft == "cpp" then
-            vim.list_extend(mappings, {
-                { "<leader>c", group = "Custom", icon = icons.ui.BookMark },
-                {
-                    "<leader>ct",
-                    "<cmd>lua require('" .. foamut_package .. "').FoamUtRunTestAtCursor()<cr>",
-                    desc = "Run foamUT test at cursor",
-                },
-                {
-                    "<leader>cT",
-                    "<cmd>lua require('" .. foamut_package .. "').FoamUtListTests()<cr>",
-                    desc = "Pick foamUT tests to run",
-                },
-            })
-        end
+    local foamut_package = vim.env.USER .. ".foamut"
+    local foamut_ok, _ = pcall(require, foamut_package)
+    if foamut_ok and vim.bo.ft == "cpp" then
+        vim.list_extend(mappings, {
+            { "<leader>c", group = "Custom", icon = icons.ui.BookMark },
+            {
+                "<leader>ct",
+                "<cmd>lua require('" .. foamut_package .. "').FoamUtRunTestAtCursor()<cr>",
+                desc = "Run foamUT test at cursor",
+            },
+            {
+                "<leader>cT",
+                "<cmd>lua require('" .. foamut_package .. "').FoamUtListTests()<cr>",
+                desc = "Pick foamUT tests to run",
+            },
+        })
     end
 
     wk.setup {
