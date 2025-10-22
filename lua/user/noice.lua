@@ -11,16 +11,9 @@ local M = {
 function M.config()
 	require("noice").setup({
 		routes = {
-			{
-				filter = {
-					event = "msg_show",
-					any = {
-						{ find = "%d+L, %d+B" },
-						{ find = "; after #%d+" },
-						{ find = "; before #%d+" },
-					},
-				},
-				view = "mini",
+			{ -- anything larger than 3 messages goes into a floating window
+				view = "popup",
+				filter = { event = "msg_show", min_height = 3 },
 			},
 		},
 		lsp = {
@@ -57,6 +50,10 @@ function M.config()
 		messages = {
 			enabled = true,
 			view_history = "popup",
+		},
+		popupmenu = { -- conflicts with cmp auto-completion
+			enabled = false,
+			backend = false,
 		},
 	})
 end

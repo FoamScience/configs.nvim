@@ -67,6 +67,13 @@ M.config = function()
             }
         }
     })
+
+    -- redirect :marks and :registers to snacks picker
+    vim.cmd([[
+        cnoreabbrev <expr> marks getcmdtype() == ':' && getcmdline() == 'marks' ? 'lua require("snacks").picker.marks()' : 'marks'
+        cnoreabbrev <expr> registers getcmdtype() == ':' && getcmdline() == 'registers' ? 'lua require("snacks").picker.registers()' : 'registers'
+        cnoreabbrev <expr> reg getcmdtype() == ':' && getcmdline() == 'reg' ? 'lua require("snacks").picker.registers()' : 'reg'
+    ]])
 end
 
 return M
