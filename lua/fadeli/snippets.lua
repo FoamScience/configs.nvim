@@ -11,6 +11,7 @@ local t = ls.text_node
 local d = ls.dynamic_node
 local i = ls.insert_node
 local c = ls.choice_node
+local f = ls.function_node
 
 local get_print_statement = function()
     local filetype = vim.bo.filetype
@@ -69,7 +70,13 @@ local snippets = {
     }),
 }
 
-M.config = function()
+local function get_python_version()
+    local version = vim.fn.system("python3 --version 2>&1")
+    version = version:match("Python%s+(%d+%.%d+)")
+    return version or "3.x"
+end
+
+M._config = function()
     ls.add_snippets("all", snippets)
 
     ls.add_snippets("markdown", {
@@ -96,6 +103,21 @@ M.config = function()
             t({"", "", "## More information", "", ""}), i(15, "Any more information clarifying components of the decision."),
         }),
     })
+
+    ls.add_snippets("python", {
+        s("uv_script", {
+            t({"# /// script"}),
+            t({"", "# requires-python = \">=", }),
+            f(get_python_version, {}),
+            t({"\"" }),
+            t({"", "# dependencies = [", "# "}),
+            i(1, "\"numpy\","),
+            t({"", "# ]"}),
+            t({"", "# ///"}),
+        }),
+    })
 end
+
+M._config()
 
 return M
