@@ -140,10 +140,22 @@ function M.config()
                 icon = icons.kind.Function,
             },
             {
+                "gd",
+                vim.lsp.buf.definition,
+                desc = "Native LSP definition",
+                icon = icons.kind.Function,
+            },
+            {
                 "<leader>lD",
                 function() require("snacks").picker.lsp_type_definitions() end,
                 desc = "Type definition",
                 icon = icons.kind.TypeParameter,
+            },
+            {
+                "gD",
+                vim.lsp.buf.declaration,
+                desc = "Native LSP definition",
+                icon = icons.kind.Function,
             },
             {
                 "<leader>lf",
@@ -204,6 +216,30 @@ function M.config()
                 function() require("snacks").picker.lsp_references() end,
                 desc = "References",
                 icon = icons.kind.Reference,
+            },
+            {
+                "gR",
+                vim.lsp.buf.references,
+                desc = "Native LSP references",
+                icon = icons.kind.Function,
+            },
+            {
+                "gi",
+                vim.lsp.buf.implementation,
+                desc = "Native LSP implementation",
+                icon = icons.kind.Function,
+            },
+            {
+                "gt",
+                vim.lsp.buf.type_definition,
+                desc = "Native LSP type definition",
+                icon = icons.kind.Function,
+            },
+            {
+                "<c-k>",
+                vim.lsp.buf.signature_help,
+                desc = "Native LSP type definition",
+                icon = icons.kind.Function,
             },
             {
                 "<leader>ls",
