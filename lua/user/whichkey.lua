@@ -134,6 +134,12 @@ function M.config()
         vim.list_extend(mappings, {
             { "<leader>l", group = "LSP",        icon = icons.kind.Class, mode = { "n", "v" } },
             {
+                "<leader>la",
+                vim.lsp.buf.code_action,
+                desc = "Code actions",
+                icon = icons.ui.BoxChecked,
+            },
+            {
                 "<leader>ld",
                 function() require("snacks").picker.lsp_definitions() end,
                 desc = "Symbol definition",
@@ -158,6 +164,12 @@ function M.config()
                 icon = icons.kind.Function,
             },
             {
+                "<leader>lh",
+                vim.lsp.buf.typehierarchy,
+                desc = "Inheritence tree",
+                icon = icons.kind.Class,
+            },
+            {
                 "<leader>lf",
                 "<cmd>lua vim.lsp.buf.format({async = true, timeout_ms = 1000000})<cr>",
                 desc = "Format",
@@ -168,6 +180,19 @@ function M.config()
                 function() require("snacks").picker.diagnostics() end,
                 desc = "Diagnostics",
                 icon = icons.ui.Bug,
+            },
+            { "<leader>lc", group = "Call graph",  icon = icons.kind.Struct, mode = { "n", "v" } },
+            {
+                "<leader>lco",
+                vim.lsp.buf.outgoing_calls,
+                desc = "Outgoing calls",
+                icon = icons.ui.ArrowCircleUp,
+            },
+            {
+                "<leader>lci",
+                vim.lsp.buf.incoming_calls,
+                desc = "Incoming calls",
+                icon = icons.ui.ArrowCircleDown,
             },
             {
                 "<leader>li",

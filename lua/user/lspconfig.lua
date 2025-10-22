@@ -144,11 +144,7 @@ return {
                         return #vim.diagnostic.get(bufnr) <= 10
                     end,
                     update_in_insert = false,
-                    virtual_text = {
-                        spacing = 4,
-                        source = "if_many",
-                        prefix = "●",
-                    },
+                    virtual_text = false,
                     severity_sort = true,
                     signs = {
                         text = {
@@ -157,6 +153,19 @@ return {
                             [vim.diagnostic.severity.HINT] = icons.diagnostics.Hint,
                             [vim.diagnostic.severity.INFO] = icons.diagnostics.Information,
                         },
+                        numhl = {
+                            [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+                            [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+                            [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+                            [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+                        },
+                    },
+                    float = {
+                        focusable = true,
+                        border = "rounded",
+                        source = "if_many",
+                        header = "",
+                        prefix = "",
                     },
                 },
                 inlay_hints = {
