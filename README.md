@@ -102,13 +102,15 @@ have provided a good experience.
 ### General Notes
 
 - The canonical way to move between open buffers is `<tab>` and `<S-tab>` in normal mode.
-- The canonical way to move on visible screen portion is by pressing `S` and `s` in normal mode.
+- The canonical way to move on visible screen portion is by pressing `s` and `S` in normal mode.
 - The canonical way to move between tabs and splits is `<C-w><C-w>`; too fundamental to change.
 - Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
 - You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
 - You can see registers content by pressing `"`, and marks positions by pressing the back-tick '`'
 - `<leader>fk` lists all available key bindings and `<leader>fC` lists commands.
 - `<leader>fP` will take you to individual plugin configuration!
+- `<leader>kk` brings up a sticky-notes sidebar. it persists; and it's project-specific!
+  - you can create mutiple notes per projects and notes content is in Markdown
 
 The plugins are organized into categories, and it takes my machine **60ms** to load a C++ file.
 If you find it slow, you can always disable some categories in `init.lua`, or specific plugins in their configuration file.
@@ -118,8 +120,9 @@ If you want to load only certain categories:
 nvim --cmd "lua vim.g.plugin_settings = 'ux=true,git=true,lsp=true'" file.cpp
 ```
 
-You can also load your custom configuration by putting it in `~/.config/nvim/lua/$USER/` where `$USER` is your username.
-`config()` functions will be called from your custom lua files if they exist.
+You can also load your custom configuration by putting it in `~/.config/nvim/lua/$USER/` where `$USER` is your username:
+- Files returning a table, with a `config()` function, will be considered as [Lazy.nvim] specs.
+- Everyting else just gets executed as a lua script
 
 > [!IMPORTANT]
 > Some plugin configurations will attempt to read user-specific options from the return table in
@@ -131,8 +134,8 @@ Also, you can turn on automatic checking of configuration updates to keep
 your local configuration in sync with new commits from this repo. This only does the check though,
 you will have to run `git pull` on your own:
 ```lua
--- in init.lua
-vim.g.config_check_for_updates = false
+-- in lua/<your-username>/whatever.lua
+vim.g.config_check_for_updates = true
 ```
 
 ### General
@@ -295,3 +298,4 @@ vim.g.config_check_for_updates = false
 [Neorg]: https://github.com/nvim-neorg/neorg "Neorg"
 [ImageMagick]: https://imagemagick.org/index.php "ImageMagick"
 [mermaid-cli]: https://github.com/mermaid-js/mermaid-cli "Mermaid-cli"
+[Lazy.nvim]: https://github.com/folke/lazy.nvim "Lazy.nvim"
