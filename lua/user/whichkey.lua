@@ -177,6 +177,12 @@ function M.config()
             },
             {
                 "<leader>lg",
+                function() vim.diagnostic.open_float(nil, { focus = false }) end,
+                desc = "Line diagnostics",
+                icon = icons.ui.Bug,
+            },
+            {
+                "<leader>lG",
                 function() require("snacks").picker.diagnostics() end,
                 desc = "Diagnostics",
                 icon = icons.ui.Bug,

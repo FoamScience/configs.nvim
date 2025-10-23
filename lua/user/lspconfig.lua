@@ -55,7 +55,6 @@ local function find_uv_python_path(bufnr)
         end
     end
     local script_result
-    local success_script
     if is_uv_script then
         script_result = vim.system(
             { "uv", "python", "find", "--script", filepath },
@@ -63,17 +62,13 @@ local function find_uv_python_path(bufnr)
         ):wait()
     end
     local dir = vim.fn.fnamemodify(filepath, ":h")
-    local cmd = string.format("cd %s && uv python find", vim.fn.shellescape(dir))
 
     local result = vim.system(
         { "uv", "python", "find" },
         { text = true, timeout = 1000, cwd = dir }
     ):wait()
 
-    vim.print("IS_SCRIPT but NOT DETECTED?")
-    vim.print(result, script_result)
-    vim.print(is_uv_script and script_result.stdout == result.stdout)
-    if is_uv_script and script_result.stdout == result.stdout then
+    if is_uv_script and script_result.stdout ~= result.stdout then
         -- force creation of environment, sneaky workaround
         vim.system(
             { "uv", "run", "--script", filepath, "--", "--version" },
@@ -87,6 +82,13 @@ local function find_uv_python_path(bufnr)
 
     local python_path = result.stdout:match("^%s*(.-)%s*$")
     if python_path ~= "" and vim.fn.executable(python_path) == 1 then
+        if is_uv_script and python_path:match(vim.fn.fnamemodify(filepath, ":t:r")) == nil then
+            vim.notify("Couldn't find uv script environment; defaulting to UV's global paths", vim.log.levels.WARN)
+        elseif is_uv_script then
+            vim.notify("UV script detected, setting environment", vim.log.levels.INFO)
+        elseif not is_uv_script and python_path then
+            vim.notify("UV project detected, setting environment", vim.log.levels.INFO)
+        end
         return is_uv_script, python_path
     end
 
@@ -108,24 +110,26 @@ local pyright_opts = {
     },
     root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
     on_attach = function(_, bufnr)
-        local is_script, uv_python = find_uv_python_path(bufnr)
-        if is_script and uv_python then
-            vim.print("UV script detected, setting environment")
-        end
-        if not is_script and uv_python then
-            vim.print("UV project detected, setting environment")
-        end
-        if uv_python then
-            vim.lsp.config.pyright = {
-                settings = {
-                    python = {
-                        pythonPath = uv_python,
+        vim.schedule(function()
+            local is_script, uv_python = find_uv_python_path(bufnr)
+            if is_script and uv_python then
+                vim.notify("")
+            end
+            if not is_script and uv_python then
+                vim.notify("UV project detected, setting environment")
+            end
+            if uv_python then
+                vim.lsp.config.pyright = {
+                    settings = {
+                        python = {
+                            pythonPath = uv_python,
+                        }
                     }
                 }
-            }
-            vim.lsp.enable("pyright", false)
-            vim.lsp.enable("pyright", true)
-        end
+                vim.lsp.enable("pyright", false)
+                vim.lsp.enable("pyright", true)
+            end
+        end)
     end,
 }
 
@@ -135,6 +139,7 @@ return {
         event = { "BufReadPost", "BufNewFile" },
         dependencies = {
             "mason.nvim",
+            "folke/lazydev.nvim",
             { "mason-org/mason-lspconfig.nvim", config = function() end },
         },
         opts = function()
@@ -195,7 +200,11 @@ return {
                     clangd = clangd_opts,
                     pyright = pyright_opts,
                 },
-                setup = {},
+                setup = {
+                    lua_ls = function()
+                        require("lazydev").setup()
+                    end
+                },
             }
             return ret
         end,
