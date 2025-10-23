@@ -1,6 +1,5 @@
 local icons = require('user.lspicons')
 
--- Define server options as functions to be evaluated when lspconfig is available
 local luals_opts = {
     -- mason = false,
     -- keys = {},
@@ -36,14 +35,18 @@ local clangd_opts = {
     root_markers = { "compile_commands.json", ".git", "Makefile", "Make" },
 }
 
--- Function to find Python path using UV
-local function find_uv_python_path(bufnr)
+local function find_uv_python_path(bufnr, client, callback)
     local uv_path = vim.fn.exepath("uv")
-    if uv_path == "" then return nil end
-    local filepath = vim.api.nvim_buf_get_name(bufnr)
-    if filepath == "" then return nil end
+    if uv_path == "" then
+        callback(false, nil)
+        return
+    end
 
-    -- if no file yet, no point in continuing
+    local filepath = vim.api.nvim_buf_get_name(bufnr)
+    if filepath == "" then
+        callback(false, nil)
+        return
+    end
 
     -- read first 10 lines, looking for: /// script
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 10, false)
@@ -54,45 +57,109 @@ local function find_uv_python_path(bufnr)
             break
         end
     end
-    local script_result
-    if is_uv_script then
-        script_result = vim.system(
-            { "uv", "python", "find", "--script", filepath },
-            { text = true, timeout = 1000 }
-        ):wait()
-    end
+
     local dir = vim.fn.fnamemodify(filepath, ":h")
+    local has_fidget, progress = pcall(require, "fidget.progress")
+    local handle
+    if has_fidget then
+        handle = progress.handle.create({
+            title = "UV Python",
+            message = "Checking configuration...",
+            lsp_client = client and { name = client.name } or nil,
+        })
+    end
 
-    local result = vim.system(
-        { "uv", "python", "find" },
-        { text = true, timeout = 1000, cwd = dir }
-    ):wait()
+    local function report_progress(message, percentage)
+        if handle then
+            handle:report({
+                message = message,
+                percentage = percentage,
+            })
+        end
+    end
+    local function end_progress(message)
+        if handle then
+            handle:finish(message)
+        end
+    end
+    report_progress("Checking UV configuration...", 0)
 
-    if is_uv_script and script_result.stdout ~= result.stdout then
-        -- force creation of environment, sneaky workaround
+    local function check_script_python()
+        if not is_uv_script then
+            Find_project_python()
+            return
+        end
+        report_progress("Detecting UV script environment...", 20)
+        vim.system(
+            { "uv", "python", "find", "--script", filepath },
+            { text = true, timeout = 1000 },
+            vim.schedule_wrap(function(script_result)
+                Find_project_python(script_result)
+            end)
+        )
+    end
+
+    function Find_project_python(script_result)
+        report_progress("Finding Python interpreter...", 40)
+        vim.system(
+            { "uv", "python", "find" },
+            { text = true, timeout = 1000, cwd = dir },
+            vim.schedule_wrap(function(project_result)
+                if is_uv_script then
+                    if script_result and script_result.stdout == project_result.stdout then
+                        Create_script_env()
+                    else
+                        Finalize_result(script_result)
+                    end
+                else
+                    Finalize_result(project_result)
+                end
+            end)
+        )
+    end
+
+    function Create_script_env()
+        report_progress("Creating UV script environment...", 60)
         vim.system(
             { "uv", "run", "--script", filepath, "--", "--version" },
-            { text = true, timeout = 5000 }
-        ):wait()
-        result = vim.system(
-            { "uv", "python", "find", "--script", filepath },
-            { text = true, timeout = 1000 }
-        ):wait()
+            { text = true, timeout = 5000 },
+            vim.schedule_wrap(function(_)
+                report_progress("Finalizing script environment...", 80)
+                vim.system(
+                    { "uv", "python", "find", "--script", filepath },
+                    { text = true, timeout = 1000 },
+                    vim.schedule_wrap(function(final_result)
+                        Finalize_result(final_result)
+                    end)
+                )
+            end)
+        )
     end
 
-    local python_path = result.stdout:match("^%s*(.-)%s*$")
-    if python_path ~= "" and vim.fn.executable(python_path) == 1 then
-        if is_uv_script and python_path:match(vim.fn.fnamemodify(filepath, ":t:r")) == nil then
-            vim.notify("Couldn't find uv script environment; defaulting to UV's global paths", vim.log.levels.WARN)
-        elseif is_uv_script then
-            vim.notify("UV script detected, setting environment", vim.log.levels.INFO)
-        elseif not is_uv_script and python_path then
-            vim.notify("UV project detected, setting environment", vim.log.levels.INFO)
+    function Finalize_result(result)
+        if not result or not result.stdout then
+            end_progress("UV detection failed")
+            callback(is_uv_script, nil)
+            return
         end
-        return is_uv_script, python_path
+
+        local python_path = result.stdout:match("^%s*(.-)%s*$")
+        if python_path ~= "" and vim.fn.executable(python_path) == 1 then
+            if is_uv_script and python_path:match(vim.fn.fnamemodify(filepath, ":t:r")) == nil then
+                end_progress("Using global Python paths")
+            elseif is_uv_script then
+                end_progress("UV script environment configured")
+            else
+                end_progress("UV project environment configured")
+            end
+            callback(is_uv_script, python_path)
+        else
+            end_progress("No valid Python interpreter found")
+            callback(is_uv_script, nil)
+        end
     end
 
-    return is_uv_script, nil
+    check_script_python()
 end
 
 local default_python = vim.fn.exepath("python3") or vim.fn.exepath("python")
@@ -109,26 +176,20 @@ local pyright_opts = {
         }
     },
     root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
-    on_attach = function(_, bufnr)
-        vim.schedule(function()
-            local is_script, uv_python = find_uv_python_path(bufnr)
-            if is_script and uv_python then
-                vim.notify("")
+    on_attach = function(client, bufnr)
+        find_uv_python_path(bufnr, client, function(_, uv_python)
+            if not uv_python then
+                return
             end
-            if not is_script and uv_python then
-                vim.notify("UV project detected, setting environment")
-            end
-            if uv_python then
-                vim.lsp.config.pyright = {
-                    settings = {
-                        python = {
-                            pythonPath = uv_python,
-                        }
+            vim.lsp.config.pyright = {
+                settings = {
+                    python = {
+                        pythonPath = uv_python,
                     }
                 }
-                vim.lsp.enable("pyright", false)
-                vim.lsp.enable("pyright", true)
-            end
+            }
+            vim.lsp.enable("pyright", false)
+            vim.lsp.enable("pyright", true)
         end)
     end,
 }
@@ -209,13 +270,6 @@ return {
             return ret
         end,
         config = vim.schedule_wrap(function(_, opts)
-            vim.api.nvim_create_autocmd("LspAttach", {
-                group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-                callback = function(ev)
-                    --on_attach(vim.lsp.get_client_by_id(ev.data.client_id), ev.buf)
-                end,
-            })
-
             if opts.inlay_hints.enabled then
                 vim.api.nvim_create_autocmd("LspAttach", {
                     group = vim.api.nvim_create_augroup("UserLspInlayHints", {}),
@@ -291,7 +345,7 @@ return {
 
             local function configure(server)
                 local sopts = opts.servers[server]
-                sopts = sopts == true and {} or (not sopts) and { enabled = false } or sopts --[[@as lsp.Config]]
+                sopts = sopts == true and {} or (not sopts) and { enabled = false } or sopts
 
                 if sopts.enabled == false then
                     mason_exclude[#mason_exclude + 1] = server

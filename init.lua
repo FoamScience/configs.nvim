@@ -62,6 +62,7 @@ if vim.g.loaded_categories.ux then
     spec "user.noice"
     spec "user.render-markdown"
     spec "user.img-clip"
+    spec "user.fidget"
 end
 
 -- lsp setup startup: 36.39/37.50
