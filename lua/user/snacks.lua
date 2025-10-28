@@ -12,6 +12,10 @@ M.config = function()
                 row = 2,
             },
         },
+        -- @WARN: NEVER INCLUDE THIS. IT IS JUST SLOW
+        --  quickfile = {
+        --      enabled = true,
+        --  },
         animate = {},
         indent = {
             enabled = true,

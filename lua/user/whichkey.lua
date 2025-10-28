@@ -132,7 +132,7 @@ function M.config()
     end
     if vim.g.loaded_categories.lsp then
         vim.list_extend(mappings, {
-            { "<leader>l", group = "LSP",        icon = icons.kind.Class, mode = { "n", "v" } },
+            { "<leader>l",  group = "LSP",        icon = icons.kind.Class,  mode = { "n", "v" } },
             {
                 "<leader>la",
                 vim.lsp.buf.code_action,
@@ -187,7 +187,7 @@ function M.config()
                 desc = "Diagnostics",
                 icon = icons.ui.Bug,
             },
-            { "<leader>lc", group = "Call graph",  icon = icons.kind.Struct, mode = { "n", "v" } },
+            { "<leader>lc", group = "Call graph", icon = icons.kind.Struct, mode = { "n", "v" } },
             {
                 "<leader>lco",
                 vim.lsp.buf.outgoing_calls,
@@ -305,6 +305,26 @@ function M.config()
                 "<leader>Tt",
                 "<cmd>InspectTree<cr>",
                 desc = "Inspect Tree",
+                icon = icons.ui.Search
+            },
+
+            { "<leader>q", group = "QuickFix",        icon = icons.ui.Watches, mode = { "n", "v" } },
+            {
+                "<leader>qd",
+                function() vim.diagnostic.setqflist({ open = true }) end,
+                desc = "Quick diagnostics",
+                icon = icons.ui.Bug
+            },
+            {
+                "<leader>qt",
+                "<cmd>TodoQuickFix<CR>",
+                desc = "Todos",
+                icon = icons.ui.Note
+            },
+            {
+                "<leader>qq",
+                "<cmd>copen<CR>",
+                desc = "Open quickfix list",
                 icon = icons.ui.Search
             },
         })
