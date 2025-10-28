@@ -104,3 +104,38 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
         end
     end,
 })
+
+-- Handle 
+local gzip_grp = vim.api.nvim_create_augroup("gzip", { clear = true })
+vim.api.nvim_create_autocmd({"BufReadPre", "FileReadPre"}, {
+    pattern = "*.gz",
+    group = gzip_grp,
+    callback = function()
+        vim.bo.binary = true
+    end
+})
+vim.api.nvim_create_autocmd({"BufReadPost", "FileReadPost"}, {
+    pattern = "*.gz",
+    group = gzip_grp,
+    callback = function()
+        local filename = vim.fn.expand("%")
+        local handle = io.popen("gunzip -c " .. vim.fn.shellescape(filename))
+        if handle then
+            local content = handle:read("*a")
+            handle:close()
+            vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(content, "\n"))
+            vim.bo.binary = false
+        end
+    end
+})
+vim.api.nvim_create_autocmd({"BufWritePost", "FileWritePost"}, {
+    pattern = "*.gz",
+    group = gzip_grp,
+    callback = function()
+        local filename = vim.fn.expand("%")
+        local tmpfile = vim.fn.tempname()
+        vim.cmd("write! " .. tmpfile)
+        os.execute("gzip -f " .. vim.fn.shellescape(tmpfile))
+        os.execute("mv " .. tmpfile .. ".gz " .. vim.fn.shellescape(filename))
+    end
+})

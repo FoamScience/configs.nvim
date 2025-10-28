@@ -126,6 +126,7 @@ if vim.g.loaded_categories.optional then
     spec "user.optional.dim"
     spec "user.optional.cinnamon"
     spec "user.optional.typst"
+    spec "user.optional.cloack"
 end
 
 -- tutorials - lazy loaded only when :Tutorials is called

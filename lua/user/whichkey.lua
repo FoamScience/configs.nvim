@@ -308,7 +308,7 @@ function M.config()
                 icon = icons.ui.Search
             },
 
-            { "<leader>q", group = "QuickFix",        icon = icons.ui.Watches, mode = { "n", "v" } },
+            { "<leader>q", group = "QuickFix",   icon = icons.ui.Watches, mode = { "n", "v" } },
             {
                 "<leader>qd",
                 function() vim.diagnostic.setqflist({ open = true }) end,
@@ -488,6 +488,19 @@ function M.config()
                 desc = "Undo tree",
             },
         })
+    end
+
+    if vim.g.loaded_categories.optional then
+        if vim.bo.filetype == "csv" then
+            vim.list_extend(mappings, {
+                { "<leader>c", group = "CSV", icon = icons.ui.Table },
+                {
+                    "<leader>cv",
+                    "<cmd>CsvViewToggle display_mode=border<cr>",
+                    desc = "Toggle CSV display",
+                },
+            })
+        end
     end
 
     -- Tutorial system (only if started without files)

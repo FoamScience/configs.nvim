@@ -6,7 +6,7 @@ local M = {
 function M.config()
 	local garbage = require "garbage-day"
     garbage.setup {
-        aggressive_mode = true,
+        aggressive_mode = false,
     }
 end
 
