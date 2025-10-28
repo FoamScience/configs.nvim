@@ -282,7 +282,7 @@ vim.g.config_check_for_updates = true
 ### Miscellaneous
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
-- [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVLens.
+- [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVView plugin.
 - ~~[neorg.lua:](lua/user/optional/neorg.lua) a Notes/task management system through `<leader>o`
   using [Neorg][].~~
 
