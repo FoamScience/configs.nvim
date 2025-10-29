@@ -23,7 +23,7 @@ local clangd_opts = {
     cmd = {
         "clangd",
         "--offset-encoding=utf-16",
-        "--all-scopes-completion",
+        --"--all-scopes-completion",
         "--completion-style=bundled",
         "--clang-tidy",
         "--malloc-trim",
