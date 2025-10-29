@@ -232,9 +232,10 @@ vim.g.config_check_for_updates = true
   - You can also get to similar functionality through `<leader>l` which uses which-key
 - [cmp.lua:](lua/user/cmp.lua) autocompletion engine
   - `<tab>` to cycle through suggestions, `<cr>` to confirm
-  - Autocompletes buffer text, file paths, snippets, and also shows copilot suggestions as virtual text
-  - Even searches with `/`. Type `/@` to search through LSP symbols in code buffers!
-  - Completes math functions in Vim's expression register (`<c-r>` in insert mode)
+  - Autocompletes file paths, snippets, and LSP-related things
+  - Buffer completion is left to vim's native: `<c-x>-n` menu
+  - ~Even searches with `/`. Type `/@` to search through LSP symbols in code buffers!~
+  - ~Completes math functions in Vim's expression register (`<c-r>` in insert mode)~
   - Also provides command line completion on `:`
 - [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
 - [navic.lua:](lua/user/navic.lua) shows code structure at the cursor in the winbar
