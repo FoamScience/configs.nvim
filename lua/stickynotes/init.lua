@@ -1,7 +1,7 @@
 local M = {}
 
 M.config = {
-    width = 40,
+    width = 80,
     height = 0.8,
     border = "single", -- see help for winborder
     debug = false,

@@ -3,7 +3,7 @@ local M = {
     version = '1.*',
     dependencies = {
         { 'rafamadriz/friendly-snippets', },
-        { 'L3MON4D3/LuaSnip',         version = 'v2.*' },
+        { 'L3MON4D3/LuaSnip',             version = 'v2.*' },
         { 'Kaiser-Yang/blink-cmp-git', },
     },
 }
@@ -25,7 +25,7 @@ M.config = function()
             },
         },
         sources = {
-            default = { 'lsp', 'path', 'snippets', 'git', 'lazydev' },
+            default = { 'lsp', 'path', 'snippets', 'git', 'lazydev', 'unicode' },
             providers = {
                 git = {
                     module = 'blink-cmp-git',
@@ -35,6 +35,11 @@ M.config = function()
                     name = "LazyDev",
                     module = "lazydev.integrations.blink",
                     score_offset = 100,
+                },
+                unicode = {
+                    module = "cmp_providers.unicode",
+                    score_offset = 10,
+                    min_keyword_length = 0,
                 },
             }
         },
