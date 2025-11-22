@@ -3,6 +3,12 @@ local M = {
     event = "VeryLazy",
 }
 
+local is_file_type = function(filetype)
+    local buf = vim.api.nvim_get_current_buf()
+    local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
+    return ft == filetype
+end
+
 function M.config()
     local wk = require "which-key"
     local icons = require("user.lspicons")
@@ -166,8 +172,23 @@ function M.config()
             {
                 "<leader>lh",
                 vim.lsp.buf.typehierarchy,
+                cond = function() return not is_file_type("cpp") end,
                 desc = "Inheritence tree",
                 icon = icons.kind.Class,
+            },
+            {
+                "<leader>lh",
+                "<cmd>ClangdTypeHierarchy<CR>",
+                cond = function() return is_file_type("cpp") end,
+                desc = "Inheritence tree",
+                icon = icons.kind.Class,
+            },
+            {
+                "<leader>lH",
+                "<cmd>ClangdSwitchSourceHeader<CR>",
+                cond = function() return is_file_type("cpp") end,
+                desc = "Switch header/source file",
+                icon = icons.kind.Boolean,
             },
             {
                 "<leader>lf",
@@ -498,6 +519,69 @@ function M.config()
                     "<leader>cv",
                     "<cmd>CsvViewToggle display_mode=border<cr>",
                     desc = "Toggle CSV display",
+                },
+            })
+        end
+
+        local dap_break = function()
+            vim.ui.input({ prompt = "condition" }, function(ctx)
+                require('dap').toggle_breakpoint(ctx)
+            end)
+        end
+        if vim.tbl_contains({ "c", "cpp", "rust", "python" }, vim.bo.ft) then
+            vim.list_extend(mappings, {
+                { "<leader>d",  group = "Debug",         icon = icons.ui.Bug },
+                {
+                    "<leader>dv",
+                    "<cmd>DapViewToggle<cr>",
+                    desc = "Toggle Debugger view",
+                },
+                {
+                    "<leader>db",
+                    "<cmd>DapToggleBreakpoint<cr>",
+                    desc = "Toggle breakpoint",
+                },
+                {
+                    "<leader>dB",
+                    dap_break,
+                    desc = "Toggle breakpoint with condition",
+                },
+                {
+                    "<leader>dn",
+                    "<cmd>DapNew<cr>",
+                    desc = "New debuger session",
+                },
+                { "<leader>ds", group = "Step debugger", icon = icons.ui.BoldArrowRight },
+                {
+                    "<leader>dsi",
+                    "<cmd>DapStepInto<cr>",
+                    desc = "Step into",
+                },
+                {
+                    "<leader>dso",
+                    "<cmd>DapStepOut<cr>",
+                    desc = "Step out",
+                },
+                {
+                    "<leader>dsv",
+                    "<cmd>DapStepOver<cr>",
+                    desc = "Step over",
+                },
+                {
+                    "<leader>dc",
+                    "<cmd>DapContinue<cr>",
+                    desc = "Continue debugger execution",
+                },
+                {
+                    "<leader>dr",
+                    "<cmd>DapRestartFrame<cr>",
+                    desc = "Restart debugger frame",
+                },
+                {
+                    "<leader>dw",
+                    "<cmd>DapViewWatch<cr>",
+                    desc = "Watch selected/cursor expression",
+                    mode = { "n", "v" }
                 },
             })
         end
