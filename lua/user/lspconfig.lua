@@ -89,12 +89,44 @@ return {
             "mason.nvim",
             "folke/lazydev.nvim",
             { "mason-org/mason-lspconfig.nvim", config = function() end },
+            {
+                "p00f/clangd_extensions.nvim",
+                ft = "cpp",
+                event = { "LspAttach" },
+                opts = {
+                    ast = {
+                        role_icons = {
+                            type = icons.kind.Struct,
+                            declaration = icons.kind.Interface,
+                            expression = icons.kind.Operator,
+                            statement = icons.kind.Namespace,
+                            specifier = icons.kind.Constant,
+                            ["template argument"] = icons.kind.TypeParameter,
+                        },
+                        kind_icons = {
+                            Compound = icons.kind.Constructor,
+                            Recovery = icons.misc.CircuitBoard,
+                            TranslationUnit = icons.misc.Package,
+                            PackExpansion = icons.ui.Ellipsis,
+                            TemplateTypeParm = icons.kind.TypeParameter,
+                            TemplateTemplateParm = icons.kind.Variable,
+                            TemplateParamObject = icons.kind.Object,
+                        },
+                    },
+                    memory_usage = {
+                        border = "single",
+                    },
+                    symbol_info = {
+                        border = "single",
+                    },
+                }
+            }
         },
         opts = function()
             local ret = {
                 diagnostics = {
                     underline = function(_, bufnr)
-                        return #vim.diagnostic.get(bufnr) <= 10
+                        return #vim.diagnostic.get(bufnr) <= 5
                     end,
                     update_in_insert = false,
                     virtual_text = false,
