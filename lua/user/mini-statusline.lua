@@ -45,10 +45,27 @@ local function git_blame()
     if not gitsigns_ok then return "" end
     if not vim.b.gitsigns_blame_line then return "" end
     local blame_line = vim.b.gitsigns_blame_line
-    if #blame_line > 25 then
-        blame_line = blame_line:sub(1, 100) .. "…"
+    local prefix, message = blame_line:match("^(.*[•%.])%s*(.+)$")
+    if message == nil then
+        return ""
     end
-    return blame_line
+    message = message:gsub("^%s+", ""):gsub("%s+$", "")
+    if not message then
+        return blame_line
+    end
+    local short_message
+    local tag = message:match("^([%w_%-]+):") or message:match("^%[([%w_%-]+)%]")
+    if tag then
+        short_message = tag
+    else
+        local w1, w2 = message:match("^(%S+)%s+(%S+)")
+        if w1 and w2 then
+            short_message = w1 .. " " .. w2 .. "…"
+        else
+            short_message = message
+        end
+    end
+    return prefix .. " " .. short_message
 end
 
 local function diagnostics()
