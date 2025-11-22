@@ -5,6 +5,14 @@ local M = {}
 -- - UV Projects
 -- - UV standalone scripts
 M.find_uv_python_path = function(bufnr, client, callback)
+    -- sneak in handling of pvpython scripts
+    local first_line = vim.fn.getline(1)
+    local path = string.match(first_line, "^#!%s*(%S+)")
+    if path and string.find(path, "pvpython") then
+      callback(false, path)
+      return
+    end
+
     local uv_path = vim.fn.exepath("uv")
     if uv_path == "" then
         callback(false, nil)
