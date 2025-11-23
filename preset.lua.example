@@ -1,0 +1,34 @@
+-- Neovim Configuration Preset
+-- Copy this file to preset.lua and customize for your machine
+--
+-- To use:
+--   cp preset.lua.example preset.lua
+--   # Edit preset.lua to return your desired preset
+--
+-- Available presets:
+--
+--   "full" (default)
+--     - All plugins enabled
+--     - Best for local editing with good performance
+--     - Includes: snacks.nvim picker, nvim-tree, img-clip, project management, sticky-notes
+--     - Visual effects: cinnamon scrolling, render-markdown, incline floating names
+--
+--   "ssh"
+--     - Optimized for remote editing over SSH
+--     - Excludes plugins that don't work well with latency:
+--       * snacks.nvim picker (heavy file scanning)
+--       * img-clip (clipboard/GUI-dependent)
+--       * project.nvim (heavy directory scanning)
+--       * nvim-tree (large directory browsing)
+--       * sticky-notes (local file writes)
+--     - Still includes: LSP, git, treesitter, completion, navigation
+--     - Faster startup, lower bandwidth usage
+--
+-- Examples:
+--   return "full"  -- Use all features (default)
+--   return "ssh"   -- Minimal for SSH connections
+--
+-- You can also use environment variable:
+--   NVIM_PRESET=ssh nvim
+
+return "full"
