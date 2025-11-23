@@ -1,6 +1,6 @@
 local M = {
     "NMAC427/guess-indent.nvim",
-    lazy = false,
+    event = { "BufReadPost", "BufNewFile" },
 }
 
 M.config = function()

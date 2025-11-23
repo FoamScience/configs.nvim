@@ -1,6 +1,6 @@
 local M = {
 	"folke/noice.nvim",
-	event = "uiEnter",
+	event = "VeryLazy",  -- Changed from "uiEnter" for better startup time
 	dependencies = {
 		"MunifTanjim/nui.nvim",
 		"grapp-dev/nui-components.nvim",

@@ -6,39 +6,39 @@ local M = {
     event = 'VeryLazy',
     dependencies = {
         "nvim-tree/nvim-web-devicons",
-        "nvim-lualine/lualine.nvim",
         "SmiteshP/nvim-navic",
     }
 }
 
-function M.get_lualine_colors(lualine, props, ft_color)
+-- Get colors from catppuccin theme
+function M.get_mode_colors(props, ft_color)
     local helpers = require 'incline.helpers'
+    local palette = require("catppuccin.palettes").get_palette()
     local fg, bg, ifg, ibg
-    local theme_name = lualine.get_config().options.theme
-    local theme = require("lualine.themes." .. theme_name)
     local m = vim.api.nvim_get_mode().mode
     ifg = helpers.contrast_color(ft_color)
     ibg = ft_color
+
     if not props.focused then
-        fg = theme.inactive.a.fg
-        bg = theme.inactive.a.bg
-        ifg = theme.inactive.a.fg
-        ibg = theme.inactive.a.bg
+        fg = palette.overlay0
+        bg = palette.mantle
+        ifg = palette.overlay0
+        ibg = palette.mantle
     elseif m:match('n') then
-        fg = theme.normal.a.fg
-        bg = theme.normal.a.bg
+        fg = palette.base
+        bg = palette.blue
     elseif m:match('i') then
-        fg = theme.insert.a.fg
-        bg = theme.insert.a.bg
+        fg = palette.base
+        bg = palette.green
     elseif m:match('R') then
-        fg = theme.replace.a.fg
-        bg = theme.replace.a.bg
-    elseif m:match('v') or m:match('V') or m:match('') then
-        fg = theme.visual.a.fg
-        bg = theme.visual.a.bg
+        fg = palette.base
+        bg = palette.yellow
+    elseif m:match('v') or m:match('V') then
+        fg = palette.base
+        bg = palette.mauve
     else -- unknown mode!
-        fg = nil
-        bg = nil
+        fg = palette.text
+        bg = palette.surface0
     end
     return { fg = fg, bg = bg, ifg = ifg, ibg = ibg }
 end
@@ -47,7 +47,6 @@ function M.config()
     local helpers = require 'incline.helpers'
     local devicons = require 'nvim-web-devicons'
     local navic_ok, navic = pcall(require, "nvim-navic")
-    local lualine_ok, lualine = pcall(require, "lualine")
     require('incline').setup {
         window = {
             padding = 0,
@@ -60,13 +59,12 @@ function M.config()
             end
             local ft_icon, ft_color = devicons.get_icon_color(filename)
             local modified = vim.bo[props.buf].modified
-            local colors = {}
-            if ft_color == nil and lualine_ok then
-                ft_color = require('lualine.themes.' .. lualine.get_config().options.theme).normal.a.fg
+            -- Use default color if no filetype icon color
+            if ft_color == nil then
+                local palette = require("catppuccin.palettes").get_palette()
+                ft_color = palette.blue
             end
-            if lualine_ok then
-                colors = M.get_lualine_colors(lualine, props, ft_color)
-            end
+            local colors = M.get_mode_colors(props, ft_color)
             local res = {
                 ft_icon and {
                     ' ',

@@ -10,9 +10,9 @@ local M = {
         { "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search jump" },
         { "<c-s>", mode = { "c", "n" },      function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
         {
-            "<c-space>",
+            "<leader>v",
             mode = {"n", "x", "o"},
-            function() require("flash").treesitter({ actions = { ["<c-space>"] = "next", ["<BS>"] = "prev" } }) end,
+            function() require("flash").treesitter({ actions = { ["<leader>v"] = "next", ["<BS>"] = "prev" } }) end,
             desc = "Incremental (de)selection"
         }
     },

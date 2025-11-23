@@ -13,6 +13,7 @@ if whichkey_ok then
     keymap("n", "<C-Space>", "<cmd>WhichKey \\<space><cr>", opts)
 end
 keymap("n", "<C-i>", "<C-i>", opts)
+keymap("t", "<Esc>", [[<C-\><C-n>]], { noremap = true })
 
 -- Buffer hopping
 local disabled_tab_hopping = {

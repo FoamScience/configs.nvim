@@ -20,125 +20,66 @@ function M.config()
             end,
             desc = "Buffer Local Keymaps",
         },
+        { "<leader>n", group = "navigation", icon = icons.ui.Forward },
+        {
+            "<leader>nb",
+            "<cmd>lua require('arrow.ui').openMenu()<CR>",
+            desc = "Arrow",
+            icon = icons.ui.History,
+        },
+        {
+            "<leader>nn",
+            "<cmd>Navbuddy<cr>",
+            desc = "NavBuddy",
+        },
     }
 
-    if vim.g.loaded_categories.navigation then
+    local mtoc_keys = {}
+    if vim.bo.filetype == "markdown" or vim.bo.filetype == "rmd" then
+        mtoc_keys = {
+            { "<leader>et",  group = "Markdown TOC", icon = icons.ui.List },
+            { "<leader>eti", "<cmd>Mtoc insert<CR>", desc = "Insert the ToC for current buffer",  icon = icons.ui.Plus,                 mode = { "n" } },
+            { "<leader>etu", "<cmd>Mtoc update<CR>", desc = "Update the ToC for current buffer",  icon = icons.ui.History },
+            { "<leader>etp", "<cmd>Mtoc pick<CR>",   desc = "Pick the ToC ",                      icon = icons.diagnostics.BoldQuestion },
+            { "<leader>etr", "<cmd>Mtoc remove<CR>", desc = "Remove the ToC from current buffer", icon = icons.diagnostics.BoldError },
+        }
+        vim.keymap.set({ 'x', 'o' }, 'aT',
+            function() return require('mtoc')._select_toc_textobj(false) end,
+            { expr = true, desc = 'outer ToC' })
+        vim.keymap.set({ 'x', 'o' }, 'iT',
+            function() return require('mtoc')._select_toc_textobj(true) end,
+            { expr = true, desc = 'inner ToC' })
+    end
+    vim.list_extend(mappings, {
+        { "<leader>e",  group = "Edit",                              icon = icons.ui.Pencil },
+        { "<leader>ee", "<cmd>NvimTreeToggle<CR>",                   desc = "Explorer",     icon = icons.ui.Folder },
+        { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",    icon = icons.ui.History },
+        unpack(mtoc_keys),
+    })
+    local sticky_ok, _ = pcall(require, "stickynotes")
+    if sticky_ok then
         vim.list_extend(mappings, {
-            { "<leader>n", group = "navigation", icon = icons.ui.Forward },
+            { "<leader>k", group = "StickyNotes", icon = icons.ui.BookMark },
             {
-                "<leader>nb",
-                "<cmd>lua require('arrow.ui').openMenu()<CR>",
-                desc = "Arrow",
-                icon = icons.ui.History,
+                "<leader>kk",
+                "<cmd>StickyNotes<cr>",
+                desc = "Create a default note",
             },
             {
-                "<leader>nn",
-                "<cmd>Navbuddy<cr>",
-                desc = "NavBuddy",
+                "<leader>kl",
+                "<cmd>StickyNotesList<cr>",
+                desc = "List current project notes",
+            },
+            {
+                "<leader>kn",
+                "<cmd>StickyNotesNew<cr>",
+                desc = "Create a named project note",
             },
         })
     end
-    if vim.g.loaded_categories.edit then
-        local mtoc_keys = {}
-        if vim.bo.filetype == "markdown" or vim.bo.filetype == "rmd" then
-            mtoc_keys = {
-                { "<leader>et",  group = "Markdown TOC", icon = icons.ui.List },
-                { "<leader>eti", "<cmd>Mtoc insert<CR>", desc = "Insert the ToC for current buffer",  icon = icons.ui.Plus,                 mode = { "n" } },
-                { "<leader>etu", "<cmd>Mtoc update<CR>", desc = "Update the ToC for current buffer",  icon = icons.ui.History },
-                { "<leader>etp", "<cmd>Mtoc pick<CR>",   desc = "Pick the ToC ",                      icon = icons.diagnostics.BoldQuestion },
-                { "<leader>etr", "<cmd>Mtoc remove<CR>", desc = "Remove the ToC from current buffer", icon = icons.diagnostics.BoldError },
-            }
-            vim.keymap.set({ 'x', 'o' }, 'aT',
-                function() return require('mtoc')._select_toc_textobj(false) end,
-                { expr = true, desc = 'outer ToC' })
-            vim.keymap.set({ 'x', 'o' }, 'iT',
-                function() return require('mtoc')._select_toc_textobj(true) end,
-                { expr = true, desc = 'inner ToC' })
-        end
-        vim.list_extend(mappings, {
-            { "<leader>e",  group = "Edit",                              icon = icons.ui.Pencil },
-            { "<leader>ee", "<cmd>NvimTreeToggle<CR>",                   desc = "Explorer",     icon = icons.ui.Folder },
-            { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",    icon = icons.ui.History },
-            unpack(mtoc_keys),
-        })
-        local sticky_ok, _ = pcall(require, "stickynotes")
-        if sticky_ok then
-            vim.list_extend(mappings, {
-                { "<leader>k", group = "StickyNotes", icon = icons.ui.BookMark },
-                {
-                    "<leader>kk",
-                    "<cmd>StickyNotes<cr>",
-                    desc = "Create a default note",
-                },
-                {
-                    "<leader>kl",
-                    "<cmd>StickyNotesList<cr>",
-                    desc = "List current project notes",
-                },
-                {
-                    "<leader>kn",
-                    "<cmd>StickyNotesNew<cr>",
-                    desc = "Create a named project note",
-                },
-            })
-        end
-    end
-    if vim.g.loaded_categories.ai then
-        vim.list_extend(mappings, {
-            { "<leader>a", group = "AI", icon = icons.ui.Target, mode = { "n", "v" } },
-            {
-                "<leader>ac",
-                "<cmd>CodeCompanionChat<cr>",
-                desc = "Code companion chat",
-                mode = "n",
-            },
-            {
-                "<leader>ax",
-                function() require("codecompanion").prompt("explain") end,
-                desc = "Explain with CodeCompanion",
-                mode = "v",
-            },
-            {
-                "<leader>ax",
-                function() require("codecompanion").prompt("regexp") end,
-                desc = "Explain a regular expression",
-                mode = "n"
-            },
-            {
-                "<leader>at",
-                function() require("codecompanion").prompt("tests") end,
-                desc = "Generate Unit tests",
-                mode = "v",
-            },
-            {
-                "<leader>af",
-                function() require("codecompanion").prompt("fix") end,
-                desc = "Fix selected code",
-                mode = "v",
-            },
-            {
-                "<leader>ad",
-                function() require("codecompanion").prompt("lsp") end,
-                desc = "Explain LSP diagnostics",
-                mode = { "n", "v" },
-            },
-            {
-                "<leader>ag",
-                function() require("codecompanion").prompt("commit") end,
-                desc = "Generate Git Commit from Diffs",
-                mode = "n"
-            },
-            {
-                "<leader>al",
-                function() require("utils.ai").pick_language() end,
-                desc = "Set LLM response language",
-                mode = { "n" },
-            },
-        })
-    end
-    if vim.g.loaded_categories.lsp then
-        vim.list_extend(mappings, {
-            { "<leader>l",  group = "LSP",        icon = icons.kind.Class,  mode = { "n", "v" } },
+
+    vim.list_extend(mappings, {
+        { "<leader>l",  group = "LSP",        icon = icons.kind.Class,  mode = { "n", "v" } },
             {
                 "<leader>la",
                 vim.lsp.buf.code_action,
@@ -348,10 +289,9 @@ function M.config()
                 desc = "Open quickfix list",
                 icon = icons.ui.Search
             },
-        })
-    end
-    if vim.g.loaded_categories.git then
-        vim.list_extend(mappings, {
+    })
+
+    vim.list_extend(mappings, {
             { "<leader>g", group = "Git", icon = icons.git.Branch },
             {
                 "<leader>gj",
@@ -413,10 +353,9 @@ function M.config()
                 "<cmd>DiffConflicts<cr>",
                 desc = "Diff Conflicts",
             },
-        })
-    end
-    if vim.g.loaded_categories.ux then
-        vim.list_extend(mappings, {
+    })
+
+    vim.list_extend(mappings, {
             { "<leader>f", group = "Find", icons.ui.Telescope },
             {
                 "<leader>f:",
@@ -508,83 +447,17 @@ function M.config()
                 function() require("snacks").picker.undo() end,
                 desc = "Undo tree",
             },
+    })
+
+    if vim.bo.filetype == "csv" then
+        vim.list_extend(mappings, {
+            { "<leader>c", group = "CSV", icon = icons.ui.Table },
+            {
+                "<leader>cv",
+                "<cmd>CsvViewToggle display_mode=border<cr>",
+                desc = "Toggle CSV display",
+            },
         })
-    end
-
-    if vim.g.loaded_categories.optional then
-        if vim.bo.filetype == "csv" then
-            vim.list_extend(mappings, {
-                { "<leader>c", group = "CSV", icon = icons.ui.Table },
-                {
-                    "<leader>cv",
-                    "<cmd>CsvViewToggle display_mode=border<cr>",
-                    desc = "Toggle CSV display",
-                },
-            })
-        end
-
-        local dap_break = function()
-            vim.ui.input({ prompt = "condition" }, function(ctx)
-                require('dap').toggle_breakpoint(ctx)
-            end)
-        end
-        if vim.tbl_contains({ "c", "cpp", "rust", "python" }, vim.bo.ft) then
-            vim.list_extend(mappings, {
-                { "<leader>d",  group = "Debug",         icon = icons.ui.Bug },
-                {
-                    "<leader>dv",
-                    "<cmd>DapViewToggle<cr>",
-                    desc = "Toggle Debugger view",
-                },
-                {
-                    "<leader>db",
-                    "<cmd>DapToggleBreakpoint<cr>",
-                    desc = "Toggle breakpoint",
-                },
-                {
-                    "<leader>dB",
-                    dap_break,
-                    desc = "Toggle breakpoint with condition",
-                },
-                {
-                    "<leader>dn",
-                    "<cmd>DapNew<cr>",
-                    desc = "New debuger session",
-                },
-                { "<leader>ds", group = "Step debugger", icon = icons.ui.BoldArrowRight },
-                {
-                    "<leader>dsi",
-                    "<cmd>DapStepInto<cr>",
-                    desc = "Step into",
-                },
-                {
-                    "<leader>dso",
-                    "<cmd>DapStepOut<cr>",
-                    desc = "Step out",
-                },
-                {
-                    "<leader>dsv",
-                    "<cmd>DapStepOver<cr>",
-                    desc = "Step over",
-                },
-                {
-                    "<leader>dc",
-                    "<cmd>DapContinue<cr>",
-                    desc = "Continue debugger execution",
-                },
-                {
-                    "<leader>dr",
-                    "<cmd>DapRestartFrame<cr>",
-                    desc = "Restart debugger frame",
-                },
-                {
-                    "<leader>dw",
-                    "<cmd>DapViewWatch<cr>",
-                    desc = "Watch selected/cursor expression",
-                    mode = { "n", "v" }
-                },
-            })
-        end
     end
 
     -- Tutorial system (only if started without files)
@@ -625,24 +498,6 @@ function M.config()
                 "<leader>tr",
                 "<cmd>TutorialRestart<cr>",
                 desc = "Restart tutorial",
-            },
-        })
-    end
-
-    local foamut_package = vim.env.USER .. ".foamut"
-    local foamut_ok, _ = pcall(require, foamut_package)
-    if foamut_ok and vim.bo.ft == "cpp" then
-        vim.list_extend(mappings, {
-            { "<leader>c", group = "Custom", icon = icons.ui.BookMark },
-            {
-                "<leader>ct",
-                "<cmd>lua require('" .. foamut_package .. "').FoamUtRunTestAtCursor()<cr>",
-                desc = "Run foamUT test at cursor",
-            },
-            {
-                "<leader>cT",
-                "<cmd>lua require('" .. foamut_package .. "').FoamUtListTests()<cr>",
-                desc = "Pick foamUT tests to run",
             },
         })
     end

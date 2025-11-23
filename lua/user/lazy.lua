@@ -13,11 +13,17 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 	spec = LAZY_PLUGIN_SPEC,
+	-- Lock plugin versions using lazy-lock.json
+	lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json",
 	git = {
 		log = { "-10" },
 	},
 	install = {
+		missing = true, -- install missing plugins on startup
 		colorscheme = { "primer_dark", "habamax" },
+	},
+	checker = {
+		enabled = false, -- disable automatic update checks
 	},
 	ui = {
 		border = "rounded",
@@ -26,5 +32,8 @@ require("lazy").setup({
 	change_detection = {
 		enabled = true,
 		notify = false,
+	},
+	performance = {
+		reset_packpath = true,
 	},
 })

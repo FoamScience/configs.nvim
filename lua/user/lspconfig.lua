@@ -39,7 +39,8 @@ local clangd_opts = {
     filetypes = { "c", "cpp" },
     root_markers = { "compile_commands.json", ".git", "Makefile", "Make" },
     on_attach = function(client, bufnr)
-        vim.schedule_wrap(function()
+        -- Run workspace diagnostics asynchronously to avoid blocking LSP attach
+        vim.schedule(function()
             local db_path = client.root_dir .. "/compile_commands.json"
             if not vim.loop.fs_stat(db_path) then return end
             local workspace_files = vim.fn.split(vim.fn.system("jq -r '.[].file' " .. db_path), "\n")
