@@ -58,9 +58,3 @@ All accessible through `<leader>l` menu, and a few through `g` (for default neov
 `<leader>g` is your Git hub, you could also use `:Diff*` commands
 
 ![git](git.png)
-
-## AI-assisted programming
-
-CodeCompanion is used to hook AI agents. Get started with `:CodeCompanionChat` or `<leader>a` menu
-
-![AI](ai.png)
