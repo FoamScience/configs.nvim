@@ -71,9 +71,4 @@ sleep 1
 scrot -f screenshots/git.png
 uvx --from=neovim-remote nvr --remote-send '<Esc>'
 
-uvx --from=neovim-remote nvr --remote-send ':CodeCompanionChat<CR>'
-sleep 1
-scrot -f screenshots/ai.png
-uvx --from=neovim-remote nvr --remote-send ':bd<CR>'
-
 uvx --from=neovim-remote nvr --remote-send ':qa!<CR>'
