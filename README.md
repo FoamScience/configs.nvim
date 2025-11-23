@@ -16,12 +16,12 @@ Here are a few programming languages I usually write in:
 - HTML, CSS, JavaScript/TypeScript for web development
 - Markdown for writing READMEs and other documentation, LATEX for academic writing
 - GdScript, GLSL for game development
-- Latex2text command if you want to render Tex equations in Markdown
 - Obviously, Bash for shell scripting
 
-This configuration will never support the following features:
-- Debugging. Not an editor's job, use GDB and the like.
-- Format-on-Save, because trying to auto-format C++ is a pain!
+This configuration intentionally avoids:
+- Format-on-Save (too complex and opinionated)
+- AI assistants (Copilot, CodeCompanion, Avante - removed for simplicity)
+- DAP debugging plugins (removed in favor of simpler debugging workflows)
 
 > [!IMPORTANT]
 > Check out the [Screenshots][] for a preview of what this configuration has to offer.
@@ -40,19 +40,26 @@ This configuration will never support the following features:
   * [Productivity](#productivity)
   * [Navigation](#navigation)
   * [Language support and LSPs](#language-support-and-lsps)
-  * [AI](#ai)
   * [Git integration](#git-integration)
   * [Miscellaneous](#miscellaneous)
+* [Configuration Presets](#configuration-presets)
+  * [Setting Your Preset](#setting-your-preset)
+  * [SSH Usage Example](#ssh-usage-example)
+* [User Configuration Integration](#user-configuration-integration)
+  * [Setup](#setup)
+  * [Example User Plugin Spec](#example-user-plugin-spec)
+* [Plugin Version Management](#plugin-version-management)
+  * [Checking for Updates](#checking-for-updates)
+  * [Plugin Update Workflow](#plugin-update-workflow)
 
 <!-- mtoc-end:cb9ef56 -->
-
 ## Requirements
 
-- [Neovim][] **nightly** (v0.11.4 or later), [NodeJS][] **v22** (or later), preferably installed with [NVM][],
+- [Neovim][] **nightly** (v0.11.4 or newer), [NodeJS][] **v22** (or newer), preferably installed with [NVM][],
 - Python 3 and (optionally) [Rust][]
 - The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`
 - For installing some LSP servers, you will need the `unzip` command
-- For Todo-comments and various other searching tasks, you will need [RIPGrep][]
+- For Todo-comments and various other searching tasks, you will want [RIPGrep][]
 - A terminal with ligature support ([Kitty][], Warp, Alacritty, etc.)
   - For kitty, I like to set (after installing Comic Code Ligatures, Font Awesome and Symbols Nerd Font Mono):
     ```
@@ -60,10 +67,11 @@ This configuration will never support the following features:
     symbol_map U+f000-U+f0e2 fontawesome
     symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
     ```
-- [ImageMagick][] for in-terminal image display, if your terminal supports
+- [ImageMagick][] for in-terminal image display, if your terminal supports it
+- `latex2text` command if you want to render Tex equations in Markdown
 - Also [mermaid-cli][] for mermaid charts in markdown files
   - Note that on Ubuntu 23+ this requires changes to apparmor policies on retricting user namespaces;
-    if you don't write mermaid charts often, don't bother with this
+    if you don't write mermaid charts often, don't bother with this. Otherwise, you'll have to do the policy changes manually
 
 ## Set up
 
@@ -77,6 +85,8 @@ git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
 # also, update with git pull
 ```
 
+From there, the `:ConfigNews` command helps you keep your configuration up-to-date with this repo by checking for new commits and displaying a changelog.
+
 Or you can give it a try in a Docker container:
 ```sh
 cd dockerImages
@@ -88,7 +98,7 @@ docker run -it --rm nvim-config:latest bash
 ## Documentation
 
 A few tutorials can be accessed by `<leader>tt` when `nvim` command had no files
-passed in as a CLI. These are not meant to teach people basic Vim skills but
+passed in. These are not meant to teach people basic Vim skills but
 rather explain my current approach to editing efficiency.
 
 Even though the tutorials act on Lua files, they mostly hold on any other filetype.
@@ -103,7 +113,7 @@ have provided a good experience.
 
 - The canonical way to move between open buffers is `<tab>` and `<S-tab>` in normal mode.
 - The canonical way to move on visible screen portion is by pressing `s` and `S` in normal mode.
-- The canonical way to move between tabs and splits is `<C-w><C-w>`; too fundamental to change.
+- The canonical way to move between windows and splits is `<C-w><C-w>`; too fundamental to change.
 - Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
 - You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
 - You can see registers content by pressing `"`, and marks positions by pressing the back-tick '`'
@@ -111,32 +121,6 @@ have provided a good experience.
 - `<leader>fP` will take you to individual plugin configuration!
 - `<leader>kk` brings up a sticky-notes sidebar. it persists; and it's project-specific!
   - you can create mutiple notes per projects and notes content is in Markdown
-
-The plugins are organized into categories, and it takes my machine **60ms** to load a C++ file.
-If you find it slow, you can always disable some categories in `init.lua`, or specific plugins in their configuration file.
-
-If you want to load only certain categories:
-```sh
-nvim --cmd "lua vim.g.plugin_settings = 'ux=true,git=true,lsp=true'" file.cpp
-```
-
-You can also load your custom configuration by putting it in `~/.config/nvim/lua/$USER/` where `$USER` is your username:
-- Files returning a table, with a `config()` function, will be considered as [Lazy.nvim] specs.
-- Everyting else just gets executed as a lua script
-
-> [!IMPORTANT]
-> Some plugin configurations will attempt to read user-specific options from the return table in
-> `~/.config/nvim/lua/$USER/user-settings.lua`. This is useful for example to set your own Neorg
-> workspaces, or AI response language. Take a look at this
-> [user-settings.lua](lua/fadeli/user-settings.lua) for inspiration.
-
-Also, you can turn on automatic checking of configuration updates to keep
-your local configuration in sync with new commits from this repo. This only does the check though,
-you will have to run `git pull` on your own:
-```lua
--- in lua/<your-username>/whatever.lua
-vim.g.config_check_for_updates = true
-```
 
 ### General
 
@@ -147,12 +131,13 @@ vim.g.config_check_for_updates = true
   - Press `<leader>` to check available keymaps
   - Shows Vim keymaps on `` ` `` (marks), `"` (registers), `z` (folds and spelling), `g` (operators)
   and `<c-w>` (window navigation)
-- [telescope.lua:](lua/user/telescope.lua) fuzzy finder for files, buffers, etc.
-  - `<leader>f` take advantage of it
-  - In particular `<leader>fk` shows all configured keymaps 
-  - Open the file from its Git history without checking out earlier commits with `<leader>fF` 
-  - Browse the Undo tree (including diffs!) with `<leader>fu`
-  - Open Plugin configuration files with `<leader>fP`
+- [snacks.lua:](lua/user/snacks.lua) fuzzy finder via snacks.picker for files, buffers, etc.
+  - `<leader>f` to access fuzzy finding features
+  - `<leader>fk` shows all configured keymaps
+  - `<leader>fg` opens file from its Git history without checking out earlier commits
+  - `<leader>fu` browses the Undo tree with diffs
+  - `<leader>fP` opens Plugin configuration files
+  - Note: Excluded from SSH preset due to performance considerations
 - [projects.lua:](lua/user/projects.lua) a project manager, mostly for detecting root directories
   - `<leader>fp` to open recent projects list
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
@@ -160,16 +145,21 @@ vim.g.config_check_for_updates = true
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
   - Try `:Telescope colorscheme` (or just `<leader>fc`) to see a live demo of all available color schemes
   - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
-- [undo.lua](lua/user/undo.lua) is an Undo tree visualizer, with diff views. `<leader>eu` to toggle. 
+- [undo.lua](lua/user/undo.lua) is an Undo tree visualizer, with diff views. `<leader>eu` to toggle.
+- [news.lua](lua/user/news.lua) provides the `:ConfigNews` command to check for configuration updates
+  - Shows commits you're behind and displays a changelog
+  - Helps keep your config in sync with the upstream repository 
 
 ### UI
 
-- [snacks.lua](lua/user/snacks.lua) a collection of UI niceties from folke
-- [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer. Simple as that
-  - `<leader>e` to toggle
-- ~~[lualine.lua:](lua/user/lualine.lua) fast and pretty statusline~~
-- [mini-statusline.lua](./lua/user/mini-statusline.lua) for status and tabline configuration
-- [incline.lua](lua/user/incline.lua) for floating buffer names at top-right corners of windows
+- [snacks.lua](lua/user/snacks.lua) a collection of UI niceties from folke (includes fuzzy finder)
+- [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer
+  - `<leader>ee` to toggle
+- [mini-statusline.lua](./lua/user/mini-statusline.lua) fast and minimal statusline with enhanced LSP status
+- [tpipeline.lua](lua/user/optional/tpipeline.lua) unified statusline for Neovim and Tmux
+  - Displays single statusline across both Neovim and Tmux for seamless integration
+  - Only loaded in "full" preset
+- [incline.lua](lua/user/incline.lua) floating buffer names at top-right corners of windows
 - ~~[indentline.lua:](lua/user/indentline.lua) improves code indentation~~
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
@@ -208,12 +198,16 @@ vim.g.config_check_for_updates = true
   - `S` (or `gS`) to hop using tree-sitter syntax tree in normal mode
   - `r` in operator mode to do operations between flash hops
   - `R` in operator mode to do operations between flash tree-sitter searches
-  - `<ctrl-s>` to toggle flash in regular search mode. An icon at the bottom right will show up if this is enabled.
+  - `<ctrl-s>` to toggle flash in regular search mode
+  - `<leader>v` for incremental treesitter selection (next: `<leader>v`, prev: `<BS>`)
 - ~~[harpoon.lua:](lua/user/harpoon.lua) to bookmark your buffers, and come back to them in a blink of an eye~~
 - [arrow.lua:](lua/user/arrow.lua) to bookmark your buffers. Replacing Harpoon.
     - Just press `,` in normal mode, or `<leader>b`
+- [tree-climb.lua:](lua/user/tree-climb.lua) treesitter-based code navigation
+  - Navigate through code structure using treesitter nodes with `<M-n>` and `<M-N>`
+  - Enhanced structural movement commands
 - [navbuddy.lua:](lua/user/navbuddy.lua) fast local code navigation
-  - `<leader>o` to toggle
+  - `<leader>nn` to toggle
   - Only enabled on specific file types, such as OpenFOAM, C++, Python, Lua files
 
 ### Language support and LSPs
@@ -225,46 +219,24 @@ vim.g.config_check_for_updates = true
 - [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
     - `clangd` is not managed through Mason on ARM machines, run `apt install clangd` instead
+  - Python: `pyright` or `pylsp`, with support for ParaView Python (pvpython) environments
   - Type `:Mason` in normal mode for more.
 - [lspconfig.lua:](lua/user/lspconfig.lua) configures the LSP servers and sets up keymaps for some features
   - `gd` and `gD` for go to definition and declaration
   - `K` for hover info
+  - Enhanced keybindings for type hierarchy, call graphs, and symbol navigation
   - You can also get to similar functionality through `<leader>l` which uses which-key
-- [cmp.lua:](lua/user/cmp.lua) autocompletion engine
+- [cmp.lua:](lua/user/cmp.lua) autocompletion engine using blink.cmp (faster than nvim-cmp)
   - `<tab>` to cycle through suggestions, `<cr>` to confirm
   - Autocompletes file paths, snippets, and LSP-related things
+  - Includes Unicode character completion provider for special characters
   - Buffer completion is left to vim's native: `<c-x>-n` menu
-  - ~Even searches with `/`. Type `/@` to search through LSP symbols in code buffers!~
-  - ~Completes math functions in Vim's expression register (`<c-r>` in insert mode)~
   - Also provides command line completion on `:`
 - [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
 - [navic.lua:](lua/user/navic.lua) shows code structure at the cursor in the winbar
-
-### AI
-
-- [codecompanion.lua:](lua/user/codecompanion.lua) The best AI companion; easy and fun to use
-  - [Groq](https://console.groq.com/docs/models) models are the default.
-  - Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)
-  - If you intend to use the `@{search_web}` tool, obtain a free `TAVILY_API_KEY` from [tavily.com](https://app.tavily.com/home)
-  - Can disable code sharing with LLM cloud services in `lua/<your-username>/user-settings.lua`
-  - `<leader>a` in normal and visual mode to get started.
-- ~~[sg.lua:](lua/user/optional/sg.lua) public code search through [SourceGraph][]~~
-- ~~[lluminate.lua:](lua/user/lluminate.lua) for code context inclusion when copying code for LLM chats.~~
-  - ~~Visual-select the code you want to get context for, and `<leader>ac` for AI-context~~
-- ~~[ai:](lua/user/ai) a set of custom scripts for AI-assisted programming~~
-  - ~~`:Chat*` commands set; see [Screenshots][]~~
-  - ~~Requires a CLI binary called `tgpt` which must:~~
-    - ~~Be invoked as in `tgpt -q <prompt>`~~
-    - ~~Writes response to `stdout`~~
-    - This is now retired, adopting avante as an alternative
-- ~~[copilot.lua:](lua/user/copilot.lua) provides a completion source for `cmp` that uses OpenAI's Copilot~~
-  - ~~Type `:Copilot` in normal mode to login for the first time~~
-  - ~~`<tab>` will pick the suggestion, `<c-l>` will cycle through more suggestions if any~~
-  - This is now retired, adopting avante as an alternative
-- ~~[avante.lua](lua/user/lavante.lua): chat with your open files.~~
-  - ~~[Groq](https://console.groq.com/docs/models) models are the default.~~
-  - ~~Needs a `GROQ_API_KEY` which can be obtained for free from [console.groq.com](https://console.groq.com/keys)~~
-  - This is now also retired, adopting CodeCompanion as an alternative
+- [remote-nvim.lua:](lua/user/remote-nvim.lua) connect to remote Neovim instances over SSH
+  - Commands: `:RemoteStart`, `:RemoteStop`, `:RemoteInfo`
+  - Uses telescope for UI (only plugin requiring telescope in this config)
 
 ### Git integration
 
@@ -286,6 +258,119 @@ vim.g.config_check_for_updates = true
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVView plugin.
 - ~~[neorg.lua:](lua/user/optional/neorg.lua) a Notes/task management system through `<leader>o`
   using [Neorg][].~~
+
+## Configuration Presets
+
+This configuration supports multiple presets to adapt to different usage scenarios. Currently available presets:
+
+- **full** (default): All plugins enabled, full feature set
+- **ssh**: Minimal preset optimized for remote SSH connections
+  - Excludes plugins that don't work well over SSH, mostly for adding latency overhead
+
+### Setting Your Preset
+
+There are three ways to select a preset (in order of priority):
+
+1. **Local preset file** (recommended for per-machine configuration):
+   ```bash
+   # Copy the example file and edit it
+   cp ~/.config/nvim/preset.lua.example ~/.config/nvim/preset.lua
+   # Edit preset.lua and change the return value to "ssh" or "full"
+   ```
+
+2. **Environment variable** (useful for one-time overrides):
+   ```bash
+   NVIM_PRESET=ssh nvim
+   ```
+
+3. **Default**: Falls back to "full" if neither of the above is set
+
+### SSH Usage Example
+
+For remote editing over SSH, use the ssh preset to improve performance:
+
+```bash
+# On your remote machine, create a preset file
+echo 'return "ssh"' > ~/.config/nvim/preset.lua
+
+# Or use environment variable
+export NVIM_PRESET=ssh
+nvim myfile.cpp
+```
+
+## User Configuration Integration
+
+You can seamlessly extend this configuration by using a separate user configuration repository.
+
+### Setup
+
+1. Create your own configuration repository with this structure:
+   ```
+   my-nvim-config/
+   ├── init.lua              # Optional: runs before lazy.nvim loads
+   └── plugins/              # Optional: custom plugin specs
+       ├── my-plugin.lua
+       └── another.lua
+   ```
+
+2. Symlink your repository to the user-config directory:
+   ```bash
+   ln -s /path/to/my-nvim-config ~/.config/nvim/user-config
+   ```
+
+3. Your configuration will be loaded automatically:
+   - `init.lua` is executed before lazy.nvim initialization
+   - All files in `plugins/` are loaded as plugin specs
+
+### Example User Plugin Spec
+
+Create `~/.config/nvim/user-config/plugins/my-theme.lua`:
+
+```lua
+return {
+    "username/my-colorscheme",
+    config = function()
+        vim.cmd("colorscheme my-colorscheme")
+    end
+}
+```
+
+This approach allows you to:
+- Keep your customizations in a separate git repository
+- Pull updates from this main config without conflicts
+- Share settings across multiple machines with different needs
+
+## Plugin Version Management
+
+All plugins are locked to specific versions using [Lazy.nvim][]'s lockfile feature. This ensures:
+- Consistent plugin versions across all installations
+- Protection against breaking changes from plugin updates
+- Reproducible development environment
+
+### Checking for Updates
+
+Use the `:ConfigNews` command to check for configuration updates:
+
+```vim
+:ConfigNews
+```
+
+This will:
+- Fetch the latest changes from the remote repository
+- Show how many commits you're behind
+- Display a changelog of recent commits
+- Provide instructions for updating
+
+### Plugin Update Workflow
+
+The recommended workflow for keeping plugins up-to-date:
+
+1. Check for config updates: `:ConfigNews`
+2. Pull config updates: `git pull` in `~/.config/nvim`
+3. Review changes in `lazy-lock.json` if any
+4. Restart nvim to apply changes
+
+Alternatively you could just run `:Lazy update`; although this will diverge from this repo's plugin versions.
 
 [Screenshots]: /screenshots/README.md "Screenshots"
 [Neovim]: https://github.com/neovim/neovim/releases "Neovim"
