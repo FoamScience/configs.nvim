@@ -28,7 +28,7 @@ jobs:
       - name: Install Node.js v20
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Install Python and Rust
         run: |
