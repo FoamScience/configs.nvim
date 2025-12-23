@@ -4,11 +4,20 @@ local M = {
     dependencies = {
         { 'rafamadriz/friendly-snippets', },
         { 'L3MON4D3/LuaSnip',             version = 'v2.*' },
-        { 'Kaiser-Yang/blink-cmp-git', },
+        { 'saghen/blink.compat',          version = '2.*',                       lazy = true, opts = {} },
+        { 'petertriho/cmp-git',           dependencies = 'nvim-lua/plenary.nvim' },
     },
 }
 
 M.config = function()
+    require('cmp_git').setup({
+        github = {
+            issues = { state = "all", limit = 50 },
+            pull_requests = { state = "all", limit = 50 },
+        },
+        filetypes = { 'gitcommit', 'octo', 'markdown', 'NeogitCommitMessage' },
+        -- triggers: : (commits), # (issues/PRs), @ (mentions), ! (GitLab MRs)
+    })
     require('blink.cmp').setup({
         keymap = {
             preset = 'super-tab',
@@ -25,11 +34,16 @@ M.config = function()
             },
         },
         sources = {
-            default = { 'lsp', 'path', 'snippets', 'git', 'lazydev', 'unicode' },
+            default = { 'lsp', 'path', 'snippets', 'lazydev', 'unicode' },
+            per_filetype = {
+                gitcommit = { 'git', 'lsp', 'path', 'snippets' },
+                markdown = { 'git', 'lsp', 'path', 'snippets' },
+                octo = { 'git', 'lsp', 'path', 'snippets' },
+            },
             providers = {
                 git = {
-                    module = 'blink-cmp-git',
-                    name = 'Git',
+                    name = 'git',
+                    module = 'blink.compat.source',
                 },
                 lazydev = {
                     name = "LazyDev",
@@ -38,8 +52,16 @@ M.config = function()
                 },
                 unicode = {
                     module = "cmp_providers.unicode",
-                    score_offset = 10,
-                    min_keyword_length = 0,
+                    min_keyword_length = 1,
+                    should_show_items = function(ctx)
+                        -- Don't trigger on dot
+                        local col = ctx.cursor[2]
+                        if col > 0 then
+                            local char = ctx.line:sub(col, col)
+                            if char == "." then return false end
+                        end
+                        return true
+                    end,
                 },
             }
         },

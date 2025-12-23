@@ -1,3 +1,41 @@
+-- OpenFOAM filetype detection (extends upstream vim to support .suffix files)
+local function check_foam()
+    -- this could be efficient if I figure out how to run dist#ft#FTfoam 
+    -- from vim's runtime/autoload/dist/ft.vim
+    local ffile = false
+    for lnum = 1, math.min(15, vim.api.nvim_buf_line_count(0)) do
+        local line = vim.fn.getline(lnum)
+        if line:match("^FoamFile") then
+            ffile = true
+        end
+        if ffile and line:match("^%s*object") then
+            return "foam"
+        end
+    end
+end
+
+vim.filetype.add({
+    pattern = {
+        -- Dict files with optional suffix: controlDict, controlDict.bak, etc.
+        ["[a-zA-Z0-9]*Dict[.a-zA-Z0-9]*"] = check_foam,
+        -- Properties files with optional suffix
+        ["[a-zA-Z]*Properties[.a-zA-Z0-9]*"] = check_foam,
+        -- Transport files with optional suffix
+        [".*Transport[.a-zA-Z0-9]*"] = check_foam,
+        -- Core OpenFOAM files with optional suffix
+        ["fvSchemes[.a-zA-Z0-9]*"] = check_foam,
+        ["fvSolution[.a-zA-Z0-9]*"] = check_foam,
+        ["fvConstraints[.a-zA-Z0-9]*"] = check_foam,
+        ["fvModels[.a-zA-Z0-9]*"] = check_foam,
+        ["functionObjects[.a-zA-Z0-9]*"] = check_foam,
+        -- Files in constant/ directory
+        [".*/constant/g[.a-zA-Z0-9]*"] = check_foam,
+        -- Files in 0/ or 0.orig/ directory
+        [".*/0/.*"] = check_foam,
+        [".*/0%.orig/.*"] = check_foam,
+    },
+})
+
 vim.api.nvim_create_autocmd({ "CmdWinEnter" }, {
     desc = "Huh?",
     callback = function()

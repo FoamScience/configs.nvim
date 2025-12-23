@@ -309,7 +309,7 @@ function M.config()
                 desc = "Blame"
             },
             {
-                "<leader>gP",
+                "<leader>gp",
                 "<cmd>lua require 'gitsigns'.preview_hunk()<cr>",
                 desc = "Preview Hunk"
             },
