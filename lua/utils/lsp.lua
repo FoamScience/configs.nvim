@@ -153,15 +153,19 @@ M.workspace_diagnostics = function(client, bufnr, workspace_files)
         if not vim.tbl_contains(client.config.filetypes, filetype) then
             goto continue
         end
-        local params = {
-            textDocument = {
-                uri = vim.uri_from_fname(path),
-                version = 0,
-                text = vim.fn.join(vim.fn.readfile(path), "\n"),
-                languageId = filetype
+        local pathtext = nil
+        if vim.fn.filereadable(path) == 1 then pathtext = vim.fn.join(vim.fn.readfile(path), "\n") end
+        if pathtext then
+            local params = {
+                textDocument = {
+                    uri = vim.uri_from_fname(path),
+                    version = 0,
+                    text = pathtext,
+                    languageId = filetype
+                }
             }
-        }
-        client.notify('textDocument/didOpen', params)
+            client.notify('textDocument/didOpen', params)
+        end
         ::continue::
     end
 end
