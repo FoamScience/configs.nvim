@@ -355,6 +355,91 @@ function M.config()
             },
     })
 
+    local jira_ok, _ = pcall(require, "jira-interface")
+    if jira_ok then
+        vim.list_extend(mappings, {
+            { "<leader>j", group = "Jira", icon = icons.ui.List },
+            {
+                "<leader>jj",
+                "<cmd>JiraSearch<cr>",
+                desc = "Search issues",
+                icon = icons.ui.Search,
+            },
+            {
+                "<leader>jm",
+                "<cmd>JiraMe<cr>",
+                desc = "Assigned to me",
+                icon = icons.kind.User,
+            },
+            {
+                "<leader>jc",
+                "<cmd>JiraCreatedByMe<cr>",
+                desc = "Created by me",
+                icon = icons.kind.User,
+            },
+            {
+                "<leader>jp",
+                "<cmd>JiraProject<cr>",
+                desc = "By project",
+                icon = icons.kind.Folder,
+            },
+            {
+                "<leader>jd",
+                "<cmd>JiraDue<cr>",
+                desc = "By due date",
+                icon = icons.ui.Calendar,
+            },
+            {
+                "<leader>je",
+                "<cmd>JiraEpics<cr>",
+                desc = "Epics",
+                icon = icons.kind.Class,
+            },
+            {
+                "<leader>jf",
+                "<cmd>JiraFeatures<cr>",
+                desc = "Features/Bugs",
+                icon = icons.kind.Interface,
+            },
+            {
+                "<leader>jt",
+                "<cmd>JiraTasks<cr>",
+                desc = "Tasks",
+                icon = icons.ui.BoxChecked,
+            },
+            {
+                "<leader>jn",
+                "<cmd>JiraCreate<cr>",
+                desc = "New issue",
+                icon = icons.ui.Plus,
+            },
+            {
+                "<leader>jr",
+                "<cmd>JiraRefresh<cr>",
+                desc = "Refresh cache",
+                icon = icons.ui.History,
+            },
+            {
+                "<leader>js",
+                "<cmd>JiraStatus<cr>",
+                desc = "Status",
+                icon = icons.diagnostics.Information,
+            },
+            {
+                "<leader>jw",
+                "<cmd>JiraTeam<cr>",
+                desc = "Team workload",
+                icon = icons.kind.Struct,
+            },
+            {
+                "<leader>jT",
+                "<cmd>JiraTodoToIssue<cr>",
+                desc = "TODO to Sub-Task",
+                icon = icons.ui.BoxChecked,
+            },
+        })
+    end
+
     vim.list_extend(mappings, {
             { "<leader>f", group = "Find", icons.ui.Telescope },
             {

@@ -56,6 +56,7 @@ spec("user.optional.dim", {"full"})       -- Visual dimming effects
 spec("user.render-markdown", {"full"})    -- Heavy markdown rendering
 spec("user.incline", {"full"})            -- Floating window decorations
 spec("user.tutorials", {"full"})          -- tutorials on effective editing with this configuration
+spec("user.jira", {"full"})               -- jira client
 
 -- Load user-config directory (for separate user repo integration)
 -- Users can symlink their config repo to ~/.config/nvim/user-config/
