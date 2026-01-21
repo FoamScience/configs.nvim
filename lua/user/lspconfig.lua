@@ -129,7 +129,10 @@ return {
             local ret = {
                 diagnostics = {
                     underline = function(_, bufnr)
-                        return #vim.diagnostic.get(bufnr) <= 5
+                        if #vim.diagnostic.get(bufnr) <= 5 then
+                            return { severity = { min = vim.diagnostic.severity.ERROR } }
+                        end
+                        return false
                     end,
                     update_in_insert = false,
                     virtual_text = false,
