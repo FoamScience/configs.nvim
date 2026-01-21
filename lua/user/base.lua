@@ -27,6 +27,11 @@ end
 
 vim.g.active_preset = get_active_preset()
 
+-- User command for running configuration-wide health check
+vim.api.nvim_create_user_command("ConfigHealth", function()
+    vim.cmd("checkhealth config")
+end, { desc = "Check FoamScience configuration requirements" })
+
 -- spec() function: adds plugin spec to load list
 -- Optional presets parameter limits which presets load this plugin
 -- Examples:
