@@ -13,7 +13,7 @@ function M.config()
 	navbuddy.setup {
 		window = {
 			border = "rounded",
-			size = "80%",
+			size = "95%",
 		},
 		icons = require("user.lspicons").kind,
 		lsp = { auto_attach = true },
