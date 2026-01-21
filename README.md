@@ -32,7 +32,6 @@ This configuration intentionally avoids:
 
 * [Requirements](#requirements)
 * [Set up](#set-up)
-* [Documentation](#documentation)
 * [List of plugins and important configs](#list-of-plugins-and-important-configs)
   * [General Notes](#general-notes)
   * [General](#general)
@@ -45,6 +44,7 @@ This configuration intentionally avoids:
 * [Configuration Presets](#configuration-presets)
   * [Setting Your Preset](#setting-your-preset)
   * [SSH Usage Example](#ssh-usage-example)
+* [Documentation](#documentation)
 * [User Configuration Integration](#user-configuration-integration)
   * [Setup](#setup)
   * [Example User Plugin Spec](#example-user-plugin-spec)
@@ -55,9 +55,13 @@ This configuration intentionally avoids:
 <!-- mtoc-end:cb9ef56 -->
 ## Requirements
 
+Run `:checkhealth config` (or `:ConfigHealth`) to verify your setup, see what's missing and how to install
+them; here is a list of what fuels this configuration:
+
+**Required dependencies:**
 - [Neovim][] **nightly** (v0.11.4 or newer), [NodeJS][] **v22** (or newer), preferably installed with [NVM][],
 - Python 3 and (optionally) [Rust][]
-- The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`
+- The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`, or with `cargo`
 - For installing some LSP servers, you will need the `unzip` command
 - For Todo-comments and various other searching tasks, you will want [RIPGrep][]
 - A terminal with ligature support ([Kitty][], Warp, Alacritty, etc.)
@@ -67,6 +71,8 @@ This configuration intentionally avoids:
     symbol_map U+f000-U+f0e2 fontawesome
     symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
     ```
+
+**Optional:**
 - [ImageMagick][] for in-terminal image display, if your terminal supports it
 - `latex2text` command if you want to render Tex equations in Markdown
 - Also [mermaid-cli][] for mermaid charts in markdown files
@@ -75,15 +81,16 @@ This configuration intentionally avoids:
 
 ## Set up
 
-1. Make sure you have all the requirements installed. [this docker file](/dockerImages/config.dockerfile) shows how to install
-   most of them on latest Ubuntu LTS release.
-2. Then, applying this configuration is as easy as:
+1. Then, applying this configuration is as easy as:
 ```sh
 # Backup old configs and clone the new ones
 mv ~/.config/nvim ~/.config/nvim.bak
 git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
 # also, update with git pull
 ```
+1. Run `:checkhealth config` to see what dependencies you are missing.
+   [this docker file](/dockerImages/config.dockerfile) shows how to install
+   most of the required ones on latest Ubuntu LTS release.
 
 From there, the `:ConfigNews` command helps you keep your configuration up-to-date with this repo by checking for new commits and displaying a changelog.
 
@@ -95,28 +102,17 @@ docker run -it --rm nvim-config:latest bash
 (container)> USER=me nvim
 ```
 
-## Documentation
-
-A few tutorials can be accessed by `<leader>tt` when `nvim` command had no files
-passed in. These are not meant to teach people basic Vim skills but
-rather explain my current approach to editing efficiency.
-
-Even though the tutorials act on Lua files, they mostly hold on any other filetype.
-
-Occasionally, you'd have to `:TutorialNext` to continue a tutorial, either becausse
-I was too lazy to implement proper step validation or implementing it would not
-have provided a good experience.
-
 ## List of plugins and important configs
 
 ### General Notes
 
 - The canonical way to move between open buffers is `<tab>` and `<S-tab>` in normal mode.
-- The canonical way to move on visible screen portion is by pressing `s` and `S` in normal mode.
+- The canonical way to move on the visible screen portion is by pressing `s` and `S` in normal mode.
 - The canonical way to move between windows and splits is `<C-w><C-w>`; too fundamental to change.
 - Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
 - You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
 - You can see registers content by pressing `"`, and marks positions by pressing the back-tick '`'
+- `<space>` is the **leader key**, which is used to open `which-key` menu in normal mode
 - `<leader>fk` lists all available key bindings and `<leader>fC` lists commands.
 - `<leader>fP` will take you to individual plugin configuration!
 - `<leader>kk` brings up a sticky-notes sidebar. it persists; and it's project-specific!
@@ -125,7 +121,6 @@ have provided a good experience.
 ### General
 
 - [keymaps.lua:](lua/user/keymaps.lua) very few key bindings to get you started
-  - `<space>` is the **leader key**, which is used to open `which-key` menu in normal mode
   - `<tab>` and `<S-tab>` in normal mode are used for buffer switching
 - [which-key.lua:](lua/user/which-key.lua) shows all available keymaps
   - Press `<leader>` to check available keymaps
@@ -183,12 +178,18 @@ have provided a good experience.
   - `:TodoTelescope` command opens a fuzzy finder for all such comments in the current buffer
   - Use [todo-issue Github action](https://github.com/DerJuulsn/todo-issue) to convert your committed
     Todos to Github issues.
+- [jira.lua:](lua/user/jira.lua) is a custom plugin, functionning as a thin Jira client
+  - Its backbone ships with this configuration ([jira-interface](lua/jira-interface))
+  - Opinionated jira structure, but customizable
+  - Loaded only if `JIRA_API_TOKEN` is set
+  - Have to set `JIRA_API_TOKEN`, `JIRA_URL` and `JIRA_EMAIL`/`JIRA_USER`
+  - `<leader>j` to get started
 - ~~[waka.lua:](lua/user/optional/waka.lua) a plugin for tracking your coding time~~
   - ~~It will ask for an [API key](https://wakatime.com/settings/api-key) on installation~~
 - ~~[leetcode.lua:](lua/user/optional/leetcode.lua) a plugin for solving LeetCode problems~~
-  - `nvim leetcode.nvim` to open
-  - Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)
-    for more info.
+  - ~`nvim leetcode.nvim` to open~
+  - ~Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)~
+    ~for more info.~
 - ~~[devdocs.lua:](lua/user/optional/devdocs.lua) a plugin for browsing DevDocs.~~
 
 ### Navigation
@@ -298,6 +299,19 @@ export NVIM_PRESET=ssh
 nvim myfile.cpp
 ```
 
+## Documentation
+
+A few tutorials can be accessed by `<leader>tt` when `nvim` command had no files
+passed in. These are not meant to teach people basic Vim skills but
+rather explain my current approach to editing efficiency.
+
+Even though the tutorials act on Lua files, they hold on any other filetype.
+
+Occasionally, you'd have to `:TutorialNext` to continue a tutorial, either becausse
+I was too lazy to implement proper step validation or implementing it would not
+have provided a good experience.
+
+
 ## User Configuration Integration
 
 You can seamlessly extend this configuration by using a separate user configuration repository.
@@ -316,6 +330,11 @@ You can seamlessly extend this configuration by using a separate user configurat
 2. Symlink your repository to the user-config directory:
    ```bash
    ln -s /path/to/my-nvim-config ~/.config/nvim/user-config
+   ```
+   Or you could just do to get my configuration (may super niche stuff and mostly
+   experimental):
+   ```bash
+   ln -s user-config.elwardi user-config
    ```
 
 3. Your configuration will be loaded automatically:
