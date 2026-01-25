@@ -49,7 +49,6 @@ spec("user.snacks", {"full"})             -- Heavy file scanning with latency
 spec("user.img-clip", {"full"})           -- Clipboard/GUI-dependent
 spec("user.project", {"full"})            -- Heavy directory scanning
 spec("user.nvimtree", {"full"})           -- Large directory browsing over latency
-spec("user.sticky-notes", {"full"})       -- Local file writes
 spec("user.optional.tpipeline", {"full"}) -- Tmux statusline (moved to full-only)
 spec("user.optional.cinnamon", {"full"})  -- Scrolling animations
 spec("user.optional.dim", {"full"})       -- Visual dimming effects
