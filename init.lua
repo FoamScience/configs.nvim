@@ -42,6 +42,7 @@ spec "user.optional.dial"
 spec "user.optional.csv"
 spec "user.optional.typst"
 spec "user.optional.cloack"
+spec "user.optional.haunt"
 spec "user.remote-nvim"
 
 -- Full-only plugins (excluded from SSH due to latency/GUI dependencies)
