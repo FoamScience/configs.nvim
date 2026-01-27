@@ -6,6 +6,7 @@ local cache = require("jira-interface.cache")
 local filters = require("jira-interface.filters")
 local config = require("jira-interface.config")
 local notify = require("jira-interface.notify")
+local atlassian_ui = require("atlassian.ui")
 
 -- Fixed column widths
 local COL_KEY = 12
@@ -13,16 +14,8 @@ local COL_STATUS = 14
 local COL_TYPE = 10
 local COL_DUE = 20
 
----@param str string
----@param width number
----@return string
-local function pad_right(str, width)
-    str = str or ""
-    if #str >= width then
-        return str:sub(1, width)
-    end
-    return str .. string.rep(" ", width - #str)
-end
+-- Use shared UI helpers
+local pad_right = atlassian_ui.pad_right
 
 ---@param issues JiraIssue[]
 ---@param opts? { title?: string }
@@ -608,17 +601,17 @@ function M.open_create_buffer(project, type_name, parent_key)
                 notify.progress_start("create_issue", "Creating " .. type_name)
                 api.create_issue_full(project, type_name, parsed.summary, parsed.description, parsed.acceptance_criteria,
                     parent_key, function(err, issue)
-                    if err then
-                        notify.progress_error("create_issue", "Create failed: " .. err)
-                    else
-                        notify.progress_finish("create_issue", "Created: " .. issue.key)
-                        vim.api.nvim_win_close(win, true)
-                        cache.invalidate_project(project)
-                        -- Open the created issue
-                        local ui = require("jira-interface.ui")
-                        ui.show_issue(issue)
-                    end
-                end)
+                        if err then
+                            notify.progress_error("create_issue", "Create failed: " .. err)
+                        else
+                            notify.progress_finish("create_issue", "Created: " .. issue.key)
+                            vim.api.nvim_win_close(win, true)
+                            cache.invalidate_project(project)
+                            -- Open the created issue
+                            local ui = require("jira-interface.ui")
+                            ui.show_issue(issue)
+                        end
+                    end)
             else
                 local queue = require("jira-interface.queue")
                 queue.queue_create(project, type_name, parsed.summary, parsed.description, parent_key)

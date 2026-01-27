@@ -2,26 +2,18 @@ local M = {}
 
 local config = require("jira-interface.config")
 local types = require("jira-interface.types")
+local atlassian_request = require("atlassian.request")
+local atlassian_adf = require("atlassian.adf")
 
 ---@type boolean
 M.is_online = true
 
----@return string
-local function get_auth_header()
-    local auth = config.options.auth
-    local credentials = auth.email .. ":" .. auth.token
-    return "Basic " .. vim.base64.encode(credentials)
-end
-
----@return string
-local function get_base_url()
-    local url = config.options.auth.url
-    -- Add https:// if no protocol specified
-    if not url:match("^https?://") then
-        url = "https://" .. url
-    end
-    -- Remove trailing slash if present
-    return url:gsub("/$", "")
+-- Create API client using shared request module
+local function get_client()
+    return atlassian_request.create_client({
+        auth = config.options.auth,
+        api_path = "/rest/api/3",
+    })
 end
 
 ---@param endpoint string
@@ -29,87 +21,20 @@ end
 ---@param body? table
 ---@param callback fun(err: string|nil, data: table|nil)
 function M.request(endpoint, method, body, callback)
-    local url = get_base_url() .. "/rest/api/3" .. endpoint
-
-    local args = {
-        "curl",
-        "-s",
-        "-L", -- Follow redirects
-        "-w", "\n%{http_code}",
-        "-X", method,
-        "-H", "Authorization: " .. get_auth_header(),
-        "-H", "Content-Type: application/json",
-        "-H", "Accept: application/json",
-    }
-
-    if body then
-        table.insert(args, "-d")
-        table.insert(args, vim.json.encode(body))
-    end
-
-    table.insert(args, url)
-
-    vim.system(args, { text = true }, function(result)
-        vim.schedule(function()
-            if result.code ~= 0 then
-                M.is_online = false
-                callback("Network error: " .. (result.stderr or "Unknown error"), nil)
-                return
-            end
-
-            M.is_online = true
-            local output = result.stdout or ""
-            local lines = vim.split(output, "\n")
-            local http_code = tonumber(lines[#lines]) or 0
-            table.remove(lines)
-            local response_body = table.concat(lines, "\n")
-
-            if http_code >= 400 then
-                local err_msg = "HTTP " .. http_code
-                local ok, err_data = pcall(vim.json.decode, response_body)
-                if ok then
-                    if err_data.errorMessages and #err_data.errorMessages > 0 then
-                        err_msg = err_msg .. ": " .. table.concat(err_data.errorMessages, ", ")
-                    end
-                    if err_data.errors then
-                        local field_errors = {}
-                        for field, msg in pairs(err_data.errors) do
-                            table.insert(field_errors, field .. ": " .. msg)
-                        end
-                        if #field_errors > 0 then
-                            err_msg = err_msg .. " [" .. table.concat(field_errors, "; ") .. "]"
-                        end
-                    end
-                end
-                callback(err_msg, nil)
-                return
-            end
-
-            if response_body == "" then
-                callback(nil, {})
-                return
-            end
-
-            local ok, data = pcall(vim.json.decode, response_body)
-            if not ok then
-                callback("Failed to parse response: " .. response_body, nil)
-                return
-            end
-
-            callback(nil, data)
-        end)
+    local client = get_client()
+    client.request(endpoint, method, body, function(err, data)
+        M.is_online = client.is_online
+        callback(err, data)
     end)
 end
 
 ---@param callback fun(online: boolean)
 function M.check_connectivity(callback)
-    -- Try /myself first, fallback to /serverInfo
     M.request("/myself", "GET", nil, function(err, _)
         if not err then
             M.is_online = true
             callback(true)
         else
-            -- Fallback - /myself might be restricted
             M.request("/serverInfo", "GET", nil, function(err2, _)
                 M.is_online = err2 == nil
                 callback(M.is_online)
@@ -128,7 +53,6 @@ function M.search(jql, callback)
         fields = fields .. "," .. ac_field
     end
 
-    -- Apply "since" filter if configured (insert before ORDER BY)
     local since = config.options.since
     if since and since ~= "" then
         local order_by = jql:match("(ORDER%s+BY%s+.+)$")
@@ -144,7 +68,6 @@ function M.search(jql, callback)
         end
     end
 
-    -- Use GET /search/jql endpoint
     local max_results = config.options.max_results or 100
     local endpoint = "/search/jql?jql=" .. vim.uri_encode(jql) .. "&fields=" .. fields .. "&maxResults=" .. max_results
 
@@ -283,7 +206,6 @@ end
 ---@param parent_key? string
 ---@param callback fun(err: string|nil, issue: JiraIssue|nil)
 function M.create_issue_full(project, issue_type, summary, description, acceptance_criteria, parent_key, callback)
-    -- First get current user's account ID for auto-assign
     M.get_current_user(function(user_err, user)
         local fields = {
             project = { key = project },
@@ -291,7 +213,6 @@ function M.create_issue_full(project, issue_type, summary, description, acceptan
             summary = summary,
         }
 
-        -- Auto-assign to current user if we got the account ID
         if not user_err and user and user.accountId then
             fields.assignee = { accountId = user.accountId }
         end
@@ -306,7 +227,6 @@ function M.create_issue_full(project, issue_type, summary, description, acceptan
 
         M.request("/issue", "POST", { fields = fields }, function(err, data)
             if err then
-                -- Retry without assignee if that might be the issue
                 if err:match("assignee") then
                     fields.assignee = nil
                     M.request("/issue", "POST", { fields = fields }, function(retry_err, retry_data)
@@ -321,7 +241,6 @@ function M.create_issue_full(project, issue_type, summary, description, acceptan
                 callback(err, nil)
                 return
             end
-            -- Update acceptance criteria via edit, then fetch the issue
             M.update_acceptance_criteria_and_fetch(data.key, acceptance_criteria, callback)
         end)
     end)
@@ -336,7 +255,6 @@ function M.update_acceptance_criteria_and_fetch(key, acceptance_criteria, callba
         local update_fields = {}
         update_fields[ac_field] = M.text_to_adf(acceptance_criteria)
         M.update_issue(key, update_fields, function(_)
-            -- Silently skip if AC field not available for this issue type
             M.get_issue(key, callback)
         end)
     else
@@ -355,80 +273,8 @@ function M.get_current_user(callback)
     end)
 end
 
----@param text string Plain text to convert to ADF
----@return table ADF document
-function M.text_to_adf(text)
-    local content = {}
-
-    -- Split by double newlines for paragraphs
-    local paragraphs = vim.split(text, "\n\n")
-
-    for _, para in ipairs(paragraphs) do
-        if para:match("^%s*[-*]") then
-            -- Bullet list
-            local items = {}
-            for line in para:gmatch("[^\n]+") do
-                local item_text = line:gsub("^%s*[-*]%s*", "")
-                if item_text ~= "" then
-                    table.insert(items, {
-                        type = "listItem",
-                        content = {
-                            {
-                                type = "paragraph",
-                                content = { { type = "text", text = item_text } },
-                            },
-                        },
-                    })
-                end
-            end
-            if #items > 0 then
-                table.insert(content, { type = "bulletList", content = items })
-            end
-        elseif para:match("^%s*%d+%.") then
-            -- Ordered list
-            local items = {}
-            for line in para:gmatch("[^\n]+") do
-                local item_text = line:gsub("^%s*%d+%.%s*", "")
-                if item_text ~= "" then
-                    table.insert(items, {
-                        type = "listItem",
-                        content = {
-                            {
-                                type = "paragraph",
-                                content = { { type = "text", text = item_text } },
-                            },
-                        },
-                    })
-                end
-            end
-            if #items > 0 then
-                table.insert(content, { type = "orderedList", content = items })
-            end
-        elseif para:match("^#+%s") then
-            -- Heading
-            local level, heading_text = para:match("^(#+)%s+(.+)")
-            if heading_text then
-                table.insert(content, {
-                    type = "heading",
-                    attrs = { level = math.min(#level, 6) },
-                    content = { { type = "text", text = heading_text } },
-                })
-            end
-        elseif vim.trim(para) ~= "" then
-            -- Regular paragraph
-            table.insert(content, {
-                type = "paragraph",
-                content = { { type = "text", text = para:gsub("\n", " ") } },
-            })
-        end
-    end
-
-    return {
-        type = "doc",
-        version = 1,
-        content = content,
-    }
-end
+-- Delegate to shared ADF module
+M.text_to_adf = atlassian_adf.text_to_adf
 
 ---@param callback fun(err: string|nil, projects: table[]|nil)
 function M.get_projects(callback)
@@ -453,7 +299,6 @@ end
 ---@param project string
 ---@param callback fun(err: string|nil, members: table[]|nil)
 function M.get_project_members(project, callback)
-    -- Get users who are assignable to issues in this project
     M.request("/user/assignable/search?project=" .. project .. "&maxResults=50", "GET", nil, function(err, data)
         if err then
             callback(err, nil)
@@ -477,7 +322,6 @@ end
 ---@param project string
 ---@param callback fun(err: string|nil, workload: table|nil)
 function M.get_team_workload(project, callback)
-    -- Get all non-done issues for the project
     local jql = string.format('project = %s AND status != Done ORDER BY assignee ASC, updated DESC', project)
     M.search(jql, function(err, issues)
         if err then
@@ -485,7 +329,6 @@ function M.get_team_workload(project, callback)
             return
         end
 
-        -- Group by assignee
         local by_assignee = {}
         local unassigned = {}
 
@@ -500,7 +343,6 @@ function M.get_team_workload(project, callback)
             end
         end
 
-        -- Convert to list and sort by issue count
         local members = {}
         for _, member in pairs(by_assignee) do
             table.insert(members, member)

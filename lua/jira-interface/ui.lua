@@ -4,108 +4,17 @@ local api = require("jira-interface.api")
 local types = require("jira-interface.types")
 local config = require("jira-interface.config")
 local notify = require("jira-interface.notify")
-
----@param value number|string
----@param total number
----@return number
-local function parse_dimension(value, total)
-    if type(value) == "number" then
-        return value
-    elseif type(value) == "string" and value:match("%%$") then
-        local num_str = value:gsub("%%$", "")
-        local pct = tonumber(num_str) or 80
-        return math.floor(total * pct / 100)
-    end
-    return math.floor(total * 0.8)
-end
-
----@param buf number
----@param win number
-local function apply_window_options(buf, win)
-    local display = config.options.display or {}
-    vim.wo[win].wrap = display.wrap ~= false
-    vim.wo[win].linebreak = display.linebreak ~= false
-    vim.wo[win].conceallevel = display.conceallevel or 2
-    vim.wo[win].cursorline = display.cursorline ~= false
-end
-
----@param buf number
----@param win number
-local function setup_close_keymaps(buf, win)
-    vim.keymap.set("n", "q", function()
-        vim.api.nvim_win_close(win, true)
-    end, { buffer = buf })
-    vim.keymap.set("n", "<Esc>", function()
-        vim.api.nvim_win_close(win, true)
-    end, { buffer = buf })
-end
+local atlassian_ui = require("atlassian.ui")
 
 ---@param opts { width?: number, height?: number, title?: string }
 ---@return number, number Buffer and window IDs
 local function create_window(opts)
-    opts = opts or {}
-    local display = config.options.display or {}
-    local mode = display.mode or "float"
-
-    local buf = vim.api.nvim_create_buf(false, true)
-    vim.bo[buf].bufhidden = "wipe"
-    vim.bo[buf].filetype = "markdown"
-
-    local win
-
-    if mode == "float" then
-        local width = opts.width or parse_dimension(display.width, vim.o.columns)
-        local height = opts.height or parse_dimension(display.height, vim.o.lines)
-
-        win = vim.api.nvim_open_win(buf, true, {
-            relative = "editor",
-            width = width,
-            height = height,
-            col = math.floor((vim.o.columns - width) / 2),
-            row = math.floor((vim.o.lines - height) / 2),
-            style = "minimal",
-            border = display.border or "rounded",
-            title = opts.title and (" " .. opts.title .. " ") or nil,
-            title_pos = opts.title and "center" or nil,
-        })
-    elseif mode == "vsplit" then
-        local width = opts.width or parse_dimension(display.width, vim.o.columns)
-        vim.cmd("vsplit")
-        win = vim.api.nvim_get_current_win()
-        vim.api.nvim_win_set_buf(win, buf)
-        vim.api.nvim_win_set_width(win, width)
-    elseif mode == "split" then
-        local height = opts.height or parse_dimension(display.height, vim.o.lines)
-        vim.cmd("split")
-        win = vim.api.nvim_get_current_win()
-        vim.api.nvim_win_set_buf(win, buf)
-        vim.api.nvim_win_set_height(win, height)
-    elseif mode == "tab" then
-        vim.cmd("tabnew")
-        win = vim.api.nvim_get_current_win()
-        vim.api.nvim_win_set_buf(win, buf)
-    else
-        -- Fallback to float
-        local width = opts.width or parse_dimension(display.width, vim.o.columns)
-        local height = opts.height or parse_dimension(display.height, vim.o.lines)
-
-        win = vim.api.nvim_open_win(buf, true, {
-            relative = "editor",
-            width = width,
-            height = height,
-            col = math.floor((vim.o.columns - width) / 2),
-            row = math.floor((vim.o.lines - height) / 2),
-            style = "minimal",
-            border = display.border or "rounded",
-            title = opts.title and (" " .. opts.title .. " ") or nil,
-            title_pos = opts.title and "center" or nil,
-        })
-    end
-
-    apply_window_options(buf, win)
-    setup_close_keymaps(buf, win)
-
-    return buf, win
+    return atlassian_ui.create_window({
+        width = opts and opts.width,
+        height = opts and opts.height,
+        title = opts and opts.title,
+        display = config.options.display,
+    })
 end
 
 -- Alias for backwards compatibility
