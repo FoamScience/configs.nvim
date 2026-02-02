@@ -51,6 +51,12 @@ local clangd_opts = {
     end
 }
 
+local xonsh_lsp_opts = {
+    cmd = { "uvx", "xonsh-lsp" },
+    filetypes = { "xonsh" },
+    root_markers = { ".xonshrc", "xonshrc", ".git" },
+}
+
 local find_uv_python_path = utils.find_uv_python_path
 local default_python = vim.fn.exepath("python3") or vim.fn.exepath("python")
 local pyright_opts = {
@@ -185,6 +191,7 @@ return {
                     lua_ls = luals_opts,
                     clangd = clangd_opts,
                     pyright = pyright_opts,
+                    xonsh_lsp = xonsh_lsp_opts,
                 },
                 setup = {
                     lua_ls = function()
