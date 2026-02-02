@@ -24,8 +24,6 @@ function M.config()
 	require("nvim-treesitter").setup({
 		install_dir = vim.fn.stdpath('data') .. '/site'
 	})
-	-- Setup xonsh parser
-	require("user.xonsh").setup()
 	vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 	vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 	require("nvim-treesitter").get_installed(true)

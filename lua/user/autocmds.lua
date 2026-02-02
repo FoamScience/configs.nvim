@@ -1,6 +1,6 @@
 -- OpenFOAM filetype detection (extends upstream vim to support .suffix files)
 local function check_foam()
-    -- this could be efficient if I figure out how to run dist#ft#FTfoam 
+    -- this could be efficient if I figure out how to run dist#ft#FTfoam
     -- from vim's runtime/autoload/dist/ft.vim
     local ffile = false
     for lnum = 1, math.min(15, vim.api.nvim_buf_line_count(0)) do
@@ -34,6 +34,18 @@ vim.filetype.add({
         [".*/0/.*"] = check_foam,
         [".*/0%.orig/.*"] = check_foam,
     },
+})
+
+vim.filetype.add({
+    extension = { xsh = 'xonsh', xonshrc = 'xonsh' },
+    filename = { ['.xonshrc'] = 'xonsh', ['xonshrc'] = 'xonsh' },
+})
+
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+    pattern = { '*.xsh', '*.xonshrc', '.xonshrc', 'xonshrc' },
+    callback = function()
+        vim.bo.filetype = 'xonsh'
+    end,
 })
 
 vim.api.nvim_create_autocmd({ "CmdWinEnter" }, {
@@ -94,16 +106,16 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     end,
 })
 
--- Handle 
+-- Handle
 local gzip_grp = vim.api.nvim_create_augroup("gzip", { clear = true })
-vim.api.nvim_create_autocmd({"BufReadPre", "FileReadPre"}, {
+vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
     pattern = "*.gz",
     group = gzip_grp,
     callback = function()
         vim.bo.binary = true
     end
 })
-vim.api.nvim_create_autocmd({"BufReadPost", "FileReadPost"}, {
+vim.api.nvim_create_autocmd({ "BufReadPost", "FileReadPost" }, {
     pattern = "*.gz",
     group = gzip_grp,
     callback = function()
@@ -117,7 +129,7 @@ vim.api.nvim_create_autocmd({"BufReadPost", "FileReadPost"}, {
         end
     end
 })
-vim.api.nvim_create_autocmd({"BufWritePost", "FileWritePost"}, {
+vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
     pattern = "*.gz",
     group = gzip_grp,
     callback = function()
@@ -127,4 +139,23 @@ vim.api.nvim_create_autocmd({"BufWritePost", "FileWritePost"}, {
         os.execute("gzip -f " .. vim.fn.shellescape(tmpfile))
         os.execute("mv " .. tmpfile .. ".gz " .. vim.fn.shellescape(filename))
     end
+})
+
+vim.api.nvim_create_autocmd('User', {
+    pattern = 'TSUpdate',
+    callback = function()
+        require('nvim-treesitter.parsers').xonsh = {
+            install_info = {
+                url = 'https://github.com/FoamScience/tree-sitter-xonsh',
+                queries = 'queries/',
+            },
+        }
+    end
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'xonsh',
+    callback = function(args)
+        vim.treesitter.start(args.buf, 'xonsh')
+    end,
 })
