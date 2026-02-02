@@ -156,7 +156,7 @@ vim.api.nvim_create_autocmd('User', {
 vim.api.nvim_create_autocmd('FileType', {
     pattern = 'xonsh',
     callback = function(args)
-        if require('nvim-treesitter.parsers').xonsh then
+        if not require('nvim-treesitter.parsers').xonsh then
             vim.treesitter.start(args.buf, 'xonsh')
         end
     end,
