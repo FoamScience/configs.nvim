@@ -5,7 +5,6 @@ local ensure_installed = {
 	"python",
 	"foam", "cpp", "c",
 	"rust", "glsl",
-	"xonsh",
 }
 local M = {
 	"nvim-treesitter/nvim-treesitter",
