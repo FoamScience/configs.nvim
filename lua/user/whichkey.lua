@@ -29,8 +29,8 @@ function M.config()
         },
         {
             "<leader>nn",
-            "<cmd>Navbuddy<cr>",
-            desc = "NavBuddy",
+            "<cmd>topleft Outline<cr>",
+            desc = "Outline of symbols",
         },
     }
 
