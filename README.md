@@ -207,9 +207,11 @@ docker run -it --rm nvim-config:latest bash
 - [tree-climb.lua:](lua/user/tree-climb.lua) treesitter-based code navigation
   - Navigate through code structure using treesitter nodes with `<M-n>` and `<M-N>`
   - Enhanced structural movement commands
-- [navbuddy.lua:](lua/user/navbuddy.lua) fast local code navigation
+- ~[navbuddy.lua:](lua/user/navbuddy.lua) fast local code navigation~
+  - replaced by outline
+- [outline.lua:](lua/user/outline.lua) fast local code navigation
   - `<leader>nn` to toggle
-  - Only enabled on specific file types, such as OpenFOAM, C++, Python, Lua files
+  - `?` to see keymaps for the outline window
 
 ### Language support and LSPs
 
@@ -217,6 +219,7 @@ docker run -it --rm nvim-config:latest bash
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
   - Auto-installs tree-sitter grammars for languages the first time they are encountered
   - Text objects for classes, functions, loops and conditions through [treesitter-textobjects.lua](lua/user/treesitter-textobjects.lua)
+  - with `xonsh` support through the [xonsh-lsp](https://github.com/FoamScience/xonsh-language-server)
 - [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
     - `clangd` is not managed through Mason on ARM machines, run `apt install clangd` instead
