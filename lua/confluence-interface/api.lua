@@ -148,8 +148,59 @@ end
 ---@param space_key? string
 ---@param callback fun(err: string|nil, pages: ConfluencePage[]|nil)
 function M.search_pages(query, space_key, callback)
-    -- Use simple title filter via get_pages instead of CQL (more reliable)
-    M.get_pages(space_key, query, callback)
+    -- Try CQL title search first, fall back to client-side filtering on error
+    M.search_pages_cql(query, space_key, function(err, pages)
+        if err then
+            M.get_pages(space_key, query, callback)
+            return
+        end
+        callback(nil, pages)
+    end)
+end
+
+---@param query string
+---@param space_key? string
+---@param callback fun(err: string|nil, pages: ConfluencePage[]|nil)
+function M.search_pages_fulltext(query, space_key, callback)
+    local max_results = config.options.max_results or 100
+    local cql = string.format('type=page AND text~"%s"', query:gsub('"', '\\"'))
+    if space_key and space_key ~= "" then
+        cql = cql .. string.format(' AND space.key="%s"', space_key)
+    end
+    cql = cql .. " ORDER BY lastmodified DESC"
+
+    local endpoint = "/content/search?cql=" .. vim.uri_encode(cql) .. "&limit=" .. max_results
+    M.request(endpoint, "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+
+        local pages = {}
+        for _, raw in ipairs(data.results or {}) do
+            table.insert(pages, types.parse_page_v1(raw))
+        end
+        callback(nil, pages)
+    end, true)
+end
+
+---@param cql string Raw CQL query
+---@param callback fun(err: string|nil, pages: ConfluencePage[]|nil)
+function M.search_raw_cql(cql, callback)
+    local max_results = config.options.max_results or 100
+    local endpoint = "/content/search?cql=" .. vim.uri_encode(cql) .. "&limit=" .. max_results
+    M.request(endpoint, "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+
+        local pages = {}
+        for _, raw in ipairs(data.results or {}) do
+            table.insert(pages, types.parse_page_v1(raw))
+        end
+        callback(nil, pages)
+    end, true)
 end
 
 ---@param username? string Username to search for (defaults to current user)

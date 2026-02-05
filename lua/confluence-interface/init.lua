@@ -39,7 +39,44 @@ function M.create_commands()
     cmd("ConfluenceSearch", function(args)
         local picker = require("confluence-interface.picker")
         picker.search(args.args)
-    end, { nargs = "?", desc = "Search Confluence pages" })
+    end, { nargs = "?", desc = "Search Confluence pages (CQL)" })
+
+    cmd("ConfluenceSearchCQL", function(args)
+        local picker = require("confluence-interface.picker")
+        picker.search_cql(args.args ~= "" and args.args or nil)
+    end, { nargs = "?", desc = "Search with raw CQL query" })
+
+    cmd("ConfluenceCQLFilter", function(args)
+        local sub = args.args or ""
+        local cql_filters = require("confluence-interface.cql_filters")
+        local picker = require("confluence-interface.picker")
+
+        if sub == "" or sub == "list" then
+            picker.select_cql_filter()
+        elseif sub:match("^save%s") then
+            local rest = sub:gsub("^save%s+", "")
+            vim.ui.input({ prompt = "CQL query to save: " }, function(cql)
+                if cql and cql ~= "" then
+                    vim.ui.input({ prompt = "Description (optional): " }, function(desc)
+                        cql_filters.save(rest, cql, nil, desc ~= "" and desc or nil)
+                    end)
+                end
+            end)
+        elseif sub:match("^delete%s") then
+            local name = sub:gsub("^delete%s+", "")
+            cql_filters.delete(name)
+        elseif sub == "load" then
+            picker.select_cql_filter()
+        else
+            notify.error("Usage: :ConfluenceCQLFilter [save <name>|load|list|delete <name>]")
+        end
+    end, {
+        nargs = "?",
+        desc = "Manage saved CQL filters",
+        complete = function()
+            return { "save", "load", "list", "delete" }
+        end,
+    })
 
     cmd("ConfluenceMentions", function(args)
         local picker = require("confluence-interface.picker")
@@ -158,6 +195,7 @@ M.picker = require("confluence-interface.picker")
 M.ui = require("confluence-interface.ui")
 M.cache = require("confluence-interface.cache")
 M.types = require("confluence-interface.types")
+M.cql_filters = require("confluence-interface.cql_filters")
 M.config = config
 
 return M

@@ -280,7 +280,7 @@ function M.search(query, space_key)
         return
     end
 
-    notify.progress_start("search", "Searching...")
+    notify.progress_start("search", "Searching (CQL)...")
     api.search_pages(query, space_key, function(err, pages)
         notify.progress_finish("search")
         if err then
@@ -289,6 +289,111 @@ function M.search(query, space_key)
         end
         M.show_pages(pages, { title = "Search: " .. query })
     end)
+end
+
+---@param cql? string Raw CQL query (prompts if nil)
+function M.search_cql(cql)
+    if not cql or cql == "" then
+        vim.ui.input({ prompt = "CQL query: " }, function(input)
+            if input and input ~= "" then
+                M.search_cql(input)
+            end
+        end)
+        return
+    end
+
+    notify.progress_start("cql_search", "Running CQL...")
+    api.search_raw_cql(cql, function(err, pages)
+        notify.progress_finish("cql_search")
+        if err then
+            notify.error("CQL search failed: " .. err)
+            return
+        end
+        M.show_pages(pages, { title = "CQL: " .. cql:sub(1, 40) })
+    end)
+end
+
+function M.select_cql_filter()
+    local cql_filters = require("confluence-interface.cql_filters")
+    local all_filters = cql_filters.list_all()
+
+    if #all_filters == 0 then
+        notify.info("No saved CQL filters. Use :ConfluenceCQLFilter save to create one.")
+        return
+    end
+
+    local Snacks = require("snacks")
+    local atlassian_ui_mod = require("atlassian.ui")
+
+    local items = {}
+    for idx, f in ipairs(all_filters) do
+        table.insert(items, {
+            idx = idx,
+            text = f.name .. " " .. f.cql .. " " .. (f.description or ""),
+            filter = f,
+            name = f.name,
+            cql = f.cql,
+            space_key = f.space_key or "",
+            description = f.description or "",
+        })
+    end
+
+    Snacks.picker.pick({
+        title = "CQL Filters",
+        items = items,
+        format = function(item, _picker)
+            local ret = {}
+            table.insert(ret, { atlassian_ui_mod.pad_right(item.name, 20), "Function" })
+            table.insert(ret, { " ", "Normal" })
+            table.insert(ret, { atlassian_ui_mod.truncate(item.cql, 50), "Comment" })
+            if item.space_key ~= "" then
+                table.insert(ret, { " ", "Normal" })
+                table.insert(ret, { "[" .. item.space_key .. "]", "Special" })
+            end
+            return ret
+        end,
+        confirm = function(picker, item)
+            picker:close()
+            if item and item.filter then
+                M.search_cql(item.filter.cql)
+            end
+        end,
+        actions = {
+            delete_filter = function(picker, item)
+                if item and item.filter then
+                    vim.ui.input({ prompt = "Delete filter '" .. item.filter.name .. "'? (yes/no): " }, function(input)
+                        if input == "yes" then
+                            cql_filters.delete(item.filter.name, item.filter.space_key)
+                            picker:close()
+                            M.select_cql_filter()
+                        end
+                    end)
+                end
+            end,
+        },
+        layout = {
+            layout = {
+                box = "vertical",
+                backdrop = false,
+                row = -1,
+                width = 0,
+                height = 0.4,
+                border = "top",
+                title = " {title} {live} {flags}",
+                title_pos = "left",
+                { win = "input", height = 1, border = "bottom" },
+                { win = "list", border = "none" },
+            },
+        },
+        preview = false,
+        win = {
+            input = {
+                keys = {
+                    ["<C-x>"] = { "delete_filter", mode = { "n", "i" }, desc = "Delete filter" },
+                },
+            },
+        },
+    })
 end
 
 ---@param username? string Use "me" for current user
