@@ -465,6 +465,55 @@ function M.config()
         })
     end
 
+    local confluence_ok, _ = pcall(require, "confluence-interface")
+    if confluence_ok then
+        vim.list_extend(mappings, {
+            { "<leader>c", group = "Confluence", icon = icons.kind.Text },
+            {
+                "<leader>cc",
+                "<cmd>ConfluenceSearch<cr>",
+                desc = "Search pages",
+                icon = icons.ui.Search,
+            },
+            {
+                "<leader>cs",
+                "<cmd>ConfluenceSpaces<cr>",
+                desc = "List spaces",
+                icon = icons.kind.Folder,
+            },
+            {
+                "<leader>cp",
+                "<cmd>ConfluencePages<cr>",
+                desc = "Pages in space",
+                icon = icons.kind.File,
+            },
+            {
+                "<leader>cr",
+                "<cmd>ConfluenceRecent<cr>",
+                desc = "Recent pages",
+                icon = icons.ui.History,
+            },
+            {
+                "<leader>cn",
+                "<cmd>ConfluenceCreate<cr>",
+                desc = "New page",
+                icon = icons.ui.Plus,
+            },
+            {
+                "<leader>cR",
+                "<cmd>ConfluenceRefresh<cr>",
+                desc = "Refresh cache",
+                icon = icons.ui.Refresh,
+            },
+            {
+                "<leader>cS",
+                "<cmd>ConfluenceStatus<cr>",
+                desc = "Status",
+                icon = icons.diagnostics.Information,
+            },
+        })
+    end
+
     vim.list_extend(mappings, {
         { "<leader>f", group = "Find", icons.ui.Telescope },
         {
