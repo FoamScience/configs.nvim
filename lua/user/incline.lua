@@ -48,6 +48,20 @@ function M.config()
     local devicons = require 'nvim-web-devicons'
     local navic_ok, navic = pcall(require, "nvim-navic")
     require('incline').setup {
+        hide = {
+            only_win = true,
+        },
+        ignore = {
+            buftypes = function(bufnr, buftype)
+                -- Allow atlassian buffers even though they're nofile
+                local ft = vim.bo[bufnr].filetype
+                if ft == "atlassian_jira" or ft == "atlassian_confluence" then
+                    return false
+                end
+                -- Default ignore list
+                return buftype == "terminal" or buftype == "nofile" or buftype == "quickfix" or buftype == "prompt"
+            end,
+        },
         window = {
             padding = 0,
             margin = { horizontal = 0, vertical = 0 },

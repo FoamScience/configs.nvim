@@ -17,13 +17,18 @@ local function create_window(opts)
         width = opts and opts.width,
         height = opts and opts.height,
         title = opts and opts.title,
+        bufname = opts and opts.bufname,
         display = config.options.display,
+        filetype = "atlassian_confluence",
     })
 end
 
 ---@param page ConfluencePage
 function M.show_page(page)
-    local buf, win = create_window({ title = page.title })
+    local buf, win = create_window({
+        title = page.title,
+        bufname = "confluence://" .. page.id,
+    })
 
     local lines = {
         "# " .. page.title,
@@ -73,12 +78,10 @@ function M.show_page(page)
 
     -- Keymaps
     vim.keymap.set("n", "e", function()
-        vim.api.nvim_win_close(win, true)
         M.edit_page(page.id)
     end, { buffer = buf, desc = "Edit page" })
 
     vim.keymap.set("n", "c", function()
-        vim.api.nvim_win_close(win, true)
         local picker = require("confluence-interface.picker")
         picker.show_children(page.id, page.title)
     end, { buffer = buf, desc = "Show children" })
@@ -281,7 +284,7 @@ function M.create_page_buffer(space_id, space_key, parent_id)
 end
 
 function M.show_help()
-    local buf, _ = create_window({ title = "Confluence Interface Help", width = 60, height = 35 })
+    local buf, _ = create_window({ title = "Confluence Interface Help", bufname = "confluence://help", width = 60, height = 35 })
 
     local lines = {
         "# Confluence Interface - Keybindings",
@@ -292,7 +295,7 @@ function M.show_help()
         "- `y` - Copy page ID",
         "- `Y` - Copy page URL",
         "- `o` - Open in browser",
-        "- `q` / `Esc` - Close",
+        "- `q` - Close (`:q`)",
         "",
         "## Picker",
         "- `<CR>` - View page",

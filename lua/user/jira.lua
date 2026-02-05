@@ -10,7 +10,7 @@ require("jira-interface").setup({
     },
     display = {
         mode = "vsplit",
-        width = "45%",
+        width = "60%",
     },
     default_project = vim.env.JIRA_PROJECT or nil, -- Optional: search across all projects if not set
     acceptance_criteria_field = "customfield_10172",

@@ -35,22 +35,13 @@ function M.apply_window_options(buf, win, display)
     vim.wo[win].cursorline = display.cursorline ~= false
 end
 
----@param buf number
----@param win number
-function M.setup_close_keymaps(buf, win)
-    vim.keymap.set("n", "q", function()
-        vim.api.nvim_win_close(win, true)
-    end, { buffer = buf })
-    vim.keymap.set("n", "<Esc>", function()
-        vim.api.nvim_win_close(win, true)
-    end, { buffer = buf })
-end
-
 ---@class CreateWindowOpts
 ---@field width? number Override width
 ---@field height? number Override height
 ---@field title? string Window title
+---@field bufname? string Buffer name (e.g., "jira://PROJ-123")
 ---@field display? AtlassianDisplayConfig Display configuration
+---@field filetype? string Custom filetype for the buffer (default: "markdown")
 
 ---@param opts CreateWindowOpts
 ---@return number, number Buffer and window IDs
@@ -59,9 +50,13 @@ function M.create_window(opts)
     local display = opts.display or {}
     local mode = display.mode or "float"
 
-    local buf = vim.api.nvim_create_buf(false, true)
-    vim.bo[buf].bufhidden = "wipe"
-    vim.bo[buf].filetype = "markdown"
+    local buf = vim.api.nvim_create_buf(true, true)
+    vim.bo[buf].bufhidden = "hide"
+    vim.bo[buf].filetype = opts.filetype or "markdown"
+    vim.bo[buf].syntax = "markdown"
+    if opts.bufname then
+        vim.api.nvim_buf_set_name(buf, opts.bufname)
+    end
 
     local win
 
@@ -115,7 +110,6 @@ function M.create_window(opts)
     end
 
     M.apply_window_options(buf, win, display)
-    M.setup_close_keymaps(buf, win)
 
     return buf, win
 end

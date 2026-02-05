@@ -1,4 +1,4 @@
-local filetypes = { "markdown", "codecompanion", "latex", "tex", "typst", "yaml", "rmd" }
+local filetypes = { "markdown", "codecompanion", "latex", "tex", "typst", "yaml", "rmd", "atlassian_jira", "atlassian_confluence" }
 
 local M = {
     'MeanderingProgrammer/render-markdown.nvim',
@@ -7,6 +7,9 @@ local M = {
 }
 
 M.config = function()
+    -- Register markdown treesitter parser for Atlassian filetypes
+    vim.treesitter.language.register('markdown', 'atlassian_jira')
+    vim.treesitter.language.register('markdown', 'atlassian_confluence')
     require("render-markdown").setup {
         render_modes = true,
         file_types = filetypes,

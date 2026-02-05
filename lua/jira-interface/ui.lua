@@ -13,7 +13,9 @@ local function create_window(opts)
         width = opts and opts.width,
         height = opts and opts.height,
         title = opts and opts.title,
+        bufname = opts and opts.bufname,
         display = config.options.display,
+        filetype = "atlassian_jira",
     })
 end
 
@@ -24,7 +26,10 @@ end
 
 ---@param issue JiraIssue
 function M.show_issue(issue)
-    local buf, win = create_float({ title = issue.key .. " - " .. issue.summary })
+    local buf, win = create_float({
+        title = issue.key .. " - " .. issue.summary,
+        bufname = "jira://" .. issue.key,
+    })
 
     local status_info = types.get_status_display(issue.status)
     local lines = {
@@ -119,17 +124,14 @@ function M.show_issue(issue)
 
     -- Keymaps for actions
     vim.keymap.set("n", "t", function()
-        vim.api.nvim_win_close(win, true)
         M.show_transition_picker(issue.key)
     end, { buffer = buf, desc = "Transition status" })
 
     vim.keymap.set("n", "e", function()
-        vim.api.nvim_win_close(win, true)
         M.edit_issue(issue.key)
     end, { buffer = buf, desc = "Edit issue" })
 
     vim.keymap.set("n", "c", function()
-        vim.api.nvim_win_close(win, true)
         M.show_children(issue.key)
     end, { buffer = buf, desc = "Show children" })
 
@@ -208,7 +210,7 @@ function M.edit_issue(key)
             return
         end
 
-        local buf, win = create_window({ title = "Edit " .. key })
+        local buf, win = create_window({ title = "Edit " .. key, bufname = "jira://" .. key .. "/edit" })
 
         local lines = {
             "# Edit Issue: " .. key,
@@ -342,7 +344,7 @@ function M.show_queue()
         return
     end
 
-    local buf, win = create_float({ title = "Offline Queue" })
+    local buf, win = create_float({ title = "Offline Queue", bufname = "jira://queue" })
 
     local lines = {
         "# Offline Edit Queue",
@@ -369,7 +371,6 @@ function M.show_queue()
     vim.bo[buf].modifiable = false
 
     vim.keymap.set("n", "s", function()
-        vim.api.nvim_win_close(win, true)
         queue.sync_all(function(results)
             local success = 0
             local failed = 0
@@ -396,7 +397,7 @@ function M.show_queue()
 end
 
 function M.show_help()
-    local buf, _ = create_float({ title = "Jira Interface Help", width = 70, height = 52 })
+    local buf, _ = create_float({ title = "Jira Interface Help", bufname = "jira://help", width = 70, height = 52 })
 
     local lines = {
         "# Jira Interface - Keybindings",
@@ -407,7 +408,7 @@ function M.show_help()
         "- `c` - Show children",
         "- `y` - Copy issue key",
         "- `Y` - Copy issue URL",
-        "- `q` / `Esc` - Close",
+        "- `q` - Close (`:q`)",
         "",
         "## Picker",
         "- `<CR>` - Open issue",
