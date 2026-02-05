@@ -49,21 +49,17 @@ local function git_blame()
     if message == nil then
         return ""
     end
-    message = message:gsub("^%s+", ""):gsub("%s+$", "")
-    if not message then
+    message = vim.trim(message)
+    if not message or message == "" then
         return blame_line
     end
+    -- Truncate to ~50 chars max
+    local max_len = 50
     local short_message
-    local tag = message:match("^([%w_%-]+):") or message:match("^%[([%w_%-]+)%]")
-    if tag then
-        short_message = tag
+    if #message <= max_len then
+        short_message = message
     else
-        local w1, w2 = message:match("^(%S+)%s+(%S+)")
-        if w1 and w2 then
-            short_message = w1 .. " " .. w2 .. "…"
-        else
-            short_message = message
-        end
+        short_message = message:sub(1, max_len - 1) .. "…"
     end
     return prefix .. " " .. short_message
 end
@@ -254,11 +250,12 @@ function M.config()
     })
 
     local function update_tabline_visibility()
-        local buf_count = #vim.fn.getbufinfo({ buflisted = 1 })
-        vim.o.showtabline = buf_count > 1 and 2 or 0
+        local win_count = #vim.api.nvim_tabpage_list_wins(0)
+        -- Show tabline when no splits (single window), hide when splits exist (incline handles it)
+        vim.o.showtabline = win_count == 1 and 2 or 0
     end
 
-    vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete" }, {
+    vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "WinNew", "WinClosed" }, {
         callback = update_tabline_visibility,
     })
 

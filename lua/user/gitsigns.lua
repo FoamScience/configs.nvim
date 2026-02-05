@@ -2,9 +2,28 @@ local M = {
     "lewis6991/gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
 }
-M.config = function()
-    local util = require("gitsigns.util")
 
+local function short_relative_time(timestamp)
+    local now = os.time()
+    local diff = now - timestamp
+    if diff < 60 then
+        return diff .. "s"
+    elseif diff < 3600 then
+        return math.floor(diff / 60) .. "m"
+    elseif diff < 86400 then
+        return math.floor(diff / 3600) .. "h"
+    elseif diff < 604800 then
+        return math.floor(diff / 86400) .. "d"
+    elseif diff < 2592000 then
+        return math.floor(diff / 604800) .. "w"
+    elseif diff < 31536000 then
+        return math.floor(diff / 2592000) .. "M"
+    else
+        return math.floor(diff / 31536000) .. "Y"
+    end
+end
+
+M.config = function()
     require("gitsigns").setup({
         watch_gitdir                 = {
             interval = 1000,
@@ -24,32 +43,13 @@ M.config = function()
             use_focus = true,
         },
         current_line_blame_formatter = function(name, info)
-            -- "|| <author> • <author_time:%R>"
             return {
-                {
-                    "|| ",
-                    "@lsp.type.variable"
-                },
-                {
-                    info.author,
-                    "@lsp.type.comment"
-                },
-                {
-                    " • ",
-                    "@lsp.type.variable"
-                },
-                {
-                    util.expand_format("<author_time:%R>", info),
-                    "@lsp.type.operator"
-                },
-                {
-                    " • ",
-                    "@lsp.type.variable"
-                },
-                {
-                    info.summary,
-                    "@lsp.type.operator"
-                },
+                { "|| ", "@lsp.type.variable" },
+                { info.author, "@lsp.type.comment" },
+                { " • ", "@lsp.type.variable" },
+                { short_relative_time(info.author_time), "@lsp.type.operator" },
+                { " • ", "@lsp.type.variable" },
+                { info.summary, "@lsp.type.operator" },
             }
         end,
         update_debounce              = 200,
