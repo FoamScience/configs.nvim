@@ -36,9 +36,12 @@ M.config = function()
         sources = {
             default = { 'lsp', 'path', 'snippets', 'lazydev', 'unicode' },
             per_filetype = {
-                gitcommit = { 'git', 'lsp', 'path', 'snippets' },
+                gitcommit = { 'jira', 'confluence', 'git', 'lsp', 'path', 'snippets' },
+                NeogitCommitMessage = { 'jira', 'confluence', 'git', 'lsp', 'path', 'snippets' },
                 markdown = { 'git', 'lsp', 'path', 'snippets' },
                 octo = { 'git', 'lsp', 'path', 'snippets' },
+                atlassian_jira = { 'jira', 'confluence', 'lsp', 'path', 'snippets' },
+                atlassian_confluence = { 'jira', 'confluence', 'lsp', 'path', 'snippets' },
             },
             providers = {
                 git = {
@@ -49,6 +52,14 @@ M.config = function()
                     name = "LazyDev",
                     module = "lazydev.integrations.blink",
                     score_offset = 100,
+                },
+                jira = {
+                    module = "cmp_providers.jira",
+                    min_keyword_length = 2,
+                },
+                confluence = {
+                    module = "cmp_providers.confluence",
+                    min_keyword_length = 2,
                 },
                 unicode = {
                     module = "cmp_providers.unicode",
