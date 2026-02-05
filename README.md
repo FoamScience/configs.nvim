@@ -138,8 +138,8 @@ docker run -it --rm nvim-config:latest bash
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
-  - Try `:Telescope colorscheme` (or just `<leader>fc`) to see a live demo of all available color schemes
-  - By default, we are using a modified dark [ayu](https://github.com/Shatur/neovim-ayu) theme
+  - Press `<leader>fc` to see a live demo of all available color schemes
+  - By default, we are using [Catppuccin-Mocha](https://catppuccin.com/)
 - [undo.lua](lua/user/undo.lua) is an Undo tree visualizer, with diff views. `<leader>eu` to toggle.
 - [news.lua](lua/user/news.lua) provides the `:ConfigNews` command to check for configuration updates
   - Shows commits you're behind and displays a changelog
@@ -155,14 +155,12 @@ docker run -it --rm nvim-config:latest bash
   - Displays single statusline across both Neovim and Tmux for seamless integration
   - Only loaded in "full" preset
 - [incline.lua](lua/user/incline.lua) floating buffer names at top-right corners of windows
-- ~~[indentline.lua:](lua/user/indentline.lua) improves code indentation~~
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
 - [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
   - Setup for proper dimming of OpenFOAM entries
   - `<leader>wt` to toggle
-- ~~[winsep.lua:](lua/user/optional/winsep.lua) a plugin for colored window separators, useful with Tmux.~~
-- [cinnamon.lua:](lua/user/optional/cinnamon.lua) scrolling cursor animations.
+- [cinnamon.lua:](lua/user/optional/cinnamon.lua) optional scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
   - With support for Latex equation rendering
 - [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
@@ -184,13 +182,9 @@ docker run -it --rm nvim-config:latest bash
   - Loaded only if `JIRA_API_TOKEN` is set
   - Have to set `JIRA_API_TOKEN`, `JIRA_URL` and `JIRA_EMAIL`/`JIRA_USER`
   - `<leader>j` to get started
-- ~~[waka.lua:](lua/user/optional/waka.lua) a plugin for tracking your coding time~~
-  - ~~It will ask for an [API key](https://wakatime.com/settings/api-key) on installation~~
-- ~~[leetcode.lua:](lua/user/optional/leetcode.lua) a plugin for solving LeetCode problems~~
-  - ~`nvim leetcode.nvim` to open~
-  - ~Login by copying a cookie token from your browser. Take a look at [the plugin's docs](https://github.com/kawre/leetcode.nvim)~
-    ~for more info.~
-- ~~[devdocs.lua:](lua/user/optional/devdocs.lua) a plugin for browsing DevDocs.~~
+- [confluence.lua:](lua/user/confluence.lua) is a custom plugin, functionning as a thin Confluence client
+  - Uses same environment variables as the Jira client; or you can also supply `CONFLUENCE_*` versions
+  - `<leader>c` to get started
 
 ### Navigation
 
@@ -201,14 +195,11 @@ docker run -it --rm nvim-config:latest bash
   - `R` in operator mode to do operations between flash tree-sitter searches
   - `<ctrl-s>` to toggle flash in regular search mode
   - `<leader>v` for incremental treesitter selection (next: `<leader>v`, prev: `<BS>`)
-- ~~[harpoon.lua:](lua/user/harpoon.lua) to bookmark your buffers, and come back to them in a blink of an eye~~
 - [arrow.lua:](lua/user/arrow.lua) to bookmark your buffers. Replacing Harpoon.
     - Just press `,` in normal mode, or `<leader>b`
 - [tree-climb.lua:](lua/user/tree-climb.lua) treesitter-based code navigation
   - Navigate through code structure using treesitter nodes with `<M-n>` and `<M-N>`
   - Enhanced structural movement commands
-- ~[navbuddy.lua:](lua/user/navbuddy.lua) fast local code navigation~
-  - replaced by outline
 - [outline.lua:](lua/user/outline.lua) fast local code navigation
   - `<leader>nn` to toggle
   - `?` to see keymaps for the outline window
@@ -218,7 +209,6 @@ docker run -it --rm nvim-config:latest bash
 - [treesitter.lua:](lua/user/treesitter.lua) syntax highlighting and code folding
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
   - Auto-installs tree-sitter grammars for languages the first time they are encountered
-  - Text objects for classes, functions, loops and conditions through [treesitter-textobjects.lua](lua/user/treesitter-textobjects.lua)
   - with `xonsh` support through the [xonsh-lsp](https://github.com/FoamScience/xonsh-language-server)
 - [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
@@ -245,23 +235,18 @@ docker run -it --rm nvim-config:latest bash
 ### Git integration
 
 - [gitsigns.lua:](lua/user/gitsigns.lua) shows git diff in the sign column
-- ~[neogit.lua:](lua/user/neogit.lua) a git client~
-  - ~`<leader>gg` to open,~ `<leader>g` in general to do git-related stuff, like staging hunks
 - [diffview.lua:](lua/user/diffview.lua) a diff viewer for Git diffs
   - `<leader>gd` to open, or `:DiffviewOpen` in normal mode
 - [gitconflicts.lua:](lua/user/gitconflicts.lua) shows better diffs for git conflicts.
   - `<leader>gt` to open, or `:DiffConflicts` in normal mode
-- ~~[fugitive.lua:](lua/user/optional/fugitive.lua) The good old Git wrapper from Vim~~
-  - ~~Most options from `<leader>g` use it~~
-  - ~~too good to leave behind~~
-  - ~~But no keymaps are set, intended for command-line use~~
 
 ### Miscellaneous
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVView plugin.
-- ~~[neorg.lua:](lua/user/optional/neorg.lua) a Notes/task management system through `<leader>o`
-  using [Neorg][].~~
+- [haunt.lua:](lua/user/optional/haunt.lua) Line notes that do not affect the code source.
+- [cloak.lua:](lua/user/optional/cloak.lua) Hiding environment variables.
+  - `:CloackDisable` to see the variables' values.
 
 ## Configuration Presets
 
