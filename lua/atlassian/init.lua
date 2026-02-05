@@ -3,6 +3,8 @@ local M = {}
 
 M.notify = require("atlassian.notify")
 M.request = require("atlassian.request")
+M.error = require("atlassian.error")
+M.retry = require("atlassian.retry")
 M.ui = require("atlassian.ui")
 M.cache = require("atlassian.cache")
 M.format = require("atlassian.format")

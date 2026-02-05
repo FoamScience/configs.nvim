@@ -1,5 +1,7 @@
 local M = {}
 
+local error_mod = require("atlassian.error")
+
 ---@class AtlassianAuthConfig
 ---@field url string Instance URL
 ---@field email string User email
@@ -27,7 +29,7 @@ end
 ---@field endpoint string
 ---@field method string
 ---@field body? table
----@field callback fun(err: string|nil, data: table|nil)
+---@field callback fun(err: AtlassianError|nil, data: table|nil)
 
 ---@param opts RequestOptions
 function M.request(opts)
@@ -54,7 +56,10 @@ function M.request(opts)
     vim.system(args, { text = true }, function(result)
         vim.schedule(function()
             if result.code ~= 0 then
-                opts.callback("Network error: " .. (result.stderr or "Unknown error"), nil)
+                opts.callback(
+                    error_mod.network("Network error: " .. (result.stderr or "Unknown error"), result.stderr),
+                    nil
+                )
                 return
             end
 
@@ -93,7 +98,10 @@ function M.request(opts)
                         err_msg = err_msg .. ": " .. msg_str
                     end
                 end
-                opts.callback(err_msg, nil)
+                opts.callback(
+                    error_mod.http(http_code, err_msg, response_body),
+                    nil
+                )
                 return
             end
 
@@ -104,7 +112,10 @@ function M.request(opts)
 
             local ok, data = pcall(vim.json.decode, response_body)
             if not ok then
-                opts.callback("Failed to parse response: " .. response_body:sub(1, 200), nil)
+                opts.callback(
+                    error_mod.parse("Failed to parse response: " .. response_body:sub(1, 200), response_body),
+                    nil
+                )
                 return
             end
 
@@ -127,7 +138,7 @@ function M.create_client(config)
     ---@param endpoint string
     ---@param method string
     ---@param body? table
-    ---@param callback fun(err: string|nil, data: table|nil)
+    ---@param callback fun(err: AtlassianError|nil, data: table|nil)
     function client.request(endpoint, method, body, callback)
         M.request({
             auth = config.auth,
@@ -136,7 +147,7 @@ function M.create_client(config)
             method = method,
             body = body,
             callback = function(err, data)
-                client.is_online = err == nil or not err:match("^Network error")
+                client.is_online = err == nil or not error_mod.is_network_error(err)
                 callback(err, data)
             end,
         })
