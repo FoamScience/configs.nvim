@@ -457,6 +457,18 @@ function M.config()
                 icon = icons.kind.Struct,
             },
             {
+                "<leader>jb",
+                "<cmd>JiraBoard<cr>",
+                desc = "Board view",
+                icon = icons.ui.Table,
+            },
+            {
+                "<leader>jS",
+                "<cmd>JiraSprint<cr>",
+                desc = "Sprint view",
+                icon = icons.ui.Calendar,
+            },
+            {
                 "<leader>jT",
                 "<cmd>JiraTodoToIssue<cr>",
                 desc = "TODO to Sub-Task",
@@ -498,6 +510,18 @@ function M.config()
                 "<cmd>ConfluenceCreate<cr>",
                 desc = "New page",
                 icon = icons.ui.Plus,
+            },
+            {
+                "<leader>cq",
+                "<cmd>ConfluenceSearchCQL<cr>",
+                desc = "CQL search",
+                icon = icons.ui.Search,
+            },
+            {
+                "<leader>cf",
+                "<cmd>ConfluenceCQLFilter<cr>",
+                desc = "CQL filters",
+                icon = icons.kind.Snippet,
             },
             {
                 "<leader>cR",

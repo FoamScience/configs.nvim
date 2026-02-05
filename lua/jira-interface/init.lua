@@ -329,6 +329,19 @@ function M.create_commands()
         team.show_team_dashboard(project)
     end, { nargs = "?", desc = "Show team workload dashboard" })
 
+    -- Board commands
+    cmd("JiraBoard", function(args)
+        local board = require("jira-interface.board")
+        local board_id = args.args ~= "" and tonumber(args.args) or nil
+        board.show_board(board_id)
+    end, { nargs = "?", desc = "Show Kanban board view" })
+
+    cmd("JiraSprint", function(args)
+        local board = require("jira-interface.board")
+        local board_id = args.args ~= "" and tonumber(args.args) or nil
+        board.show_sprint(board_id)
+    end, { nargs = "?", desc = "Show sprint board view" })
+
     -- TODO to Issue conversion
     cmd("JiraTodoToIssue", function(args)
         local todo = require("jira-interface.todo")
@@ -589,6 +602,7 @@ M.api = require("jira-interface.api")
 M.picker = require("jira-interface.picker")
 M.ui = require("jira-interface.ui")
 M.filters = require("jira-interface.filters")
+M.board = require("jira-interface.board")
 M.cache = require("jira-interface.cache")
 M.queue = require("jira-interface.queue")
 M.types = require("jira-interface.types")
