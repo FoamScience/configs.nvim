@@ -250,9 +250,16 @@ function M.config()
     })
 
     local function update_tabline_visibility()
-        local win_count = #vim.api.nvim_tabpage_list_wins(0)
-        -- Show tabline when no splits (single window), hide when splits exist (incline handles it)
-        vim.o.showtabline = win_count == 1 and 2 or 0
+        vim.schedule(function()
+            local win_count = 0
+            for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                if vim.api.nvim_win_get_config(win).relative == "" then
+                    win_count = win_count + 1
+                end
+            end
+            -- Show tabline when no splits (single window), hide when splits exist (incline handles it)
+            vim.o.showtabline = win_count == 1 and 2 or 0
+        end)
     end
 
     vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "WinNew", "WinClosed" }, {
