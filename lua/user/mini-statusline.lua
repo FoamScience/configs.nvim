@@ -102,6 +102,7 @@ M.sidebar_filetypes = {
 function M.config()
     require('mini.ai').setup()
     require('mini.operators').setup({
+        exchange = { prefix = 'ge' },
         multiply = { prefix = nil },
         sort = { prefix = nil },
     })
