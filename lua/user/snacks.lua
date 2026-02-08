@@ -41,13 +41,9 @@ M.config = function()
     end
     local health_line = table.concat(health_parts, "  ")
 
-    -- Config git status (local only, no fetch)
+    -- Config git status (async fetch for accuracy, like :ConfigNews)
     local config_dir = vim.fn.stdpath("config")
-    local behind_raw = vim.fn.system("cd " .. config_dir .. " && git rev-list HEAD..origin/master --count 2>/dev/null")
-    local behind_count = tonumber(behind_raw and behind_raw:gsub("%s+", "")) or 0
-    local git_line = behind_count > 0
-        and string.format("Config is %d commit(s) behind  —  :ConfigNews", behind_count)
-        or "Config is up to date"
+    local git_line = "Checking for config updates…"
 
     require("snacks").setup({
         dashboard = {
@@ -127,6 +123,35 @@ M.config = function()
             }
         }
     })
+
+    -- Async fetch + behind count to update dashboard accurately
+    vim.system({ "git", "-C", config_dir, "fetch", "origin" }, {}, function(_)
+        vim.system(
+            { "git", "-C", config_dir, "rev-list", "HEAD..origin/master", "--count" },
+            {},
+            vim.schedule_wrap(function(result)
+                local count = tonumber(result.stdout and result.stdout:gsub("%s+", "")) or 0
+                local new_text = count > 0
+                    and string.format("Config is %d commit(s) behind  —  :ConfigNews", count)
+                    or "Config is up to date"
+                for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                    if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "snacks_dashboard" then
+                        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                        for i, line in ipairs(lines) do
+                            if line:find("Checking for config updates") or line:find("Config is") then
+                                local pad = math.max(0, math.floor((#line - #new_text) / 2))
+                                local padded = string.rep(" ", pad) .. new_text
+                                vim.bo[buf].modifiable = true
+                                vim.api.nvim_buf_set_lines(buf, i - 1, i, false, { padded })
+                                vim.bo[buf].modifiable = false
+                                return
+                            end
+                        end
+                    end
+                end
+            end)
+        )
+    end)
 
     -- redirect :marks and :registers to snacks picker
     vim.cmd([[

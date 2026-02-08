@@ -47,7 +47,7 @@ function M.setup()
 
         if handle then handle:finish("Found updates") end
         local log_cmd = string.format(
-            "cd %s && git log HEAD..origin/%s --oneline --decorate --color=always",
+            "cd %s && git log HEAD..origin/%s --oneline --decorate --color=never",
             config_dir,
             default_branch
         )
