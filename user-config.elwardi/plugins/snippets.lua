@@ -102,6 +102,78 @@ return {
             }),
         })
 
+        -- CSF document templates (from jira-interface config)
+        do
+            ---@param trigger string
+            ---@param title_default string
+            ---@param tmpl { description_sections?: table[], acceptance_criteria?: string[] }
+            local function csf_template(trigger, title_default, tmpl)
+                local nodes = {}
+                local idx = 0
+
+                table.insert(nodes, t({ "<h1>" }))
+                idx = idx + 1
+                table.insert(nodes, i(idx, title_default))
+                table.insert(nodes, t({ "</h1>" }))
+
+                table.insert(nodes, t({ "", "<h2>Summary</h2>", "<p>" }))
+                idx = idx + 1
+                table.insert(nodes, i(idx, "Summary"))
+                table.insert(nodes, t({ "</p>" }))
+
+                table.insert(nodes, t({ "", "<h2>Description</h2>" }))
+                if tmpl.description_sections and #tmpl.description_sections > 0 then
+                    for _, section in ipairs(tmpl.description_sections) do
+                        table.insert(nodes, t({ "", "<h3>" .. section.heading .. "</h3>", "<p>" }))
+                        idx = idx + 1
+                        table.insert(nodes, i(idx, section.placeholder))
+                        table.insert(nodes, t({ "</p>" }))
+                    end
+                else
+                    table.insert(nodes, t({ "", "<p>" }))
+                    idx = idx + 1
+                    table.insert(nodes, i(idx, "Description"))
+                    table.insert(nodes, t({ "</p>" }))
+                end
+
+                if tmpl.acceptance_criteria and #tmpl.acceptance_criteria > 0 then
+                    table.insert(nodes, t({ "", "<h2>Acceptance Criteria</h2>", "<ac:task-list>" }))
+                    for _, criteria in ipairs(tmpl.acceptance_criteria) do
+                        table.insert(nodes, t({ "", "<ac:task><ac:task-status>incomplete</ac:task-status><ac:task-body>" }))
+                        idx = idx + 1
+                        table.insert(nodes, i(idx, criteria))
+                        table.insert(nodes, t({ "</ac:task-body></ac:task>" }))
+                    end
+                    table.insert(nodes, t({ "", "</ac:task-list>" }))
+                end
+
+                table.insert(nodes, t({ "", "" }))
+                table.insert(nodes, i(0))
+                return s(trigger, nodes)
+            end
+
+            local templates = {}
+            local jok, jira_config = pcall(require, "jira-interface.config")
+            if jok then
+                templates = (jira_config.options and next(jira_config.options) and jira_config.options.templates)
+                    or jira_config.defaults.templates or {}
+            end
+
+            local csf_snippets = {}
+            for _, def in ipairs({
+                { trigger = "bug",     title = "Bug Report", key = "bug" },
+                { trigger = "feature", title = "Feature",    key = "feature" },
+                { trigger = "epic",    title = "Epic",       key = "epic" },
+                { trigger = "task",    title = "Task",       key = "task" },
+                { trigger = "issue",   title = "Issue",      key = "default" },
+            }) do
+                local tmpl = templates[def.key] or { description_sections = {}, acceptance_criteria = {} }
+                table.insert(csf_snippets, csf_template(def.trigger, def.title, tmpl))
+            end
+
+            ls.add_snippets("csf", csf_snippets)
+        end
+
         ls.add_snippets("python", {
             s("uv_script", {
                 t({"# /// script"}),
