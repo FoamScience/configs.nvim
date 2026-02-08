@@ -24,26 +24,6 @@ function AtlassianError.__concat(a, b)
     return tostring(a) .. tostring(b)
 end
 
--- Delegate :match() to self.message for backward compat (used in api.lua create_issue)
-function AtlassianError:match(pattern)
-    return self.message:match(pattern)
-end
-
--- Delegate :find() to self.message
-function AtlassianError:find(pattern, init, plain)
-    return self.message:find(pattern, init, plain)
-end
-
--- Delegate :lower() to self.message
-function AtlassianError:lower()
-    return self.message:lower()
-end
-
--- Delegate :sub() to self.message
-function AtlassianError:sub(i, j)
-    return self.message:sub(i, j)
-end
-
 ---@param status_code number
 ---@return string
 local function categorize_status(status_code)
@@ -138,10 +118,6 @@ function M.is_network_error(err)
     if M.is_error(err) then
         return err.category == "network"
     end
-    -- Backward compat: check plain string
-    if type(err) == "string" then
-        return err:match("^Network error") ~= nil
-    end
     return false
 end
 
@@ -150,9 +126,6 @@ end
 function M.is_auth_error(err)
     if M.is_error(err) then
         return err.category == "auth"
-    end
-    if type(err) == "string" then
-        return err:match("HTTP 401") ~= nil or err:match("HTTP 403") ~= nil
     end
     return false
 end
@@ -163,12 +136,6 @@ function M.is_retryable(err)
     if M.is_error(err) then
         return err.retryable
     end
-    -- Backward compat: check plain string
-    if type(err) == "string" then
-        return err:match("^Network error") ~= nil
-            or err:match("HTTP 429") ~= nil
-            or err:match("HTTP 5%d%d") ~= nil
-    end
     return false
 end
 
@@ -177,9 +144,6 @@ end
 function M.is_rate_limit(err)
     if M.is_error(err) then
         return err.category == "rate_limit"
-    end
-    if type(err) == "string" then
-        return err:match("HTTP 429") ~= nil
     end
     return false
 end

@@ -1,5 +1,6 @@
--- Atlassian Document Format (ADF) utilities
--- Used by Jira for descriptions and rich text fields
+-- Internal: Atlassian Document Format (ADF) utilities
+-- Used by atlassian.csf.bridge for ADF↔CSF conversion
+-- Plain-text ADF helpers used by pickers, notifications, and issue parsing
 local M = {}
 
 ---@param text string Plain text to convert to ADF

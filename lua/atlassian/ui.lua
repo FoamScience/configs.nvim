@@ -53,7 +53,6 @@ function M.create_window(opts)
     local buf = vim.api.nvim_create_buf(true, true)
     vim.bo[buf].bufhidden = "hide"
     vim.bo[buf].filetype = opts.filetype or "markdown"
-    vim.bo[buf].syntax = "markdown"
     if opts.bufname then
         vim.api.nvim_buf_set_name(buf, opts.bufname)
     end
@@ -89,6 +88,9 @@ function M.create_window(opts)
         vim.api.nvim_win_set_height(win, height)
     elseif mode == "tab" then
         vim.cmd("tabnew")
+        win = vim.api.nvim_get_current_win()
+        vim.api.nvim_win_set_buf(win, buf)
+    elseif mode == "buffer" then
         win = vim.api.nvim_get_current_win()
         vim.api.nvim_win_set_buf(win, buf)
     else
