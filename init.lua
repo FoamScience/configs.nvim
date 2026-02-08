@@ -33,7 +33,6 @@ spec "user.snippets"
 spec "user.guess-indent"
 spec "user.undo"
 spec "user.markdown-toc"
-spec "user.arrow"
 spec "user.flash"
 spec "user.outline"
 spec "user.qf"
@@ -52,7 +51,6 @@ spec("user.project", {"full"})            -- Heavy directory scanning
 spec("user.nvimtree", {"full"})           -- Large directory browsing over latency
 spec("user.optional.tpipeline", {"full"}) -- Tmux statusline (moved to full-only)
 spec("user.optional.cinnamon", {"full"})  -- Scrolling animations
-spec("user.optional.dim", {"full"})       -- Visual dimming effects
 spec("user.render-markdown", {"full"})    -- Heavy markdown rendering
 spec("user.incline", {"full"})            -- Floating window decorations
 spec("user.tutorials", {"full"})          -- tutorials on effective editing with this configuration
