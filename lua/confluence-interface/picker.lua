@@ -6,6 +6,7 @@ local cache = require("confluence-interface.cache")
 local config = require("confluence-interface.config")
 local notify = require("confluence-interface.notify")
 local atlassian_ui = require("atlassian.ui")
+local atlassian_format = require("atlassian.format")
 
 local COL_TITLE = 40
 local COL_SPACE = 12
@@ -16,7 +17,7 @@ local pad_right = atlassian_ui.pad_right
 local truncate = atlassian_ui.truncate
 
 ---@param pages ConfluencePage[]
----@param opts? { title?: string }
+---@param opts? { title?: string, on_confirm?: fun(page: ConfluencePage) }
 function M.show_pages(pages, opts)
     opts = opts or {}
 
@@ -35,7 +36,7 @@ function M.show_pages(pages, opts)
             page = page,
             title = page.title,
             space_key = page.space_key or "",
-            updated = types.format_relative_time(page.updated),
+            updated = atlassian_format.format_relative_time(page.updated),
             version = page.version,
         })
     end
@@ -57,8 +58,12 @@ function M.show_pages(pages, opts)
         confirm = function(picker, item)
             picker:close()
             if item and item.page then
-                local ui = require("confluence-interface.ui")
-                ui.view_page(item.page.id)
+                if opts.on_confirm then
+                    opts.on_confirm(item.page)
+                else
+                    local ui = require("confluence-interface.ui")
+                    ui.view_page(item.page.id)
+                end
             end
         end,
         actions = {
@@ -267,14 +272,16 @@ end
 
 ---@param query string
 ---@param space_key? string
-function M.search(query, space_key)
+---@param opts? { on_confirm?: fun(page: ConfluencePage) }
+function M.search(query, space_key, opts)
+    opts = opts or {}
     -- Default to configured space
     space_key = space_key or config.options.default_space
 
     if not query or query == "" then
         vim.ui.input({ prompt = "Search pages: " }, function(input)
             if input and input ~= "" then
-                M.search(input, space_key)
+                M.search(input, space_key, opts)
             end
         end)
         return
@@ -287,8 +294,17 @@ function M.search(query, space_key)
             notify.error("Search failed: " .. err)
             return
         end
-        M.show_pages(pages, { title = "Search: " .. query })
+        M.show_pages(pages, { title = "Search: " .. query, on_confirm = opts.on_confirm })
     end)
+end
+
+function M.search_edit(query, space_key)
+    M.search(query, space_key, {
+        on_confirm = function(page)
+            local ui = require("confluence-interface.ui")
+            ui.edit_page(page.id)
+        end,
+    })
 end
 
 ---@param cql? string Raw CQL query (prompts if nil)

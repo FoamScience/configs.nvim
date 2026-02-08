@@ -41,6 +41,11 @@ function M.create_commands()
         picker.search(args.args)
     end, { nargs = "?", desc = "Search Confluence pages (CQL)" })
 
+    cmd("ConfluenceSearchEdit", function(args)
+        local picker = require("confluence-interface.picker")
+        picker.search_edit(args.args ~= "" and args.args or nil)
+    end, { nargs = "?", desc = "Search pages and edit" })
+
     cmd("ConfluenceSearchCQL", function(args)
         local picker = require("confluence-interface.picker")
         picker.search_cql(args.args ~= "" and args.args or nil)

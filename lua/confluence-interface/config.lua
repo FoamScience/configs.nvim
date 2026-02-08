@@ -44,6 +44,18 @@ M.defaults = {
         conceallevel = 2,
         cursorline = true,
     },
+    image = {
+        enabled = true,
+        max_file_size = 2 * 1024 * 1024,  -- 2MB
+        auto_preview = false,              -- true = CursorHold preview
+        cache_dir = vim.fn.stdpath("cache") .. "/atlassian/images",
+    },
+    math = {
+        enabled = true,
+        block_macro = "mathblock",     -- ac:name for new block equations
+        inline_macro = "mathinline",   -- ac:name for new inline equations
+        inline_param = "body",         -- parameter name for inline LaTeX source
+    },
 }
 
 ---@type ConfluenceConfig

@@ -16,18 +16,6 @@ local function get_cache()
     return cache_instance
 end
 
-function M.get(key)
-    return get_cache().get(key)
-end
-
-function M.set(key, data, space)
-    return get_cache().set(key, data, space)
-end
-
-function M.invalidate(key)
-    return get_cache().invalidate(key)
-end
-
 function M.invalidate_space(space)
     return get_cache().invalidate_scope(space)
 end
@@ -38,10 +26,6 @@ end
 
 function M.get_or_fetch(key, fetcher, callback, space)
     return get_cache().get_or_fetch(key, fetcher, callback, space)
-end
-
-function M.stats()
-    return get_cache().stats()
 end
 
 return M

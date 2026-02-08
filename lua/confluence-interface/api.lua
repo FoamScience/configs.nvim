@@ -158,32 +158,6 @@ function M.search_pages(query, space_key, callback)
     end)
 end
 
----@param query string
----@param space_key? string
----@param callback fun(err: string|nil, pages: ConfluencePage[]|nil)
-function M.search_pages_fulltext(query, space_key, callback)
-    local max_results = config.options.max_results or 100
-    local cql = string.format('type=page AND text~"%s"', query:gsub('"', '\\"'))
-    if space_key and space_key ~= "" then
-        cql = cql .. string.format(' AND space.key="%s"', space_key)
-    end
-    cql = cql .. " ORDER BY lastmodified DESC"
-
-    local endpoint = "/content/search?cql=" .. vim.uri_encode(cql) .. "&limit=" .. max_results
-    M.request(endpoint, "GET", nil, function(err, data)
-        if err then
-            callback(err, nil)
-            return
-        end
-
-        local pages = {}
-        for _, raw in ipairs(data.results or {}) do
-            table.insert(pages, types.parse_page_v1(raw))
-        end
-        callback(nil, pages)
-    end, true)
-end
-
 ---@param cql string Raw CQL query
 ---@param callback fun(err: string|nil, pages: ConfluencePage[]|nil)
 function M.search_raw_cql(cql, callback)
@@ -282,19 +256,6 @@ function M.get_page(page_id, callback)
     end)
 end
 
----@param page_id string
----@param callback fun(err: string|nil, content: string|nil)
-function M.get_page_content(page_id, callback)
-    M.request("/pages/" .. page_id .. "?body-format=storage", "GET", nil, function(err, data)
-        if err then
-            callback(err, nil)
-            return
-        end
-        local body = data.body and data.body.storage and data.body.storage.value or ""
-        callback(nil, body)
-    end)
-end
-
 ---@param space_id string
 ---@param title string
 ---@param body string Storage format HTML
@@ -378,23 +339,6 @@ function M.get_page_children(page_id, callback)
     end)
 end
 
----@param page_id string
----@param callback fun(err: string|nil, ancestors: ConfluencePage[]|nil)
-function M.get_page_ancestors(page_id, callback)
-    M.request("/pages/" .. page_id .. "/ancestors", "GET", nil, function(err, data)
-        if err then
-            callback(err, nil)
-            return
-        end
-
-        local pages = {}
-        for _, raw in ipairs(data.results or {}) do
-            table.insert(pages, types.parse_page(raw))
-        end
-        callback(nil, pages)
-    end)
-end
-
 ---@param callback fun(err: string|nil, user: table|nil)
 function M.get_current_user(callback)
     -- Use v1 API for user info
@@ -405,6 +349,20 @@ function M.get_current_user(callback)
         end
         callback(nil, data)
     end, true)
+end
+
+---@param page_id string
+---@param file_path string
+---@param callback fun(err: AtlassianError|nil, data: table|nil)
+function M.upload_attachment(page_id, file_path, callback)
+    local auth = config.options.auth
+    local base_url = atlassian_request.normalize_url(auth.url)
+    atlassian_request.upload_file({
+        url = base_url .. "/wiki/rest/api/content/" .. page_id .. "/child/attachment",
+        auth = auth,
+        file_path = file_path,
+        callback = callback,
+    })
 end
 
 return M

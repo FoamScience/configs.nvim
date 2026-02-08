@@ -6,20 +6,26 @@ local config = require("confluence-interface.config")
 local cache = require("confluence-interface.cache")
 local notify = require("confluence-interface.notify")
 local atlassian_ui = require("atlassian.ui")
+local atlassian_format = require("atlassian.format")
+local csf = require("atlassian.csf")
 
 -- Use shared UI helpers
 local parse_dimension = atlassian_ui.parse_dimension
 
----@param opts { width?: number, height?: number, title?: string }
+---@param opts { width?: number, height?: number, title?: string, mode?: string }
 ---@return number, number Buffer and window IDs
 local function create_window(opts)
+    local display = vim.tbl_extend("force", config.options.display or {}, {})
+    if opts and opts.mode then
+        display.mode = opts.mode
+    end
     return atlassian_ui.create_window({
         width = opts and opts.width,
         height = opts and opts.height,
         title = opts and opts.title,
         bufname = opts and opts.bufname,
-        display = config.options.display,
-        filetype = "atlassian_confluence",
+        display = display,
+        filetype = "csf",
     })
 end
 
@@ -28,50 +34,46 @@ function M.show_page(page)
     local buf, win = create_window({
         title = page.title,
         bufname = "confluence://" .. page.id,
+        mode = "buffer",
     })
 
-    local lines = {
-        "# " .. page.title,
-        "",
-        string.format("**ID:** %s", page.id),
-        string.format("**Version:** %d", page.version),
-        string.format("**Status:** %s", page.status),
-    }
+    local lines = {}
+
+    -- CSF metadata comment
+    table.insert(lines, csf.generate_metadata({ type = "confluence", id = page.id, version = page.version }))
+
+    -- Page info as CSF
+    table.insert(lines, "<h1>" .. page.title .. "</h1>")
+    table.insert(lines, "<p><strong>ID:</strong> " .. page.id .. "</p>")
+    table.insert(lines, "<p><strong>Version:</strong> " .. page.version .. "</p>")
+    table.insert(lines, "<p><strong>Status:</strong> " .. page.status .. "</p>")
 
     if page.space_key then
-        table.insert(lines, string.format("**Space:** %s", page.space_key))
+        table.insert(lines, "<p><strong>Space:</strong> " .. page.space_key .. "</p>")
     end
 
-    table.insert(lines, "")
-    table.insert(lines, "---")
-    table.insert(lines, "")
+    table.insert(lines, "<hr />")
 
-    -- Convert storage format to markdown
+    -- Raw CSF body content (formatted: block tags on own lines)
     if page.body and page.body ~= "" then
-        local markdown = types.storage_to_markdown(page.body)
-        for _, line in ipairs(vim.split(markdown, "\n")) do
-            table.insert(lines, line)
-        end
+        vim.list_extend(lines, csf.format_lines(page.body))
     else
-        table.insert(lines, "_No content_")
+        table.insert(lines, "<p><em>No content</em></p>")
     end
 
-    table.insert(lines, "")
-    table.insert(lines, "---")
-    table.insert(lines, "")
+    table.insert(lines, "<hr />")
 
     if page.web_url then
         local base_url = config.options.auth.url
         if not base_url:match("^https?://") then
             base_url = "https://" .. base_url
         end
-        table.insert(lines, "**URL:** " .. base_url .. "/wiki" .. page.web_url)
+        local url = base_url .. "/wiki" .. page.web_url
+        table.insert(lines, '<p><strong>URL:</strong> <a href="' .. url .. '">' .. url .. '</a></p>')
     end
 
-    table.insert(lines, "")
-    table.insert(lines,
-        string.format("_Updated: %s (%s)_", types.format_timestamp(page.updated),
-            types.format_relative_time(page.updated)))
+    table.insert(lines, "<p><em>Updated: " .. atlassian_format.format_timestamp(page.updated) ..
+        " (" .. atlassian_format.format_relative_time(page.updated) .. ")</em></p>")
 
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.bo[buf].modifiable = false
@@ -148,19 +150,17 @@ function M.edit_page(page_id)
         vim.api.nvim_buf_set_name(buf, buf_name)
         vim.bo[buf].bufhidden = "wipe"
         vim.bo[buf].buftype = "acwrite"
-        vim.bo[buf].filetype = "markdown"
+        vim.bo[buf].filetype = "csf"
 
-        -- Convert storage format to markdown for editing
-        local markdown = types.storage_to_markdown(page.body or "")
-
+        -- Direct CSF — no markdown conversion
         local lines = {
-            "<!-- confluence-interface: id=" .. page.id .. " version=" .. page.version .. " -->",
-            "# " .. page.title,
-            "",
+            csf.generate_metadata({ type = "confluence", id = page.id, version = page.version }),
+            "<h1>" .. page.title .. "</h1>",
         }
 
-        for _, line in ipairs(vim.split(markdown, "\n")) do
-            table.insert(lines, line)
+        -- Insert raw page body (formatted: block tags on own lines)
+        if page.body and page.body ~= "" then
+            vim.list_extend(lines, csf.format_lines(page.body))
         end
 
         vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -176,28 +176,28 @@ function M.edit_page(page_id)
                 local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
                 -- Parse metadata from first line
-                local meta_line = content[1] or ""
-                local meta_id = meta_line:match("id=([%w-]+)")
-                local meta_version = tonumber(meta_line:match("version=(%d+)")) or page.version
+                local meta = csf.parse_metadata(content[1] or "")
+                local meta_id = meta and meta.id or page.id
+                local meta_version = meta and meta.version or page.version
 
-                -- Extract title from second line (# Title)
-                local title = page.title
-                if content[2] and content[2]:match("^# ") then
-                    title = content[2]:gsub("^# ", "")
-                    table.remove(content, 2)
-                end
-                table.remove(content, 1) -- Remove metadata line
+                -- Remove metadata line
+                table.remove(content, 1)
+
+                -- Extract title from <h1>
+                local title, remaining = csf.extract_title(content)
+                title = title or page.title
+                content = remaining
 
                 -- Remove leading empty lines
                 while content[1] and content[1]:match("^%s*$") do
                     table.remove(content, 1)
                 end
 
-                local markdown_content = table.concat(content, "\n")
-                local storage_content = types.markdown_to_storage(markdown_content)
+                -- Content is already CSF storage format — send directly
+                local storage_content = table.concat(content, "\n")
 
                 notify.progress_start("save", "Saving page...")
-                api.update_page(meta_id or page.id, title, storage_content, meta_version,
+                api.update_page(meta_id, title, storage_content, meta_version,
                     function(update_err, updated_page)
                         if update_err then
                             notify.progress_error("save", "Save failed: " .. update_err)
@@ -221,55 +221,55 @@ function M.create_page_buffer(space_id, space_key, parent_id)
     vim.api.nvim_buf_set_name(buf, buf_name)
     vim.bo[buf].bufhidden = "wipe"
     vim.bo[buf].buftype = "acwrite"
-    vim.bo[buf].filetype = "markdown"
+    vim.bo[buf].filetype = "csf"
 
-    local lines = {
-        "<!-- confluence-interface: space_id=" ..
-        space_id .. (parent_id and (" parent_id=" .. parent_id) or "") .. " -->",
-        "# New Page Title",
-        "",
-        "Start writing your content here...",
-        "",
-        "## Section 1",
-        "",
-        "Your content...",
-    }
+    -- Metadata line as CSF comment
+    local meta_line = csf.generate_metadata({
+        type = "confluence", id = "NEW", version = 1,
+        space_id = space_id, parent_id = parent_id,
+    })
 
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { meta_line, "" })
 
     -- Open in current window
     vim.api.nvim_set_current_buf(buf)
-    vim.api.nvim_win_set_cursor(0, { 2, 2 })
+    atlassian_ui.apply_window_options(buf, vim.api.nvim_get_current_win(), config.options.display)
     vim.bo[buf].modified = false
 
     -- Save handler
     vim.api.nvim_create_autocmd("BufWriteCmd", {
         buffer = buf,
         callback = function()
+            -- Exit snippet session if active
+            local luasnip_ok, luasnip = pcall(require, "luasnip")
+            if luasnip_ok and luasnip.get_active_snip() then
+                luasnip.unlink_current()
+            end
+
             local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-            -- Parse metadata
-            local meta_line = content[1] or ""
-            local meta_space_id = meta_line:match("space_id=([%w-]+)")
-            local meta_parent_id = meta_line:match("parent_id=([%w-]+)")
+            -- Parse CSF metadata
+            local meta = csf.parse_metadata(content[1] or "")
+            local meta_space_id = meta and meta.space_id or space_id
+            local meta_parent_id = meta and meta.parent_id or parent_id
 
-            -- Extract title
-            local title = "Untitled"
-            if content[2] and content[2]:match("^# ") then
-                title = content[2]:gsub("^# ", "")
-                table.remove(content, 2)
-            end
+            -- Remove metadata line
             table.remove(content, 1)
+
+            -- Extract title from <h1>
+            local title, remaining = csf.extract_title(content)
+            title = title or "Untitled"
+            content = remaining
 
             while content[1] and content[1]:match("^%s*$") do
                 table.remove(content, 1)
             end
 
-            local markdown_content = table.concat(content, "\n")
-            local storage_content = types.markdown_to_storage(markdown_content)
+            -- Content is already CSF — send directly
+            local storage_content = table.concat(content, "\n")
 
             notify.progress_start("create", "Creating page...")
-            api.create_page(meta_space_id or space_id, title, storage_content, meta_parent_id or parent_id,
+            api.create_page(meta_space_id, title, storage_content, meta_parent_id,
                 function(err, page)
                     if err then
                         notify.progress_error("create", "Create failed: " .. err)
@@ -287,34 +287,37 @@ function M.show_help()
     local buf, _ = create_window({ title = "Confluence Interface Help", bufname = "confluence://help", width = 60, height = 35 })
 
     local lines = {
-        "# Confluence Interface - Keybindings",
-        "",
-        "## Page View",
-        "- `e` - Edit page",
-        "- `c` - Show child pages",
-        "- `y` - Copy page ID",
-        "- `Y` - Copy page URL",
-        "- `o` - Open in browser",
-        "- `q` - Close (`:q`)",
-        "",
-        "## Picker",
-        "- `<CR>` - View page",
-        "- `<C-e>` - Edit page",
-        "- `<C-y>` - Copy URL",
-        "- `<C-o>` - Open in browser",
-        "- `<C-c>` - Show children",
-        "- `<C-x>` - Delete page",
-        "",
-        "## Commands",
-        "- `:ConfluenceSpaces` - List all spaces",
-        "- `:ConfluencePages [space]` - Pages in space",
-        "- `:ConfluenceRecent` - Recent pages",
-        "- `:ConfluenceSearch <query>` - Search pages",
-        "- `:ConfluenceView <id>` - View page by ID",
-        "- `:ConfluenceEdit <id>` - Edit page by ID",
-        "- `:ConfluenceCreate [space]` - Create new page",
-        "- `:ConfluenceRefresh` - Clear cache",
-        "- `:ConfluenceStatus` - Connection status",
+        "<h1>Confluence Interface - Keybindings</h1>",
+        "<h2>Page View</h2>",
+        "<ul>",
+        "<li><p><code>e</code> - Edit page</p></li>",
+        "<li><p><code>c</code> - Show child pages</p></li>",
+        "<li><p><code>y</code> - Copy page ID</p></li>",
+        "<li><p><code>Y</code> - Copy page URL</p></li>",
+        "<li><p><code>o</code> - Open in browser</p></li>",
+        "<li><p><code>q</code> - Close (<code>:q</code>)</p></li>",
+        "</ul>",
+        "<h2>Picker</h2>",
+        "<ul>",
+        "<li><p><code>&lt;CR&gt;</code> - View page</p></li>",
+        "<li><p><code>&lt;C-e&gt;</code> - Edit page</p></li>",
+        "<li><p><code>&lt;C-y&gt;</code> - Copy URL</p></li>",
+        "<li><p><code>&lt;C-o&gt;</code> - Open in browser</p></li>",
+        "<li><p><code>&lt;C-c&gt;</code> - Show children</p></li>",
+        "<li><p><code>&lt;C-x&gt;</code> - Delete page</p></li>",
+        "</ul>",
+        "<h2>Commands</h2>",
+        "<ul>",
+        "<li><p><code>:ConfluenceSpaces</code> - List all spaces</p></li>",
+        "<li><p><code>:ConfluencePages [space]</code> - Pages in space</p></li>",
+        "<li><p><code>:ConfluenceRecent</code> - Recent pages</p></li>",
+        "<li><p><code>:ConfluenceSearch &lt;query&gt;</code> - Search pages</p></li>",
+        "<li><p><code>:ConfluenceView &lt;id&gt;</code> - View page by ID</p></li>",
+        "<li><p><code>:ConfluenceEdit &lt;id&gt;</code> - Edit page by ID</p></li>",
+        "<li><p><code>:ConfluenceCreate [space]</code> - Create new page</p></li>",
+        "<li><p><code>:ConfluenceRefresh</code> - Clear cache</p></li>",
+        "<li><p><code>:ConfluenceStatus</code> - Connection status</p></li>",
+        "</ul>",
     }
 
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
