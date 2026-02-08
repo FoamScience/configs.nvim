@@ -22,11 +22,6 @@ Command-line at the top, auto-completed. Messages at bottom-right corner.
 ![noice](ui1.png)
 ![noice](ui2.png)
 
-## File bookmarks with arrow
-Press `,` to set repo-specific bookmarks for a super-fast workflow:
-
-![arrow](arrow.png)
-
 ## TODOs right in the code, convertible to Github issues
 In you comments type `@todo:` to create a TODO item. Access project-wide todos with `:TodoTelescope`
 

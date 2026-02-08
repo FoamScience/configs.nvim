@@ -28,12 +28,6 @@ sleep 1
 scrot -f screenshots/ui2.png
 uvx --from=neovim-remote nvr --remote-send '<Esc>'
 
-
-uvx --from=neovim-remote nvr --remote-send ','
-sleep 1
-scrot -f screenshots/arrow.png
-uvx --from=neovim-remote nvr --remote-send '<Esc>'
-
 uvx --from=neovim-remote nvr --remote-send ':TodoQuickFix<CR>'
 sleep 1
 scrot -f screenshots/todos.png
