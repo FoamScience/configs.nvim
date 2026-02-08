@@ -1,11 +1,11 @@
 local ensure_installed = {
 	"lua", "vim", "vimdoc", "regex",
-	"markdown", "markdown_inline", "html", "typst", "yaml", "latex", "norg",
+	"markdown", "markdown_inline", "html", "typst", "yaml", "latex",
 	"bash",
 	"python",
 	"foam", "cpp", "c",
 	"rust", "glsl",
-	"xonsh",
+	"xonsh", "csf",
 }
 local M = {
 	"nvim-treesitter/nvim-treesitter",
