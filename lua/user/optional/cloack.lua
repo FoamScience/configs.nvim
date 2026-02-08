@@ -1,5 +1,6 @@
 local M = {
     "laytan/cloak.nvim",
+    event = { "BufRead .env*", "BufRead .*rc" },
 }
 
 M.config = function()
