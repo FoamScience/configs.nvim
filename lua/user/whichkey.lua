@@ -22,12 +22,6 @@ function M.config()
         },
         { "<leader>n", group = "navigation", icon = icons.ui.Forward },
         {
-            "<leader>nb",
-            "<cmd>lua require('arrow.ui').openMenu()<CR>",
-            desc = "Arrow",
-            icon = icons.ui.History,
-        },
-        {
             "<leader>nn",
             "<cmd>topleft Outline<cr>",
             desc = "Outline of symbols",
@@ -474,6 +468,12 @@ function M.config()
                 desc = "TODO to Sub-Task",
                 icon = icons.ui.BoxChecked,
             },
+            {
+                "<leader>jJ",
+                "<cmd>JiraSearchEdit<cr>",
+                desc = "Search & edit",
+                icon = icons.ui.Pencil,
+            },
         })
     end
 
@@ -534,6 +534,12 @@ function M.config()
                 "<cmd>ConfluenceStatus<cr>",
                 desc = "Status",
                 icon = icons.diagnostics.Information,
+            },
+            {
+                "<leader>cC",
+                "<cmd>ConfluenceSearchEdit<cr>",
+                desc = "Search & edit",
+                icon = icons.ui.Pencil,
             },
         })
     end
