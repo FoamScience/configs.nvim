@@ -27,13 +27,6 @@ local function flash_in_search()
     return "/" .. icons.kind.Event
 end
 
-local function arrow_status()
-    local arrow_ok, arrow = pcall(require, "arrow.statusline")
-    if not arrow_ok then return "" end
-    if arrow.is_on_arrow_file() == nil then return "" end
-    return arrow.text_for_statusline_with_icons()
-end
-
 local function recording()
     local rec = vim.fn.reg_recording()
     if rec == "" then return "" end
@@ -160,7 +153,7 @@ function M.config()
         vim.api.nvim_set_hl(0, 'StatusLineSep3', { fg = fileinfo_color, bg = bg_color })
         vim.api.nvim_set_hl(0, 'StatusLineSep4', { fg = mode_color, bg = fileinfo_color })
 
-        local section_a = mode .. (arrow_status() ~= "" and " " .. arrow_status() or "")
+        local section_a = mode
             .. (recording() ~= "" and " " .. recording() or "") .. " "
         local section_b = " " .. git .. (git_blame() ~= "" and " " .. git_blame() or "") .. " "
         local section_x = " " .. diagnostics() .. " " .. clients_lsp() .. " "

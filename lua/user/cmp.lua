@@ -40,8 +40,9 @@ M.config = function()
                 NeogitCommitMessage = { 'jira', 'confluence', 'git', 'lsp', 'path', 'snippets' },
                 markdown = { 'git', 'lsp', 'path', 'snippets' },
                 octo = { 'git', 'lsp', 'path', 'snippets' },
-                atlassian_jira = { 'jira', 'confluence', 'lsp', 'path', 'snippets' },
-                atlassian_confluence = { 'jira', 'confluence', 'lsp', 'path', 'snippets' },
+                csf = { 'slash_commands', 'jira', 'confluence', 'lsp', 'path', 'snippets' },
+                atlassian_jira = { 'slash_commands', 'jira', 'confluence', 'lsp', 'path', 'snippets' },
+                atlassian_confluence = { 'slash_commands', 'jira', 'confluence', 'lsp', 'path', 'snippets' },
             },
             providers = {
                 git = {
@@ -60,6 +61,24 @@ M.config = function()
                 confluence = {
                     module = "cmp_providers.confluence",
                     min_keyword_length = 2,
+                },
+                slash_commands = {
+                    module = "cmp_providers.slash_commands",
+                    min_keyword_length = 1,
+                    should_show_items = function(ctx)
+                        local col = ctx.cursor[2]
+                        if col <= 0 then return false end
+                        -- Find the / trigger
+                        local line = ctx.line
+                        for i = col, 1, -1 do
+                            if line:sub(i, i) == "/" then
+                                -- / must be at pos 1 or after whitespace
+                                if i == 1 then return true end
+                                return line:sub(i - 1, i - 1):match("%s") ~= nil
+                            end
+                        end
+                        return false
+                    end,
                 },
                 unicode = {
                     module = "cmp_providers.unicode",
