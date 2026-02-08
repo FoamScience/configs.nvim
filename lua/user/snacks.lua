@@ -139,7 +139,9 @@ M.config = function()
                         local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
                         for i, line in ipairs(lines) do
                             if line:find("Checking for config updates") or line:find("Config is") then
-                                local pad = math.max(0, math.floor((#line - #new_text) / 2))
+                                local win = vim.fn.bufwinid(buf)
+                                local width = win ~= -1 and vim.api.nvim_win_get_width(win) or vim.o.columns
+                                local pad = math.max(0, math.floor((width - #new_text) / 2))
                                 local padded = string.rep(" ", pad) .. new_text
                                 vim.bo[buf].modifiable = true
                                 vim.api.nvim_buf_set_lines(buf, i - 1, i, false, { padded })
