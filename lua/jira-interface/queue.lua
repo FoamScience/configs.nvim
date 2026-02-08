@@ -140,18 +140,6 @@ function M.clear()
     save_queue()
 end
 
----@param id string
----@return QueuedEdit|nil
-function M.get(id)
-    load_queue()
-    for _, edit in ipairs(queue) do
-        if edit.id == id then
-            return edit
-        end
-    end
-    return nil
-end
-
 ---@param callback fun(results: { id: string, success: boolean, error: string|nil }[])
 function M.sync_all(callback)
     local api = require("jira-interface.api")

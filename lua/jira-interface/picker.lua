@@ -7,6 +7,9 @@ local filters = require("jira-interface.filters")
 local config = require("jira-interface.config")
 local notify = require("jira-interface.notify")
 local atlassian_ui = require("atlassian.ui")
+local atlassian_format = require("atlassian.format")
+local csf = require("atlassian.csf")
+local bridge = require("atlassian.csf.bridge")
 
 -- Fixed column widths
 local COL_KEY = 12
@@ -18,7 +21,7 @@ local COL_DUE = 20
 local pad_right = atlassian_ui.pad_right
 
 ---@param issues JiraIssue[]
----@param opts? { title?: string }
+---@param opts? { title?: string, on_confirm?: fun(issue: JiraIssue) }
 function M.show_issues(issues, opts)
     opts = opts or {}
 
@@ -33,7 +36,7 @@ function M.show_issues(issues, opts)
     local items = {}
     for idx, issue in ipairs(issues) do
         local status_info = types.get_status_display(issue.status)
-        local due_status = types.get_duedate_status(issue.duedate)
+        local due_status = atlassian_format.get_duedate_status(issue.duedate)
         local due_display = types.duedate_display[due_status] or types.duedate_display.none
         table.insert(items, {
             idx = idx,
@@ -46,7 +49,7 @@ function M.show_issues(issues, opts)
             status_hl = status_info.hl,
             issue_type = issue.type,
             duedate = issue.duedate,
-            due_display = types.format_duedate_relative(issue.duedate),
+            due_display = atlassian_format.format_duedate_relative(issue.duedate),
             due_icon = due_display.icon,
             due_hl = due_display.hl,
             summary = issue.summary,
@@ -83,8 +86,12 @@ function M.show_issues(issues, opts)
         confirm = function(picker, item)
             picker:close()
             if item and item.issue then
-                local ui = require("jira-interface.ui")
-                ui.show_issue(item.issue)
+                if opts.on_confirm then
+                    opts.on_confirm(item.issue)
+                else
+                    local ui = require("jira-interface.ui")
+                    ui.show_issue(item.issue)
+                end
             end
         end,
         actions = {
@@ -160,6 +167,7 @@ end
 ---@param opts? { title?: string, cache_key?: string }
 function M.search(jql, opts)
     opts = opts or {}
+    local show_opts = { title = opts.title, on_confirm = opts.on_confirm }
 
     local function fetch_and_show()
         api.search(jql, function(err, issues)
@@ -172,7 +180,7 @@ function M.search(jql, opts)
                 cache.set(opts.cache_key, issues)
             end
 
-            M.show_issues(issues, { title = opts.title })
+            M.show_issues(issues, show_opts)
         end)
     end
 
@@ -180,7 +188,7 @@ function M.search(jql, opts)
     if opts.cache_key then
         local cached = cache.get(opts.cache_key)
         if cached then
-            M.show_issues(cached, { title = opts.title })
+            M.show_issues(cached, show_opts)
             return
         end
     end
@@ -225,9 +233,48 @@ function M.by_level(level, project)
 end
 
 function M.search_all()
-    -- Search all issues (the 'since' filter in api.lua bounds the query)
-    local jql = "ORDER BY updated DESC"
-    M.search(jql, { title = "All Issues", cache_key = "all_issues" })
+    -- Prompt for a search query, then do server-side text search via JQL
+    vim.ui.input({ prompt = "Search Jira issues: " }, function(query)
+        if not query or query == "" then
+            return
+        end
+
+        local escaped = query:gsub('"', '\\"')
+        local project = config.options.default_project
+        local jql
+        if project and project ~= "" then
+            jql = string.format('project = "%s" AND text ~ "%s" ORDER BY updated DESC', project, escaped)
+        else
+            jql = string.format('text ~ "%s" ORDER BY updated DESC', escaped)
+        end
+
+        M.search(jql, { title = "Search: " .. query })
+    end)
+end
+
+function M.search_all_edit()
+    vim.ui.input({ prompt = "Search Jira issues (edit): " }, function(query)
+        if not query or query == "" then
+            return
+        end
+
+        local escaped = query:gsub('"', '\\"')
+        local project = config.options.default_project
+        local jql
+        if project and project ~= "" then
+            jql = string.format('project = "%s" AND text ~ "%s" ORDER BY updated DESC', project, escaped)
+        else
+            jql = string.format('text ~ "%s" ORDER BY updated DESC', escaped)
+        end
+
+        M.search(jql, {
+            title = "Edit: " .. query,
+            on_confirm = function(issue)
+                local ui = require("jira-interface.ui")
+                ui.edit_issue(issue.key)
+            end,
+        })
+    end)
 end
 
 -- Due date filters
@@ -522,158 +569,107 @@ end
 ---@param parent_key? string
 function M.open_create_buffer(project, type_name, parent_key)
     local buf = vim.api.nvim_create_buf(false, false)
-    local tmp_name = vim.fn.tempname() .. "_jira_create_" .. project .. "_" .. type_name .. ".md"
+    local tmp_name = vim.fn.tempname() .. "_jira_create_" .. project .. "_" .. type_name .. ".csf"
     vim.api.nvim_buf_set_name(buf, tmp_name)
     vim.bo[buf].bufhidden = "wipe"
     vim.bo[buf].buftype = "acwrite"
-    vim.bo[buf].filetype = "markdown"
+    vim.bo[buf].filetype = "csf"
 
-    -- Get template based on issue type
-    local template = M.get_issue_template(type_name)
-
-    local lines = {
-        "# New " .. type_name,
-        "",
-        "## Summary",
-        "",
-        "",
-        "## Description",
-        "",
+    -- CSF metadata line + template structure
+    local meta_line = csf.generate_metadata({
+        type = "jira", key = "NEW", project = project, issue_type = type_name,
+    })
+    local template_lines = {
+        meta_line,
+        "<h1>" .. type_name .. "</h1>",
+        "<h2>Description</h2>",
+        "<p></p>",
     }
 
-    -- Add template description (skip if empty)
-    if template.description and template.description ~= "" then
-        for _, line in ipairs(vim.split(template.description, "\n")) do
-            table.insert(lines, line)
-        end
+    -- Add sections for each configured custom field
+    for heading, _ in pairs(config.options.custom_fields or {}) do
+        table.insert(template_lines, "<h2>" .. heading .. "</h2>")
+        table.insert(template_lines, "<p></p>")
     end
 
-    table.insert(lines, "")
-    table.insert(lines, "## Acceptance Criteria")
-    table.insert(lines, "")
+    table.insert(template_lines, "<hr />")
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, template_lines)
 
-    -- Add template acceptance criteria
-    if template.acceptance_criteria and template.acceptance_criteria ~= "" then
-        for _, line in ipairs(vim.split(template.acceptance_criteria, "\n")) do
-            table.insert(lines, line)
-        end
-    end
-
-    table.insert(lines, "")
-    table.insert(lines, "---")
-    table.insert(lines, string.format("Project: %s | Type: %s | Parent: %s", project, type_name, parent_key or "(none)"))
-    table.insert(lines, "Save: :w | Cancel: :q!")
-
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-
-    local width = math.floor(vim.o.columns * 0.8)
-    local height = math.floor(vim.o.lines * 0.8)
-
-    local win = vim.api.nvim_open_win(buf, true, {
-        relative = "editor",
-        width = width,
-        height = height,
-        col = math.floor((vim.o.columns - width) / 2),
-        row = math.floor((vim.o.lines - height) / 2),
-        style = "minimal",
-        border = "rounded",
-        title = " Create " .. type_name .. " ",
-        title_pos = "center",
-    })
-
-    -- Position cursor on summary line
-    vim.api.nvim_win_set_cursor(win, { 5, 0 })
+    vim.api.nvim_set_current_buf(buf)
+    atlassian_ui.apply_window_options(buf, vim.api.nvim_get_current_win(), config.options.display)
     vim.bo[buf].modified = false
 
     -- Save handler
     vim.api.nvim_create_autocmd("BufWriteCmd", {
         buffer = buf,
         callback = function()
-            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-            local parsed = M.parse_create_buffer(content)
+            -- Exit snippet session if active
+            local ls_ok2, ls = pcall(require, "luasnip")
+            if ls_ok2 and ls.get_active_snip() then
+                ls.unlink_current()
+            end
 
-            if not parsed.summary or parsed.summary == "" then
+            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+
+            -- Remove metadata line
+            table.remove(content, 1)
+            -- Extract summary from <h1> title
+            local summary_text, remaining = csf.extract_title(content)
+            content = remaining
+
+            if not summary_text or summary_text == "" then
                 notify.error("Summary is required")
                 return
             end
 
+            -- Build section names from custom_fields config
+            local section_names = { "description" }
+            local custom_fields = config.options.custom_fields or {}
+            for heading, _ in pairs(custom_fields) do
+                table.insert(section_names, (heading:lower():gsub("%s+", "_")))
+            end
+            local parsed = csf.extract_sections(content, section_names)
+
+            -- Convert description CSF → ADF for Jira API
+            local description_adf = nil
+            if parsed.description and parsed.description ~= "" then
+                description_adf = bridge.csf_to_adf(parsed.description)
+            end
+
+            -- Convert custom field sections CSF → ADF
+            local extra_fields = {}
+            for heading, field_id in pairs(custom_fields) do
+                local key = heading:lower():gsub("%s+", "_")
+                if parsed[key] and parsed[key] ~= "" then
+                    extra_fields[field_id] = bridge.csf_to_adf(parsed[key])
+                end
+            end
+
             if api.is_online then
                 notify.progress_start("create_issue", "Creating " .. type_name)
-                api.create_issue_full(project, type_name, parsed.summary, parsed.description, parsed.acceptance_criteria,
+                api.create_issue_full(project, type_name, summary_text, description_adf, extra_fields,
                     parent_key, function(err, issue)
                         if err then
                             notify.progress_error("create_issue", "Create failed: " .. err)
                         else
                             notify.progress_finish("create_issue", "Created: " .. issue.key)
-                            vim.api.nvim_win_close(win, true)
+                            if vim.api.nvim_buf_is_valid(buf) then
+                                vim.api.nvim_buf_delete(buf, { force = true })
+                            end
                             cache.invalidate_project(project)
-                            -- Open the created issue
                             local ui = require("jira-interface.ui")
                             ui.show_issue(issue)
                         end
                     end)
             else
                 local queue = require("jira-interface.queue")
-                queue.queue_create(project, type_name, parsed.summary, parsed.description, parent_key)
-                vim.api.nvim_win_close(win, true)
+                queue.queue_create(project, type_name, summary_text, parsed.description, parent_key)
+                if vim.api.nvim_buf_is_valid(buf) then
+                    vim.api.nvim_buf_delete(buf, { force = true })
+                end
             end
         end,
     })
-
-    -- Close on q in normal mode (but not while editing)
-    vim.keymap.set("n", "<leader>q", function()
-        vim.api.nvim_win_close(win, true)
-    end, { buffer = buf, desc = "Close without saving" })
-end
-
----@param type_name string
----@return { description: string, acceptance_criteria: string }
-function M.get_issue_template(type_name)
-    local templates = config.options.templates or {}
-    local template = templates[type_name:lower()] or templates.default or {}
-
-    return {
-        description = template.description or "<!-- Describe the issue here -->",
-        acceptance_criteria = template.acceptance_criteria or "- [ ] Criteria 1\n- [ ] Criteria 2",
-    }
-end
-
----@param lines string[]
----@return { summary: string|nil, description: string|nil, acceptance_criteria: string|nil }
-function M.parse_create_buffer(lines)
-    local result = {}
-    local current_section = nil
-    local section_lines = {}
-
-    local function save_section()
-        if current_section and #section_lines > 0 then
-            result[current_section] = vim.trim(table.concat(section_lines, "\n"))
-        end
-        section_lines = {}
-    end
-
-    for _, line in ipairs(lines) do
-        if line:match("^## Summary") then
-            save_section()
-            current_section = "summary"
-        elseif line:match("^## Description") then
-            save_section()
-            current_section = "description"
-        elseif line:match("^## Acceptance Criteria") then
-            save_section()
-            current_section = "acceptance_criteria"
-        elseif line:match("^%-%-%-") then
-            save_section()
-            current_section = nil
-        elseif line:match("^# New") then
-            -- Skip header
-        elseif current_section then
-            table.insert(section_lines, line)
-        end
-    end
-
-    save_section()
-    return result
 end
 
 return M

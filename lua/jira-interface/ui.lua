@@ -5,122 +5,120 @@ local types = require("jira-interface.types")
 local config = require("jira-interface.config")
 local notify = require("jira-interface.notify")
 local atlassian_ui = require("atlassian.ui")
+local atlassian_format = require("atlassian.format")
+local csf = require("atlassian.csf")
+local bridge = require("atlassian.csf.bridge")
 
----@param opts { width?: number, height?: number, title?: string }
+---@param opts { width?: number, height?: number, title?: string, mode?: string }
 ---@return number, number Buffer and window IDs
 local function create_window(opts)
+    local display = vim.tbl_extend("force", config.options.display or {}, {})
+    if opts and opts.mode then
+        display.mode = opts.mode
+    end
     return atlassian_ui.create_window({
         width = opts and opts.width,
         height = opts and opts.height,
         title = opts and opts.title,
         bufname = opts and opts.bufname,
-        display = config.options.display,
-        filetype = "atlassian_jira",
+        display = display,
+        filetype = "csf",
     })
-end
-
--- Alias for backwards compatibility
-local function create_float(opts)
-    return create_window(opts)
 end
 
 ---@param issue JiraIssue
 function M.show_issue(issue)
-    local buf, win = create_float({
+    local buf, win = create_window({
         title = issue.key .. " - " .. issue.summary,
         bufname = "jira://" .. issue.key,
+        mode = "buffer",
     })
 
     local status_info = types.get_status_display(issue.status)
-    local lines = {
-        "# " .. issue.summary,
-        "",
-        string.format("**Key:** %s", issue.key),
-        string.format("**Type:** %s (Level %d)", issue.type, issue.level),
-        string.format("**Status:** %s %s", status_info.icon, issue.status),
-        string.format("**Project:** %s", issue.project),
-        string.format("**Assignee:** %s", issue.assignee or "Unassigned"),
-    }
+    local lines = {}
+
+    -- CSF metadata
+    table.insert(lines, csf.generate_metadata({ type = "jira", key = issue.key, project = issue.project }))
+
+    table.insert(lines, "<h1>" .. issue.summary .. "</h1>")
+    table.insert(lines, "<p><strong>Key:</strong> " .. issue.key .. "</p>")
+    table.insert(lines, "<p><strong>Type:</strong> " .. issue.type .. " (Level " .. issue.level .. ")</p>")
+    table.insert(lines, "<p><strong>Status:</strong> " .. status_info.icon .. " " .. issue.status .. "</p>")
+    table.insert(lines, "<p><strong>Project:</strong> " .. issue.project .. "</p>")
+    table.insert(lines, "<p><strong>Assignee:</strong> " .. (issue.assignee or "Unassigned") .. "</p>")
 
     if issue.parent then
-        table.insert(lines, string.format("**Parent:** %s", issue.parent))
+        table.insert(lines, "<p><strong>Parent:</strong> " .. issue.parent .. "</p>")
     end
 
-    -- Due date
     if issue.duedate then
-        local due_status = types.get_duedate_status(issue.duedate)
+        local due_status = atlassian_format.get_duedate_status(issue.duedate)
         local due_display = types.duedate_display[due_status] or types.duedate_display.none
-        table.insert(lines,
-            string.format("**Due:** %s %s (%s)", due_display.icon, types.format_duedate(issue.duedate),
-                types.format_duedate_relative(issue.duedate)))
+        table.insert(lines, "<p><strong>Due:</strong> " .. due_display.icon .. " " ..
+            atlassian_format.format_duedate(issue.duedate) .. " (" .. atlassian_format.format_duedate_relative(issue.duedate) .. ")</p>")
     end
 
-    table.insert(lines, "")
-    table.insert(lines, "---")
-    table.insert(lines, "")
-    table.insert(lines, "## Description")
-    table.insert(lines, "")
+    table.insert(lines, "<hr />")
+    table.insert(lines, "<h2>Description</h2>")
 
-    if issue.description and issue.description ~= "" then
-        for _, line in ipairs(vim.split(issue.description, "\n")) do
-            table.insert(lines, line)
-        end
+    -- Use raw ADF → CSF for lossless description display
+    if issue.description_raw and type(issue.description_raw) == "table" then
+        local desc_csf = bridge.adf_to_csf(issue.description_raw)
+        vim.list_extend(lines, csf.format_lines(desc_csf))
+    elseif issue.description and issue.description ~= "" then
+        table.insert(lines, "<p>" .. issue.description .. "</p>")
     else
-        table.insert(lines, "_No description_")
+        table.insert(lines, "<p><em>No description</em></p>")
     end
 
-    table.insert(lines, "")
-    table.insert(lines, "---")
-    table.insert(lines, "")
-    table.insert(lines, "## Acceptance Criteria")
-    table.insert(lines, "")
-
-    if issue.acceptance_criteria and issue.acceptance_criteria ~= "" then
-        for _, line in ipairs(vim.split(issue.acceptance_criteria, "\n")) do
-            table.insert(lines, line)
+    -- Custom field sections
+    for heading, _ in pairs(config.options.custom_fields or {}) do
+        table.insert(lines, "<hr />")
+        table.insert(lines, "<h2>" .. heading .. "</h2>")
+        local raw = (issue.custom_fields_raw or {})[heading]
+        if raw and type(raw) == "table" and raw.content then
+            local field_csf = bridge.adf_to_csf(raw)
+            vim.list_extend(lines, csf.format_lines(field_csf))
+        elseif raw and type(raw) == "string" and raw ~= "" then
+            table.insert(lines, "<p>" .. raw .. "</p>")
+        else
+            table.insert(lines, "<p><em>No " .. heading:lower() .. "</em></p>")
         end
-    else
-        table.insert(lines, "_No acceptance criteria_")
     end
 
     -- Comments
     if issue.comment_count and issue.comment_count > 0 then
-        table.insert(lines, "")
-        table.insert(lines, "---")
-        table.insert(lines, "")
-        table.insert(lines, string.format("## Comments (%d)", issue.comment_count))
-        table.insert(lines, "")
-        table.insert(lines, string.format("[View comments in browser](%s)", issue.web_url))
+        table.insert(lines, "<hr />")
+        table.insert(lines, "<h2>Comments (" .. issue.comment_count .. ")</h2>")
+        table.insert(lines, '<p><a href="' .. issue.web_url .. '">View comments in browser</a></p>')
     end
 
     -- Attachments
     if issue.attachments and #issue.attachments > 0 then
-        table.insert(lines, "")
-        table.insert(lines, "---")
-        table.insert(lines, "")
-        table.insert(lines, "## Attachments (" .. #issue.attachments .. ")")
-        table.insert(lines, "")
+        table.insert(lines, "<hr />")
+        table.insert(lines, "<h2>Attachments (" .. #issue.attachments .. ")</h2>")
+        table.insert(lines, "<ul>")
         for _, att in ipairs(issue.attachments) do
-            local size = types.format_file_size(att.size or 0)
-            table.insert(lines, string.format("- [%s](%s) (%s)", att.filename, att.url, size))
+            local size = atlassian_format.format_file_size(att.size or 0)
+            table.insert(lines, '<li><a href="' .. att.url .. '">' .. att.filename .. '</a> (' .. size .. ')</li>')
         end
+        table.insert(lines, "</ul>")
     end
 
-    table.insert(lines, "")
-    table.insert(lines, "---")
-    table.insert(lines, "")
-    table.insert(lines, "**URL:**")
-    table.insert(lines, issue.web_url)
-    table.insert(lines, "")
-    table.insert(lines,
-        string.format("_Created: %s (%s)_", types.format_timestamp(issue.created),
-            types.format_relative_time(issue.created)))
-    table.insert(lines,
-        string.format("_Updated: %s (%s)_", types.format_timestamp(issue.updated),
-            types.format_relative_time(issue.updated)))
+    table.insert(lines, "<hr />")
+    table.insert(lines, '<p><strong>URL:</strong> <a href="' .. issue.web_url .. '">' .. issue.web_url .. '</a></p>')
+    table.insert(lines, "<p><em>Created: " .. atlassian_format.format_timestamp(issue.created) ..
+        " (" .. atlassian_format.format_relative_time(issue.created) .. ")</em></p>")
+    table.insert(lines, "<p><em>Updated: " .. atlassian_format.format_timestamp(issue.updated) ..
+        " (" .. atlassian_format.format_relative_time(issue.updated) .. ")</em></p>")
 
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.bo[buf].modifiable = false
+
+    -- Store attachment data for image resolution
+    if issue.attachments and #issue.attachments > 0 then
+        vim.b[buf].atlassian_attachments = issue.attachments
+    end
 
     -- Keymaps for actions
     vim.keymap.set("n", "t", function()
@@ -210,53 +208,92 @@ function M.edit_issue(key)
             return
         end
 
-        local buf, win = create_window({ title = "Edit " .. key, bufname = "jira://" .. key .. "/edit" })
+        local buf, _ = create_window({ title = "Edit " .. key, bufname = "jira://" .. key .. "/edit", mode = "buffer" })
 
+        -- Build CSF content: <h1> = summary, <h2> sections = editable fields
         local lines = {
-            "# Edit Issue: " .. key,
-            "",
-            "## Summary",
-            issue.summary or "",
-            "",
-            "## Description",
-            issue.description or "",
-            "",
-            "## Acceptance Criteria",
-            issue.acceptance_criteria or "",
-            "",
-            "---",
-            "Save: :w | Cancel: :q!",
+            csf.generate_metadata({ type = "jira", key = key, project = issue.project, issue_type = issue.type }),
+            "<h1>" .. (issue.summary or "") .. "</h1>",
+            "<h2>Description</h2>",
         }
 
+        -- Use raw ADF → CSF for lossless description
+        if issue.description_raw and type(issue.description_raw) == "table" then
+            local desc_csf = bridge.adf_to_csf(issue.description_raw)
+            for _, line in ipairs(vim.split(desc_csf, "\n")) do
+                table.insert(lines, line)
+            end
+        elseif issue.description and issue.description ~= "" then
+            table.insert(lines, "<p>" .. issue.description .. "</p>")
+        end
+
+        -- Custom field sections (Acceptance Criteria, etc.)
+        for heading, _ in pairs(config.options.custom_fields or {}) do
+            table.insert(lines, "<h2>" .. heading .. "</h2>")
+            local raw = (issue.custom_fields_raw or {})[heading]
+            if raw and type(raw) == "table" and raw.content then
+                local field_csf = bridge.adf_to_csf(raw)
+                for _, line in ipairs(vim.split(field_csf, "\n")) do
+                    table.insert(lines, line)
+                end
+            elseif raw and type(raw) == "string" and raw ~= "" then
+                table.insert(lines, "<p>" .. raw .. "</p>")
+            end
+        end
+
+        table.insert(lines, "<hr />")
+
         vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+        -- Store attachment data for image resolution
+        if issue.attachments and #issue.attachments > 0 then
+            vim.b[buf].atlassian_attachments = issue.attachments
+        end
 
         -- Save handler
         vim.api.nvim_create_autocmd("BufWriteCmd", {
             buffer = buf,
             callback = function()
                 local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-                local parsed = M.parse_edit_buffer(content)
+
+                -- Remove metadata line
+                table.remove(content, 1)
+                -- Extract summary from <h1> title
+                local summary_text, remaining = csf.extract_title(content)
+                content = remaining
 
                 local fields = {}
-                if parsed.summary and parsed.summary ~= issue.summary then
-                    fields.summary = parsed.summary
+
+                if summary_text and summary_text ~= issue.summary then
+                    fields.summary = summary_text
                 end
-                if parsed.description and parsed.description ~= issue.description then
-                    fields.description = {
-                        type = "doc",
-                        version = 1,
-                        content = {
-                            {
-                                type = "paragraph",
-                                content = { { type = "text", text = parsed.description } },
-                            },
-                        },
-                    }
+
+                -- Build section names from custom_fields config
+                local section_names = { "description" }
+                local custom_fields = config.options.custom_fields or {}
+                for heading, _ in pairs(custom_fields) do
+                    table.insert(section_names, (heading:lower():gsub("%s+", "_")))
+                end
+                local parsed = csf.extract_sections(content, section_names)
+
+                -- Convert description CSF → ADF
+                if parsed.description then
+                    fields.description = bridge.csf_to_adf(parsed.description)
+                end
+
+                -- Convert custom field sections CSF → ADF
+                for heading, field_id in pairs(custom_fields) do
+                    local skey = heading:lower():gsub("%s+", "_")
+                    if parsed[skey] then
+                        fields[field_id] = bridge.csf_to_adf(parsed[skey])
+                    end
                 end
 
                 if vim.tbl_isempty(fields) then
                     notify.info("No changes to save")
-                    vim.api.nvim_win_close(win, true)
+                    if vim.api.nvim_buf_is_valid(buf) then
+                        vim.api.nvim_buf_delete(buf, { force = true })
+                    end
                     return
                 end
 
@@ -266,55 +303,21 @@ function M.edit_issue(key)
                             notify.error("Update failed: " .. update_err)
                         else
                             notify.info("Issue updated: " .. key)
-                            vim.api.nvim_win_close(win, true)
+                            if vim.api.nvim_buf_is_valid(buf) then
+                                vim.api.nvim_buf_delete(buf, { force = true })
+                            end
                         end
                     end)
                 else
                     local queue = require("jira-interface.queue")
                     queue.queue_update(key, fields, "Update " .. key)
-                    vim.api.nvim_win_close(win, true)
+                    if vim.api.nvim_buf_is_valid(buf) then
+                        vim.api.nvim_buf_delete(buf, { force = true })
+                    end
                 end
             end,
         })
     end)
-end
-
----@param lines string[]
----@return { summary: string|nil, description: string|nil, acceptance_criteria: string|nil }
-function M.parse_edit_buffer(lines)
-    local result = {}
-    local current_section = nil
-    local section_lines = {}
-
-    local function save_section()
-        if current_section and #section_lines > 0 then
-            result[current_section] = vim.trim(table.concat(section_lines, "\n"))
-        end
-        section_lines = {}
-    end
-
-    for _, line in ipairs(lines) do
-        if line:match("^## Summary") then
-            save_section()
-            current_section = "summary"
-        elseif line:match("^## Description") then
-            save_section()
-            current_section = "description"
-        elseif line:match("^## Acceptance Criteria") then
-            save_section()
-            current_section = "acceptance_criteria"
-        elseif line:match("^%-%-%-") then
-            save_section()
-            current_section = nil
-        elseif line:match("^# Edit Issue") then
-            -- Skip header
-        elseif current_section then
-            table.insert(section_lines, line)
-        end
-    end
-
-    save_section()
-    return result
 end
 
 ---@param parent_key string
@@ -344,28 +347,24 @@ function M.show_queue()
         return
     end
 
-    local buf, win = create_float({ title = "Offline Queue", bufname = "jira://queue" })
+    local buf, win = create_window({ title = "Offline Queue", bufname = "jira://queue" })
 
     local lines = {
-        "# Offline Edit Queue",
-        "",
-        string.format("**%d pending edit(s)**", #edits),
-        "",
+        "<h1>Offline Edit Queue</h1>",
+        string.format("<p><strong>%d pending edit(s)</strong></p>", #edits),
     }
 
-    for i, edit in ipairs(edits) do
-        table.insert(lines, string.format("## %d. %s", i, edit.description))
-        table.insert(lines, string.format("- Type: %s", edit.type))
+    for idx, edit in ipairs(edits) do
+        table.insert(lines, string.format("<h2>%d. %s</h2>", idx, edit.description))
+        table.insert(lines, string.format("<p>Type: %s</p>", edit.type))
         if edit.issue_key then
-            table.insert(lines, string.format("- Issue: %s", edit.issue_key))
+            table.insert(lines, string.format("<p>Issue: %s</p>", edit.issue_key))
         end
-        table.insert(lines, string.format("- Queued: %s", os.date("%Y-%m-%d %H:%M", edit.timestamp)))
-        table.insert(lines, "")
+        table.insert(lines, string.format("<p>Queued: %s</p>", os.date("%Y-%m-%d %H:%M", edit.timestamp)))
     end
 
-    table.insert(lines, "---")
-    table.insert(lines, "")
-    table.insert(lines, "**Actions:** [s]ync all | [d]elete item | [c]lear all")
+    table.insert(lines, "<hr />")
+    table.insert(lines, "<p><strong>Actions:</strong> [s]ync all | [d]elete item | [c]lear all</p>")
 
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.bo[buf].modifiable = false
@@ -397,61 +396,68 @@ function M.show_queue()
 end
 
 function M.show_help()
-    local buf, _ = create_float({ title = "Jira Interface Help", bufname = "jira://help", width = 70, height = 52 })
+    local buf, _ = create_window({ title = "Jira Interface Help", bufname = "jira://help", width = 70, height = 52 })
 
     local lines = {
-        "# Jira Interface - Keybindings",
-        "",
-        "## Issue View",
-        "- `t` - Transition status",
-        "- `e` - Edit issue",
-        "- `c` - Show children",
-        "- `y` - Copy issue key",
-        "- `Y` - Copy issue URL",
-        "- `q` - Close (`:q`)",
-        "",
-        "## Picker",
-        "- `<CR>` - Open issue",
-        "- `<C-t>` - Transition status",
-        "- `<C-y>` - Copy issue key",
-        "",
-        "## Team Dashboard (<leader>jw)",
-        "- `<CR>` - View issue",
-        "- `<C-a>` - Assign to me",
-        "- `<C-t>` - Transition status",
-        "",
-        "## TODO to Issue (<leader>jT)",
-        "- `<Tab>` - Toggle selection",
-        "- `<C-a>` - Select all",
-        "- `<C-n>` - Select none",
-        "- `<CR>` - Confirm (auto-uses branch issue as parent)",
-        "",
-        "## Context-Aware Commands (auto-detect from git branch)",
-        "- `:JiraView [key]` - View issue (branch or picker)",
-        "- `:JiraEdit [key]` - Edit issue (branch or picker)",
-        "- `:JiraTransition [key]` - Change status (branch or picker)",
-        "- `:JiraStart [key]` - Quick transition to In Progress",
-        "- `:JiraDone [key]` - Quick transition to Done",
-        "- `:JiraReview [key]` - Quick transition to In Review",
-        "- `:JiraQuick <summary>` - Create Sub-Task under branch issue",
-        "",
-        "## Search Commands",
-        "- `:JiraSearch` - Search all issues",
-        "- `:JiraMe` - My assigned issues",
-        "- `:JiraProject [name]` - Filter by project",
-        "- `:JiraEpics` - Level 1 (Epics)",
-        "- `:JiraFeatures` - Level 2",
-        "- `:JiraTasks` - Level 3 (Tasks)",
-        "- `:JiraDue [overdue|today|week|soon]` - Filter by due date",
-        "",
-        "## Other Commands",
-        "- `:JiraCreate [type]` - Create issue (full form)",
-        "- `:JiraFilter` - Manage saved filters",
-        "- `:JiraTeam [project]` - Team workload dashboard",
-        "- `:JiraTodoToIssue [buffer|project]` - Convert TODOs to Sub-Tasks",
-        "- `:JiraQueue` - View offline queue",
-        "- `:JiraRefresh` - Clear cache",
-        "- `:JiraStatus` - Connection status",
+        "<h1>Jira Interface - Keybindings</h1>",
+        "<h2>Issue View</h2>",
+        "<ul>",
+        "<li><p><code>t</code> - Transition status</p></li>",
+        "<li><p><code>e</code> - Edit issue</p></li>",
+        "<li><p><code>c</code> - Show children</p></li>",
+        "<li><p><code>y</code> - Copy issue key</p></li>",
+        "<li><p><code>Y</code> - Copy issue URL</p></li>",
+        "<li><p><code>q</code> - Close (<code>:q</code>)</p></li>",
+        "</ul>",
+        "<h2>Picker</h2>",
+        "<ul>",
+        "<li><p><code>&lt;CR&gt;</code> - Open issue</p></li>",
+        "<li><p><code>&lt;C-t&gt;</code> - Transition status</p></li>",
+        "<li><p><code>&lt;C-y&gt;</code> - Copy issue key</p></li>",
+        "</ul>",
+        "<h2>Team Dashboard (&lt;leader&gt;jw)</h2>",
+        "<ul>",
+        "<li><p><code>&lt;CR&gt;</code> - View issue</p></li>",
+        "<li><p><code>&lt;C-a&gt;</code> - Assign to me</p></li>",
+        "<li><p><code>&lt;C-t&gt;</code> - Transition status</p></li>",
+        "</ul>",
+        "<h2>TODO to Issue (&lt;leader&gt;jT)</h2>",
+        "<ul>",
+        "<li><p><code>&lt;Tab&gt;</code> - Toggle selection</p></li>",
+        "<li><p><code>&lt;C-a&gt;</code> - Select all</p></li>",
+        "<li><p><code>&lt;C-n&gt;</code> - Select none</p></li>",
+        "<li><p><code>&lt;CR&gt;</code> - Confirm (auto-uses branch issue as parent)</p></li>",
+        "</ul>",
+        "<h2>Context-Aware Commands</h2>",
+        "<ul>",
+        "<li><p><code>:JiraView [key]</code> - View issue (branch or picker)</p></li>",
+        "<li><p><code>:JiraEdit [key]</code> - Edit issue (branch or picker)</p></li>",
+        "<li><p><code>:JiraTransition [key]</code> - Change status</p></li>",
+        "<li><p><code>:JiraStart [key]</code> - Quick transition to In Progress</p></li>",
+        "<li><p><code>:JiraDone [key]</code> - Quick transition to Done</p></li>",
+        "<li><p><code>:JiraReview [key]</code> - Quick transition to In Review</p></li>",
+        "<li><p><code>:JiraQuick &lt;summary&gt;</code> - Create Sub-Task under branch issue</p></li>",
+        "</ul>",
+        "<h2>Search Commands</h2>",
+        "<ul>",
+        "<li><p><code>:JiraSearch</code> - Search all issues</p></li>",
+        "<li><p><code>:JiraMe</code> - My assigned issues</p></li>",
+        "<li><p><code>:JiraProject [name]</code> - Filter by project</p></li>",
+        "<li><p><code>:JiraEpics</code> - Level 1 (Epics)</p></li>",
+        "<li><p><code>:JiraFeatures</code> - Level 2</p></li>",
+        "<li><p><code>:JiraTasks</code> - Level 3 (Tasks)</p></li>",
+        "<li><p><code>:JiraDue [overdue|today|week|soon]</code> - Filter by due date</p></li>",
+        "</ul>",
+        "<h2>Other Commands</h2>",
+        "<ul>",
+        "<li><p><code>:JiraCreate [type]</code> - Create issue (full form)</p></li>",
+        "<li><p><code>:JiraFilter</code> - Manage saved filters</p></li>",
+        "<li><p><code>:JiraTeam [project]</code> - Team workload dashboard</p></li>",
+        "<li><p><code>:JiraTodoToIssue [buffer|project]</code> - Convert TODOs to Sub-Tasks</p></li>",
+        "<li><p><code>:JiraQueue</code> - View offline queue</p></li>",
+        "<li><p><code>:JiraRefresh</code> - Clear cache</p></li>",
+        "<li><p><code>:JiraStatus</code> - Connection status</p></li>",
+        "</ul>",
     }
 
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)

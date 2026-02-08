@@ -70,12 +70,6 @@ function M.builtin.by_project(project)
     return string.format("project = %s ORDER BY updated DESC", project)
 end
 
----@param project string
----@return string
-function M.builtin.my_project_tasks(project)
-    return string.format("assignee = currentUser() AND project = %s ORDER BY updated DESC", project)
-end
-
 ---@param status string
 ---@return string
 function M.builtin.by_status(status)
@@ -222,19 +216,6 @@ function M.delete(name, project)
         end
     end
     return false
-end
-
----@param project? string
----@return JiraFilter[]
-function M.list(project)
-    load_filters()
-    local result = {}
-    for _, f in ipairs(filters) do
-        if f.project == nil or f.project == project then
-            table.insert(result, f)
-        end
-    end
-    return result
 end
 
 ---@return JiraFilter[]

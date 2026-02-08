@@ -47,11 +47,14 @@ function M.check()
         health.info("JIRA_PROJECT: (not set - will search all projects)")
     end
 
-    -- Check acceptance criteria field
-    if opts.acceptance_criteria_field and opts.acceptance_criteria_field ~= "" then
-        health.ok("Acceptance criteria field: " .. opts.acceptance_criteria_field)
+    -- Check custom fields
+    local cf = opts.custom_fields or {}
+    if not vim.tbl_isempty(cf) then
+        for heading, field_id in pairs(cf) do
+            health.ok("Custom field: " .. heading .. " → " .. field_id)
+        end
     else
-        health.warn("Acceptance criteria field not configured")
+        health.info("No custom fields configured")
     end
 
     -- Check curl

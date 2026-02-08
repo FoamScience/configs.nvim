@@ -1,7 +1,6 @@
 local M = {}
 
 local config = require("jira-interface.config")
-local atlassian_format = require("atlassian.format")
 local atlassian_adf = require("atlassian.adf")
 
 ---@class JiraAttachment
@@ -44,15 +43,6 @@ M.status_icons = {
     ["In Review"] = { icon = "", hl = "Type" },
     ["Blocked"] = { icon = "", hl = "Error" },
     ["Done"] = { icon = "", hl = "String" },
-}
-
--- Valid status transitions
-M.transitions = {
-    ["To Do"] = { "In Progress" },
-    ["In Progress"] = { "In Review", "Blocked" },
-    ["In Review"] = { "Done", "In Progress", "Blocked" },
-    ["Blocked"] = { "In Progress" },
-    ["Done"] = {},
 }
 
 ---@param type_name string
@@ -99,12 +89,6 @@ function M.get_types_for_level(level)
 end
 
 ---@param status string
----@return string[], string[]
-function M.get_valid_transitions(status)
-    return M.transitions[status] or {}
-end
-
----@param status string
 ---@return { icon: string, hl: string }
 function M.get_status_display(status)
     return M.status_icons[status] or { icon = "?", hl = "Normal" }
@@ -141,7 +125,10 @@ function M.parse_issue(raw)
         id = raw.id or "",
         summary = fields.summary or "",
         description = M.parse_description(fields.description),
+        description_raw = fields.description, -- raw ADF table or string, for lossless CSF conversion
         acceptance_criteria = M.parse_acceptance_criteria(fields),
+        acceptance_criteria_raw = M.parse_acceptance_criteria_raw(fields), -- raw ADF for AC field
+        custom_fields_raw = M.parse_custom_fields_raw(fields), -- raw values for all custom_fields
         status = is_table(fields.status) and fields.status.name or "Unknown",
         type = issue_type,
         level = M.get_level(issue_type),
@@ -182,9 +169,6 @@ function M.parse_attachments(attachments)
     return result
 end
 
--- Delegate to shared format module
-M.format_file_size = atlassian_format.format_file_size
-
 ---@param description any
 ---@return string|nil
 function M.parse_description(description)
@@ -197,14 +181,36 @@ function M.parse_description(description)
     return nil
 end
 
--- Delegate to shared ADF module
-M.adf_to_text = atlassian_adf.adf_to_text
-M.process_adf_node = atlassian_adf.process_node
+---@param fields table
+---@return table|string|nil Raw ADF or string for acceptance criteria
+function M.parse_acceptance_criteria_raw(fields)
+    local ac_field = (config.options.custom_fields or {})["Acceptance Criteria"]
+    if ac_field and ac_field ~= "" then
+        local value = fields[ac_field]
+        if value then
+            return value
+        end
+    end
+    return nil
+end
+
+---@param fields table
+---@return table<string, any> Map of section heading → raw field value
+function M.parse_custom_fields_raw(fields)
+    local result = {}
+    for heading, field_id in pairs(config.options.custom_fields or {}) do
+        local value = fields[field_id]
+        if value then
+            result[heading] = value
+        end
+    end
+    return result
+end
 
 ---@param fields table
 ---@return string|nil
 function M.parse_acceptance_criteria(fields)
-    local ac_field = config.options.acceptance_criteria_field
+    local ac_field = (config.options.custom_fields or {})["Acceptance Criteria"]
     if ac_field and ac_field ~= "" then
         local value = fields[ac_field]
         if value then
@@ -218,7 +224,7 @@ function M.parse_acceptance_criteria(fields)
 
     local description = fields.description
     if type(description) == "table" and description.content then
-        local ac = M.extract_section_from_adf(description, "Acceptance Criteria")
+        local ac = atlassian_adf.extract_section(description, "Acceptance Criteria")
         if ac and ac ~= "" then
             return ac
         end
@@ -226,20 +232,6 @@ function M.parse_acceptance_criteria(fields)
 
     return nil
 end
-
----@param adf table ADF document
----@param section_name string Heading text to find (case-insensitive)
----@return string|nil Content after the heading until next heading
-function M.extract_section_from_adf(adf, section_name)
-    return atlassian_adf.extract_section(adf, section_name)
-end
-
--- Delegate to shared format module
-M.format_timestamp = atlassian_format.format_timestamp
-M.format_relative_time = atlassian_format.format_relative_time
-M.format_duedate = atlassian_format.format_duedate
-M.format_duedate_relative = atlassian_format.format_duedate_relative
-M.get_duedate_status = atlassian_format.get_duedate_status
 
 -- Due date status icons and highlights
 M.duedate_display = {

@@ -4,6 +4,7 @@ local config = require("jira-interface.config")
 local types = require("jira-interface.types")
 local atlassian_request = require("atlassian.request")
 local atlassian_adf = require("atlassian.adf")
+local error_mod = require("atlassian.error")
 
 ---@type boolean
 M.is_online = true
@@ -48,9 +49,8 @@ end
 function M.search(jql, callback)
     local fields =
     "summary,description,status,issuetype,project,assignee,parent,attachment,comment,duedate,created,updated"
-    local ac_field = config.options.acceptance_criteria_field
-    if ac_field and ac_field ~= "" then
-        fields = fields .. "," .. ac_field
+    for _, field_id in pairs(config.options.custom_fields or {}) do
+        fields = fields .. "," .. field_id
     end
 
     local since = config.options.since
@@ -90,9 +90,8 @@ end
 function M.get_issue(key, callback)
     local fields =
     "summary,description,status,issuetype,project,assignee,parent,attachment,comment,duedate,created,updated"
-    local ac_field = config.options.acceptance_criteria_field
-    if ac_field and ac_field ~= "" then
-        fields = fields .. "," .. ac_field
+    for _, field_id in pairs(config.options.custom_fields or {}) do
+        fields = fields .. "," .. field_id
     end
 
     M.request("/issue/" .. key .. "?fields=" .. fields, "GET", nil, function(err, data)
@@ -108,40 +107,6 @@ end
 ---@param callback fun(err: string|nil, children: JiraIssue[]|nil)
 function M.get_children(key, callback)
     local jql = string.format("parent = %s ORDER BY created ASC", key)
-    M.search(jql, callback)
-end
-
----@param callback fun(err: string|nil, issues: JiraIssue[]|nil)
-function M.get_assigned_to_me(callback)
-    local jql = "assignee = currentUser() ORDER BY updated DESC"
-    M.search(jql, callback)
-end
-
----@param project string
----@param callback fun(err: string|nil, issues: JiraIssue[]|nil)
-function M.get_by_project(project, callback)
-    local jql = string.format("project = %s ORDER BY updated DESC", project)
-    M.search(jql, callback)
-end
-
----@param level number
----@param project? string
----@param callback fun(err: string|nil, issues: JiraIssue[]|nil)
-function M.get_by_level(level, project, callback)
-    local type_list = types.get_types_for_level(level)
-    if #type_list == 0 then
-        callback("No types configured for level " .. level, nil)
-        return
-    end
-
-    local type_jql = 'issuetype in ("' .. table.concat(type_list, '","') .. '")'
-    local jql = type_jql
-
-    if project then
-        jql = jql .. " AND project = " .. project
-    end
-
-    jql = jql .. " ORDER BY updated DESC"
     M.search(jql, callback)
 end
 
@@ -201,11 +166,11 @@ end
 ---@param project string
 ---@param issue_type string
 ---@param summary string
----@param description? string
----@param acceptance_criteria? string
+---@param description? string|table ADF table or plain text string
+---@param extra_fields? table<string, string|table> Map of Jira field ID → value (ADF table or text)
 ---@param parent_key? string
 ---@param callback fun(err: string|nil, issue: JiraIssue|nil)
-function M.create_issue_full(project, issue_type, summary, description, acceptance_criteria, parent_key, callback)
+function M.create_issue_full(project, issue_type, summary, description, extra_fields, parent_key, callback)
     M.get_current_user(function(user_err, user)
         local fields = {
             project = { key = project },
@@ -218,7 +183,7 @@ function M.create_issue_full(project, issue_type, summary, description, acceptan
         end
 
         if description and description ~= "" then
-            fields.description = M.text_to_adf(description)
+            fields.description = type(description) == "table" and description or atlassian_adf.text_to_adf(description)
         end
 
         if parent_key then
@@ -227,13 +192,31 @@ function M.create_issue_full(project, issue_type, summary, description, acceptan
 
         M.request("/issue", "POST", { fields = fields }, function(err, data)
             if err then
-                if err:match("assignee") then
+                if err.message:match("assignee") then
                     fields.assignee = nil
                     M.request("/issue", "POST", { fields = fields }, function(retry_err, retry_data)
                         if retry_err then
                             callback(retry_err, nil)
                         else
-                            M.update_acceptance_criteria_and_fetch(retry_data.key, acceptance_criteria, callback)
+                            M.update_extra_fields_and_fetch(retry_data.key, extra_fields, callback)
+                        end
+                    end)
+                    return
+                end
+                -- For any validation error, check raw response and enrich with valid issue types
+                local raw = error_mod.is_error(err) and err.raw_response or ""
+                local is_type_err = err.message:match("issuetype") or err.message:match("issue type")
+                    or raw:match("issuetype")
+                if is_type_err then
+                    M.request("/project/" .. project, "GET", nil, function(_, proj_data)
+                        local valid = {}
+                        for _, t in ipairs((proj_data or {}).issueTypes or {}) do
+                            table.insert(valid, t.name)
+                        end
+                        if #valid > 0 then
+                            callback(err .. "\nValid types for " .. project .. ": " .. table.concat(valid, ", "), nil)
+                        else
+                            callback(err, nil)
                         end
                     end)
                     return
@@ -241,19 +224,20 @@ function M.create_issue_full(project, issue_type, summary, description, acceptan
                 callback(err, nil)
                 return
             end
-            M.update_acceptance_criteria_and_fetch(data.key, acceptance_criteria, callback)
+            M.update_extra_fields_and_fetch(data.key, extra_fields, callback)
         end)
     end)
 end
 
 ---@param key string
----@param acceptance_criteria? string
+---@param extra_fields? table<string, string|table> Map of Jira field ID → value (ADF table or text)
 ---@param callback fun(err: string|nil, issue: JiraIssue|nil)
-function M.update_acceptance_criteria_and_fetch(key, acceptance_criteria, callback)
-    local ac_field = config.options.acceptance_criteria_field
-    if ac_field and ac_field ~= "" and acceptance_criteria and acceptance_criteria ~= "" then
+function M.update_extra_fields_and_fetch(key, extra_fields, callback)
+    if extra_fields and not vim.tbl_isempty(extra_fields) then
         local update_fields = {}
-        update_fields[ac_field] = M.text_to_adf(acceptance_criteria)
+        for field_id, value in pairs(extra_fields) do
+            update_fields[field_id] = type(value) == "table" and value or atlassian_adf.text_to_adf(value)
+        end
         M.update_issue(key, update_fields, function(_)
             M.get_issue(key, callback)
         end)
@@ -272,9 +256,6 @@ function M.get_current_user(callback)
         callback(nil, data)
     end)
 end
-
--- Delegate to shared ADF module
-M.text_to_adf = atlassian_adf.text_to_adf
 
 ---@param callback fun(err: string|nil, projects: table[]|nil)
 function M.get_projects(callback)
@@ -369,13 +350,18 @@ function M.assign_issue(key, account_id, callback)
     end)
 end
 
----@param key string
----@param callback fun(err: string|nil)
-function M.unassign_issue(key, callback)
-    local body = { accountId = nil }
-    M.request("/issue/" .. key .. "/assignee", "PUT", body, function(err, _)
-        callback(err)
-    end)
+---@param issue_key string
+---@param file_path string
+---@param callback fun(err: AtlassianError|nil, data: table|nil)
+function M.upload_attachment(issue_key, file_path, callback)
+    local auth = config.options.auth
+    local base_url = atlassian_request.normalize_url(auth.url)
+    atlassian_request.upload_file({
+        url = base_url .. "/rest/api/3/issue/" .. issue_key .. "/attachments",
+        auth = auth,
+        file_path = file_path,
+        callback = callback,
+    })
 end
 
 return M

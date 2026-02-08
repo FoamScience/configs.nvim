@@ -182,6 +182,11 @@ function M.create_commands()
         picker.create_issue(issue_type)
     end, { nargs = "?", desc = "Create new issue" })
 
+    cmd("JiraSearchEdit", function()
+        local picker = require("jira-interface.picker")
+        picker.search_all_edit()
+    end, { desc = "Search issues and edit" })
+
     cmd("JiraQuick", function(args)
         local context = require("jira-interface.context")
         local jira_api = require("jira-interface.api")
@@ -433,10 +438,8 @@ function M.create_commands()
 
             local fields = data.fields or {}
             local lines = {
-                "# Fields for " .. key,
-                "",
-                "## Custom Fields (look for acceptance criteria here)",
-                "",
+                "<h1>Fields for " .. key .. "</h1>",
+                "<h2>Custom Fields (look for acceptance criteria here)</h2>",
             }
 
             -- Helper to extract text from ADF
@@ -502,15 +505,12 @@ function M.create_commands()
 
             for _, cf in ipairs(custom_fields) do
                 if cf.preview ~= "(empty)" then
-                    table.insert(lines, string.format("**%s**: %s", cf.name, cf.preview))
+                    table.insert(lines, string.format("<p><strong>%s</strong>: %s</p>", cf.name, cf.preview))
                 end
             end
 
-            table.insert(lines, "")
-            table.insert(lines, "---")
-            table.insert(lines, "")
-            table.insert(lines, "## Standard Fields")
-            table.insert(lines, "")
+            table.insert(lines, "<hr />")
+            table.insert(lines, "<h2>Standard Fields</h2>")
 
             local standard = { "summary", "description", "status", "issuetype", "project", "assignee", "parent",
                 "created", "updated" }
@@ -528,13 +528,13 @@ function M.create_commands()
                 else
                     preview = type(value)
                 end
-                table.insert(lines, string.format("**%s**: %s", fname, preview))
+                table.insert(lines, string.format("<p><strong>%s</strong>: %s</p>", fname, preview))
             end
 
             -- Show in float
             local buf = vim.api.nvim_create_buf(false, true)
             vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-            vim.bo[buf].filetype = "markdown"
+            vim.bo[buf].filetype = "csf"
             vim.bo[buf].bufhidden = "wipe"
 
             local width = math.floor(vim.o.columns * 0.8)

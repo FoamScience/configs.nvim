@@ -33,7 +33,7 @@ local M = {}
 ---@field since string|nil Filter issues created since (e.g., "-365d", "-30d", "-7d")
 ---@field types JiraTypesConfig
 ---@field statuses string[]
----@field acceptance_criteria_field string Custom field ID for acceptance criteria
+---@field custom_fields table<string, string> Map of section heading → Jira field ID for edit/create buffers
 ---@field data_dir string Directory for storing cache and queue
 ---@field templates table<string, JiraTemplateConfig> Templates per issue type
 ---@field display JiraDisplayConfig Display settings for issue windows
@@ -62,29 +62,46 @@ M.defaults = {
         "Blocked",
         "Done",
     },
-    acceptance_criteria_field = "customfield_10020",
+    custom_fields = {
+        ["Acceptance Criteria"] = "customfield_10020",
+    },
     data_dir = vim.fn.stdpath("data") .. "/jira-interface",
+    -- Templates: structured data expanded as LuaSnip snippets in the create buffer.
+    -- description_sections: list of { heading, placeholder } pairs rendered as ### sub-headings.
+    -- acceptance_criteria: list of checklist item placeholder strings.
     templates = {
         default = {
-            description = "",
-            acceptance_criteria = "- [ ] ",
+            description_sections = {},
+            acceptance_criteria = { "Criteria" },
         },
         epic = {
-            description = "### Overview\n\n### Goals\n\n### Scope\n",
-            acceptance_criteria = "- [ ] All child features completed\n- [ ] Documentation updated",
+            description_sections = {
+                { heading = "Overview", placeholder = "High-level overview" },
+                { heading = "Goals", placeholder = "Goals" },
+                { heading = "Scope", placeholder = "Scope" },
+            },
+            acceptance_criteria = { "All child features completed", "Documentation updated" },
         },
         feature = {
-            description = "### Problem\n\n### Solution\n\n### Technical Notes\n",
-            acceptance_criteria = "- [ ] Implementation complete\n- [ ] Tests passing\n- [ ] Code reviewed",
+            description_sections = {
+                { heading = "Problem", placeholder = "Describe the problem" },
+                { heading = "Solution", placeholder = "Proposed solution" },
+                { heading = "Technical Notes", placeholder = "Technical details" },
+            },
+            acceptance_criteria = { "Implementation complete", "Tests passing", "Code reviewed" },
         },
         bug = {
-            description =
-            "### Steps to Reproduce\n1. \n\n### Expected Behavior\n\n### Actual Behavior\n\n### Environment\n",
-            acceptance_criteria = "- [ ] Bug fixed\n- [ ] Tests added\n- [ ] No regression",
+            description_sections = {
+                { heading = "Steps to Reproduce", placeholder = "1. First step" },
+                { heading = "Expected Behavior", placeholder = "Expected behavior" },
+                { heading = "Actual Behavior", placeholder = "Actual behavior" },
+                { heading = "Environment", placeholder = "Environment details" },
+            },
+            acceptance_criteria = { "Bug fixed", "Tests added", "No regression" },
         },
         task = {
-            description = "",
-            acceptance_criteria = "- [ ] Task completed\n- [ ] Verified working",
+            description_sections = {},
+            acceptance_criteria = { "Task completed", "Verified working" },
         },
     },
     display = {
@@ -96,6 +113,18 @@ M.defaults = {
         linebreak = true,
         conceallevel = 2,
         cursorline = true,
+    },
+    image = {
+        enabled = true,
+        max_file_size = 2 * 1024 * 1024,  -- 2MB
+        auto_preview = false,              -- true = CursorHold preview
+        cache_dir = vim.fn.stdpath("cache") .. "/atlassian/images",
+    },
+    math = {
+        enabled = true,
+        block_macro = "mathblock",     -- ac:name for new block equations
+        inline_macro = "mathinline",   -- ac:name for new inline equations
+        inline_param = "body",         -- parameter name for inline LaTeX source
     },
 }
 

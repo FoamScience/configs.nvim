@@ -24,20 +24,12 @@ function M.set(key, data, project)
     return get_cache().set(key, data, project)
 end
 
-function M.invalidate(key)
-    return get_cache().invalidate(key)
-end
-
 function M.invalidate_project(project)
     return get_cache().invalidate_scope(project)
 end
 
 function M.clear()
     return get_cache().clear()
-end
-
-function M.get_or_fetch(key, fetcher, callback, project)
-    return get_cache().get_or_fetch(key, fetcher, callback, project)
 end
 
 function M.stats()
