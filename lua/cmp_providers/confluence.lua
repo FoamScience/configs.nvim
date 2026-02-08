@@ -82,10 +82,10 @@ function M:get_completions(ctx, callback)
                     url = base_url .. "/wiki" .. page.web_url
                 end
 
-                local ok_types, page_types = pcall(require, "confluence-interface.types")
+                local ok_fmt, fmt = pcall(require, "atlassian.format")
                 local updated_display = page.updated or ""
-                if ok_types and page.updated then
-                    updated_display = page_types.format_relative_time(page.updated)
+                if ok_fmt and page.updated then
+                    updated_display = fmt.format_relative_time(page.updated)
                 end
 
                 table.insert(items, {
