@@ -1,0 +1,638 @@
+*atlassian.txt*   Atlassian Jira & Confluence interface for Neovim
+
+Author:   Mohammed Elwardi Fadeli
+License:  MIT
+
+===========================================================================
+CONTENTS                                             *atlassian-contents*
+
+    1. Introduction ........................ |atlassian-introduction|
+    2. Setup ............................... |atlassian-setup|
+    3. Jira Interface ...................... |atlassian-jira|
+    4. Confluence Interface ................ |atlassian-confluence|
+    5. CSF Support ......................... |atlassian-csf|
+    6. Slash Commands ...................... |atlassian-slash-commands|
+    7. Configuration ....................... |atlassian-configuration|
+
+===========================================================================
+1. INTRODUCTION                                  *atlassian-introduction*
+
+An opinionated Neovim interface for Atlassian Jira and Confluence Cloud.
+Edit issues and wiki pages directly inside Neovim using Confluence
+Storage Format (CSF, XML-like) with tree-sitter conceal for readable
+rendering.
+
+Features:
+
+  - Fuzzy search and telescope-style pickers
+  - Kanban boards for sprints and projects
+  - Offline queue for write operations
+  - Slash commands (blink.cmp integration)
+  - Image preview in floating windows
+  - LaTeX math rendering to unicode
+  - CSF tree-sitter parser with conceal
+
+===========================================================================
+2. SETUP                                               *atlassian-setup*
+
+Environment Variables ~
+                                                  *atlassian-setup-env*
+
+The plugin reads credentials from environment variables.
+Confluence variables fall back to the corresponding Jira variable
+when not set.
+
+  Variable              Fallback          Description ~
+  JIRA_URL              -                 Jira instance URL
+  JIRA_EMAIL            -                 Jira account email
+  JIRA_API_TOKEN        -                 Jira API token
+  JIRA_PROJECT          -                 Default project (optional)
+
+  CONFLUENCE_URL        JIRA_URL          Confluence instance URL
+  CONFLUENCE_EMAIL      JIRA_EMAIL        Confluence account email
+  CONFLUENCE_API_TOKEN  JIRA_API_TOKEN    Confluence API token
+  CONFLUENCE_SPACE      -                 Default space (optional)
+
+Lua Setup ~
+                                                  *atlassian-setup-lua*
+
+Alternatively, pass credentials via setup().  Read tokens from
+environment variables — never hardcode API tokens as literal
+strings in your config (they will end up in version control).
+>lua
+    require("jira-interface").setup({
+      auth = {
+        url   = "https://yoursite.atlassian.net",
+        email = os.getenv("JIRA_EMAIL"),
+        token = os.getenv("JIRA_API_TOKEN"),
+      },
+      default_project = "PROJ",
+    })
+
+    require("confluence-interface").setup({
+      auth = {
+        url   = "https://yoursite.atlassian.net/wiki",
+        email = os.getenv("CONFLUENCE_EMAIL"),
+        token = os.getenv("CONFLUENCE_API_TOKEN"),
+      },
+      default_space = "SPACE",
+    })
+<
+
+===========================================================================
+3. JIRA INTERFACE                                        *atlassian-jira*
+
+COMMANDS                                        *atlassian-jira-commands*
+
+Search ~
+
+  :JiraSearch                 Fuzzy search across all issues
+  :JiraSearchEdit             Search and edit an issue
+  :JiraMe                     Issues assigned to me
+  :JiraCreatedByMe            Issues I created
+  :JiraProject [name]         Issues in a project
+  :JiraEpics                  List epics
+  :JiraFeatures               List features
+  :JiraTasks                  List tasks
+  :JiraDue [filter]           Due-date filter
+                              Filters: overdue, today, week, soon
+
+Issue Management ~
+
+  :JiraView [key]             View issue details
+  :JiraEdit [key]             Edit issue in CSF buffer
+  :JiraTransition [key]       Change issue status
+  :JiraStart [key]            Move issue to In Progress
+  :JiraDone [key]             Move issue to Done
+  :JiraReview [key]           Move issue to In Review
+  :JiraCreate [type]          Create a new issue
+  :JiraQuick <summary>        Quick-create with a one-liner
+
+Filters ~
+
+  :JiraFilter save <name>     Save current filter
+  :JiraFilter load <name>     Load a saved filter
+  :JiraFilter list            List all saved filters
+  :JiraFilter delete <name>   Delete a saved filter
+
+Team and Board ~
+
+  :JiraTeam [project]         View team members
+  :JiraBoard [board_id]       Open kanban board
+  :JiraSprint [board_id]      View active sprint
+  :JiraTodoToIssue [opts]     Convert TODOs to issues
+                              Options: buffer, project
+
+Offline ~
+
+  :JiraQueue                  Show offline queue
+  :JiraSync                   Sync queued operations
+
+Utility ~
+
+  :JiraClearCache             Clear local cache
+  :JiraRefresh                Refresh current view
+  :JiraStatus                 Show connection status
+  :JiraHelp                   Show help summary
+  :JiraFields [key]           Inspect fields on an issue
+  :JiraTypes [project]        List issue types
+  :JiraDebug [key]            Debug information
+
+---------------------------------------------------------------------------
+ISSUE VIEW KEYMAPS                              *atlassian-jira-keymaps*
+
+These mappings are available inside a Jira issue-view buffer:
+
+  Key   Action ~
+  t     Transition (change status)
+  e     Edit issue in CSF buffer
+  c     Show children / sub-tasks
+  y     Copy issue key to clipboard
+  Y     Copy issue URL to clipboard
+  ?     Show keymap help
+
+---------------------------------------------------------------------------
+PICKER KEYMAPS                           *atlassian-jira-picker-keymaps*
+
+These mappings are available in the Jira fuzzy-picker:
+
+  Key       Action ~
+  <CR>      Open / view issue
+  <C-t>     Transition issue
+  <C-y>     Copy issue key
+  <C-u>     Copy issue URL
+  <C-e>     Edit issue
+  <C-c>     Show children / sub-tasks
+
+===========================================================================
+4. CONFLUENCE INTERFACE                          *atlassian-confluence*
+
+COMMANDS                                 *atlassian-confluence-commands*
+
+Navigation ~
+
+  :ConfluenceSpaces           List available spaces
+  :ConfluencePages [space]    List pages in a space
+  :ConfluenceRecent           Recently viewed pages
+  :ConfluenceCreate [space]   Create a new page
+
+Page Management ~
+
+  :ConfluenceView <id>        View page content
+  :ConfluenceEdit <id>        Edit page in CSF buffer
+  :ConfluenceDelete <id>      Delete a page
+
+Search ~
+
+  :ConfluenceSearch <query>   Full-text search
+  :ConfluenceSearchEdit [q]   Search and edit a page
+  :ConfluenceSearchCQL [cql]  Search with CQL expression
+  :ConfluenceCQLFilter [act]  Manage CQL filters
+  :ConfluenceMentions [user]  Pages mentioning a user
+
+Utility ~
+
+  :ConfluenceRefresh          Refresh current view
+  :ConfluenceClearCache       Clear local cache
+  :ConfluenceStatus           Show connection status
+  :ConfluenceHelp             Show help summary
+  :ConfluenceDebug [id]       Debug information
+
+---------------------------------------------------------------------------
+PAGE VIEW KEYMAPS                       *atlassian-confluence-keymaps*
+
+These mappings are available inside a Confluence page-view
+buffer:
+
+  Key   Action ~
+  e     Edit page in CSF buffer
+  c     Show child pages
+  y     Copy page ID to clipboard
+  Y     Copy page URL to clipboard
+  o     Open page in browser
+  ?     Show keymap help
+
+---------------------------------------------------------------------------
+PICKER KEYMAPS                    *atlassian-confluence-picker-keymaps*
+
+These mappings are available in the Confluence fuzzy-picker:
+
+  Key       Action ~
+  <CR>      View page
+  <C-e>     Edit page
+  <C-y>     Copy page URL
+  <C-o>     Open page in browser
+  <C-c>     Show child pages
+  <C-x>     Delete page
+
+===========================================================================
+5. CSF SUPPORT                                          *atlassian-csf*
+
+OVERVIEW                                        *atlassian-csf-overview*
+
+Confluence Storage Format (CSF) is the native XML format used by
+Confluence and, via the ADF bridge, Jira.  All edit and create
+buffers use filetype `csf` with tree-sitter parsing for syntax
+highlighting and conceal.
+
+Raw XML tags are concealed into readable icons and symbols so
+that the buffer remains legible while you work with the
+underlying storage format.
+
+This is the core editing experience of the plugin.  Every Jira
+issue description and every Confluence page body is presented as
+a CSF buffer.
+
+---------------------------------------------------------------------------
+TREESITTER                                   *atlassian-csf-treesitter*
+
+The plugin relies on custom tree-sitter parser, `tree-sitter-csf`,
+which provides:
+
+  - Syntax highlighting  (queries/csf/highlights.scm)
+  - Conceal              (queries/csf/conceal.scm)
+  - Folds
+  - Indents
+  - Language injections  (for code snippets)
+
+When a CSF buffer is opened the following options are set
+automatically:
+
+  'conceallevel'  = 2
+  'concealcursor' = "nc"
+
+---------------------------------------------------------------------------
+INPUT TRANSLATION                               *atlassian-csf-input*
+
+Markdown-like shortcuts are translated to CSF in insert mode.
+This lets you type familiar markup and have it converted to the
+correct XML on the fly.
+
+Block-level triggers (activated on Space after a prefix at the
+beginning of a line):
+
+  Input          CSF Output ~
+  #              <h1>
+  ##             <h2>
+  ###            <h3>
+  ####           <h4>
+  #####          <h5>
+  ######         <h6>
+  *              <li> wrapped in <ul>
+  1.             <li> wrapped in <ol>
+  - [ ]          Task list item (unchecked)
+  - [x]          Task list item (checked)
+  >              <blockquote>
+  ---            <hr />
+  $$             Math block macro
+
+Inline triggers (activated on closing delimiter):
+
+  Input          CSF Output ~
+  **text**       <strong>text</strong>
+  *text*         <em>text</em>
+  `text`         <code>text</code>
+  ~~text~~       <s>text</s>
+  [text](url)    <a href="url">text</a>
+  ![alt](url)    <ac:image> element
+  $text$         Inline math macro
+
+Enter key behavior:
+
+  - Auto-continues list items and task items
+  - Press Enter on an empty list item to exit the list
+
+Navigation:
+
+  ]]             Jump to next heading
+  [[             Jump to previous heading
+
+---------------------------------------------------------------------------
+IMAGE PREVIEW                                   *atlassian-csf-images*
+
+Images embedded in CSF are previewed on cursor hover (`CursorHold`
+event) in a floating window anchored to the top-right corner of
+the editor.
+
+  Key   Action ~
+  K     Manually trigger image preview (normal mode)
+
+Supported tag patterns:
+
+  - `<ac:image>` tags
+  - `<a href="...">` attachment links with image extensions
+    (.png, .jpg, .jpeg, .gif, .svg, .webp)
+
+Downloaded images are cached locally at:
+>
+    stdpath("cache") .. "/atlassian/images"
+<
+
+---------------------------------------------------------------------------
+MATH RENDERING                                     *atlassian-csf-math*
+
+LaTeX equations inside `ac:structured-macro` elements are rendered
+to unicode characters in the buffer.
+
+Macro names:
+
+  ac:name            Usage ~
+  "mathblock"        Block-level equations (uses CDATA body)
+  "mathinline"       Inline equations (uses ac:parameter)
+
+Input shortcuts:
+
+  $...$              Insert inline math
+  $$                 Begin a math block
+
+Requirements:
+
+  - `latex2text` binary in PATH (from pylatexenc package)
+  - Math rendering is disabled when latex2text is not found
+
+Install latex2text:
+>sh
+    uv tool install pylatexenc
+<
+
+---------------------------------------------------------------------------
+SLASH COMMANDS (CSF)                       *atlassian-csf-slash-commands*
+
+Type `/` in insert mode inside a CSF buffer to trigger a
+completion menu (via blink.cmp).  Select a template to insert
+the corresponding CSF snippet.
+
+Categories:
+
+  Formatting     Headings 1-6, Divider, Quote
+  Code           Code block (with language parameter)
+  Panels         Info, Note, Warning, Tip
+  Structure      Table, Expand, Task list, Bullet list,
+                 Numbered list
+  Media          Mention, Page link, Jira issue,
+                 External link, Upload
+  Inline         Date, Status
+  Math           Block math, Inline math
+
+All templates use LSP snippet format so that tab-stops land on
+the editable portions of the inserted markup.
+
+===========================================================================
+6. SLASH COMMANDS                              *atlassian-slash-commands*
+
+Complete reference of slash commands and their CSF output.
+
+Formatting ~
+                                     *atlassian-slash-cmd-formatting*
+
+  Command          CSF Output ~
+  /Heading 1       <h1>$1</h1>
+  /Heading 2       <h2>$1</h2>
+  /Heading 3       <h3>$1</h3>
+  /Heading 4       <h4>$1</h4>
+  /Heading 5       <h5>$1</h5>
+  /Heading 6       <h6>$1</h6>
+  /Divider         <hr />
+  /Quote           <blockquote><p>$1</p></blockquote>
+
+Code ~
+                                          *atlassian-slash-cmd-code*
+
+  Command          CSF Output ~
+  /Code block      <ac:structured-macro ac:name="code">
+                     <ac:parameter ac:name="language">
+                       $1
+                     </ac:parameter>
+                     <ac:plain-text-body>
+                       <![CDATA[$2]]>
+                     </ac:plain-text-body>
+                   </ac:structured-macro>
+
+Panels ~
+                                        *atlassian-slash-cmd-panels*
+
+  Command          CSF Output ~
+  /Info panel      <ac:structured-macro ac:name="info">
+  /Note panel      <ac:structured-macro ac:name="note">
+  /Warning panel   <ac:structured-macro ac:name="warning">
+  /Tip panel       <ac:structured-macro ac:name="tip">
+
+Structure ~
+                                     *atlassian-slash-cmd-structure*
+
+  Command          CSF Output ~
+  /Table           <table> with <tr>, <th>, <td> structure
+  /Expand          <ac:structured-macro ac:name="expand">
+  /Task list       <ac:task-list> with <ac:task> items
+  /Bullet list     <ul><li>$1</li></ul>
+  /Numbered list   <ol><li>$1</li></ol>
+
+Media ~
+                                         *atlassian-slash-cmd-media*
+
+  Command          CSF Output ~
+  /Mention         <ac:link><ri:user ri:account-id="$1" />
+                   </ac:link>
+  /Page link       <ac:link><ri:page ri:content-title="$1" />
+                   </ac:link>
+  /Jira issue      <ac:structured-macro ac:name="jira">
+                     <ac:parameter ac:name="key">$1
+                     </ac:parameter>
+                   </ac:structured-macro>
+  /External link   <a href="$1">$2</a>
+  /Upload          Opens file picker, uploads attachment,
+                   inserts <ac:image> (images) or <a> tag
+
+Inline ~
+                                        *atlassian-slash-cmd-inline*
+
+  Command          CSF Output ~
+  /Date            <time datetime="$1" />
+  /Status          <ac:structured-macro ac:name="status">
+                     <ac:parameter ac:name="title">$1
+                     </ac:parameter>
+                     <ac:parameter ac:name="colour">$2
+                     </ac:parameter>
+                   </ac:structured-macro>
+
+Math ~
+                                          *atlassian-slash-cmd-math*
+
+  Command          CSF Output ~
+  /Math block      <ac:structured-macro ac:name="mathblock">
+                     <ac:plain-text-body>
+                       <![CDATA[$1]]>
+                     </ac:plain-text-body>
+                   </ac:structured-macro>
+  /Math inline     <ac:structured-macro ac:name="mathinline">
+                     <ac:parameter ac:name="body">$1
+                     </ac:parameter>
+                   </ac:structured-macro>
+
+===========================================================================
+7. CONFIGURATION                              *atlassian-configuration*
+
+JIRA CONFIGURATION                             *atlassian-jira-config*
+
+Pass a table to `require("jira-interface").setup()`.  All keys
+are optional; the defaults are shown below.
+
+>lua
+    require("jira-interface").setup({
+
+      -- Authentication
+      auth = {
+        url   = nil,  -- string: Jira instance URL
+        email = nil,  -- string: account email
+        token = nil,  -- string: API token
+      },
+
+      -- Project
+      default_project = nil,  -- string: default project key
+
+      -- Data
+      cache_ttl   = 300,      -- number: cache lifetime (seconds)
+      max_results = 500,      -- number: max issues per query
+      since       = "-365d",  -- string: JQL relative date filter
+      data_dir    = nil,      -- string: override data directory
+
+      -- Issue type hierarchy (lvl1 = top)
+      types = {
+        lvl1 = { "Epic" },
+        lvl2 = { "Feature", "Bug", "Issue" },
+        lvl3 = { "Task" },
+        lvl4 = { "Sub-Task" },
+      },
+
+      -- Statuses recognised by transition helpers
+      statuses = {
+        "To Do", "In Progress", "In Review",
+        "Blocked", "Done",
+      },
+
+      -- Custom fields: map section heading → Jira field ID
+      custom_fields = {
+        ["Acceptance Criteria"] = "customfield_10020",
+      },
+
+      -- Templates: expanded in create buffers per issue type
+      -- Each entry has description_sections (list of {heading, placeholder})
+      -- and acceptance_criteria (list of checklist strings).
+      templates = {
+        default = { ... },
+        epic    = { ... },
+        feature = { ... },
+        bug     = { ... },
+        task    = { ... },
+      },
+
+      -- Display
+      display = {
+        mode         = "float",    -- string: see |atlassian-display-modes|
+        width        = "80%",      -- string|number
+        height       = "80%",      -- string|number
+        border       = "rounded",  -- string: border style
+        wrap         = true,       -- boolean: line wrap
+        linebreak    = true,       -- boolean: break at word boundary
+        conceallevel = 2,          -- number: 0-3
+        cursorline   = true,       -- boolean: highlight cursor line
+      },
+
+      -- Image preview
+      image = {
+        enabled       = true,          -- boolean
+        max_file_size = 2 * 1024 * 1024,  -- number: bytes (2 MB)
+        auto_preview  = false,         -- boolean: preview on hover
+        cache_dir     = nil,           -- string: override cache dir
+      },
+
+      -- Math rendering
+      math = {
+        enabled      = true,         -- boolean
+        block_macro  = "mathblock",  -- string: macro name
+        inline_macro = "mathinline", -- string: macro name
+        inline_param = "body",       -- string: parameter name
+      },
+    })
+<
+
+---------------------------------------------------------------------------
+CONFLUENCE CONFIGURATION                  *atlassian-confluence-config*
+
+Pass a table to `require("confluence-interface").setup()`.  The
+structure mirrors Jira configuration.  All keys are optional;
+the defaults are shown below.
+
+>lua
+    require("confluence-interface").setup({
+
+      -- Authentication
+      auth = {
+        url   = nil,  -- string: Confluence instance URL
+        email = nil,  -- string: account email
+        token = nil,  -- string: API token
+      },
+
+      -- Space
+      default_space = nil,  -- string: default space key
+
+      -- Data
+      cache_ttl   = 300,  -- number: cache lifetime (seconds)
+      max_results = 100,  -- number: max pages per query
+      data_dir    = nil,  -- string: override data directory
+
+      -- Display (same options as Jira)
+      display = {
+        mode         = "float",
+        width        = "80%",
+        height       = "80%",
+        border       = "rounded",
+        wrap         = true,
+        linebreak    = true,
+        conceallevel = 2,
+        cursorline   = true,
+      },
+
+      -- Image preview (same options as Jira)
+      image = {
+        enabled       = true,
+        max_file_size = 2 * 1024 * 1024,
+        auto_preview  = false,
+        cache_dir     = nil,
+      },
+
+      -- Math rendering (same options as Jira)
+      math = {
+        enabled      = true,
+        block_macro  = "mathblock",
+        inline_macro = "mathinline",
+        inline_param = "body",
+      },
+    })
+<
+
+---------------------------------------------------------------------------
+DISPLAY MODES                                  *atlassian-display-modes*
+
+The `display.mode` option controls how content buffers are
+opened.
+
+  Mode      Description ~
+  float     Floating window (default)
+  vsplit    Vertical split
+  split     Horizontal split
+  tab       New tab page
+  buffer    Current buffer
+
+---------------------------------------------------------------------------
+DIMENSIONS                                   *atlassian-display-dimensions*
+
+The `display.width` and `display.height` options accept either
+an absolute number or a percentage string:
+
+  Value       Meaning ~
+  80          80 columns (or rows)
+  "80%"       80% of the editor width (or height)
+
+===========================================================================
+ vim:tw=78:ts=8:ft=help:norl:
