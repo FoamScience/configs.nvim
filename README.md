@@ -157,9 +157,6 @@ docker run -it --rm nvim-config:latest bash
 - [incline.lua](lua/user/incline.lua) floating buffer names at top-right corners of windows
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
-- [dim.lua:](lua/user/optional/dim.lua) dims inactive code sections
-  - Setup for proper dimming of OpenFOAM entries
-  - `<leader>wt` to toggle
 - [cinnamon.lua:](lua/user/optional/cinnamon.lua) optional scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
   - With support for Latex equation rendering
@@ -195,8 +192,6 @@ docker run -it --rm nvim-config:latest bash
   - `R` in operator mode to do operations between flash tree-sitter searches
   - `<ctrl-s>` to toggle flash in regular search mode
   - `<leader>v` for incremental treesitter selection (next: `<leader>v`, prev: `<BS>`)
-- [arrow.lua:](lua/user/arrow.lua) to bookmark your buffers. Replacing Harpoon.
-    - Just press `,` in normal mode, or `<leader>b`
 - [tree-climb.lua:](lua/user/tree-climb.lua) treesitter-based code navigation
   - Navigate through code structure using treesitter nodes with `<M-n>` and `<M-N>`
   - Enhanced structural movement commands
