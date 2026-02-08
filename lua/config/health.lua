@@ -303,8 +303,8 @@ local function check_latex2text()
         if check_executable("pandoc") then
             health.info("latex2text not found, but pandoc is available as alternative")
         else
-            health.info("latex2text not installed", {
-                "Install: pip install pylatexenc",
+            health.info("latex2text not installed (part of pylatexenc)", {
+                "Install: uv tool install pylatexenc",
             })
         end
     end
