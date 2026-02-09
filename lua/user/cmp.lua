@@ -29,7 +29,6 @@ M.config = function()
                         return cmp.select_and_accept()
                     end
                 end,
-                'snippet_forward',
                 'fallback'
             },
         },
