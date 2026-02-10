@@ -51,24 +51,45 @@ local clangd_opts = {
     end
 }
 
-local xonsh_lsp_opts = {
-    cmd = { "uvx", "xonsh-lsp" },
-    filetypes = { "xonsh" },
-    root_markers = { ".xonshrc", "xonshrc", ".git" },
-}
-
 local find_uv_python_path = utils.find_uv_python_path
 local default_python = vim.fn.exepath("python3") or vim.fn.exepath("python")
-local pyright_opts = {
-    cmd = { "pyright-langserver", "--stdio" },
+
+--local pyright_opts = {
+--    cmd = { "pyright-langserver", "--stdio" },
+--    settings = {
+--        python = {
+--            pythonPath = default_python,
+--            analysis = {
+--                autoSearchPaths = true,
+--                useLibraryCodeForTypes = true,
+--                diagnosticMode = "workspace",
+--            }
+--        }
+--    },
+--    root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
+--    on_attach = function(client, bufnr)
+--        find_uv_python_path(bufnr, client, function(_, uv_python)
+--            if not uv_python then
+--                return
+--            end
+--            vim.lsp.config.pyright = {
+--                settings = {
+--                    python = {
+--                        pythonPath = uv_python,
+--                    }
+--                }
+--            }
+--            vim.lsp.enable("pyright", false)
+--            vim.lsp.enable("pyright", true)
+--        end)
+--    end,
+--}
+
+local ty_opts = {
+    cmd = { "ty", "server" },
     settings = {
-        python = {
-            pythonPath = default_python,
-            analysis = {
-                autoSearchPaths = true,
-                useLibraryCodeForTypes = true,
-                diagnosticMode = "workspace",
-            }
+        environment = {
+            python = default_python,
         }
     },
     root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
@@ -77,18 +98,46 @@ local pyright_opts = {
             if not uv_python then
                 return
             end
-            vim.lsp.config.pyright = {
+            vim.lsp.config.ty = {
                 settings = {
-                    python = {
-                        pythonPath = uv_python,
+                    environment = {
+                        python = uv_python,
                     }
                 }
             }
-            vim.lsp.enable("pyright", false)
-            vim.lsp.enable("pyright", true)
+            vim.lsp.enable("ty", false)
+            vim.lsp.enable("ty", true)
         end)
     end,
 }
+local function mason_bin(name)
+    local bin = vim.fn.stdpath("data") .. "/mason/bin/" .. name
+    return vim.fn.executable(bin) == 1 and bin or nil
+end
+
+local ty_bin = mason_bin("ty")
+local xonsh_lsp_opts = {
+    cmd = { "uvx", "xonsh-lsp" },
+    filetypes = { "xonsh" },
+    root_markers = { ".xonshrc", "xonshrc", ".git" },
+    init_options = {
+        pythonBackend = "ty",
+        pythonBackendCommand = ty_bin and { ty_bin, "server" } or nil,
+    },
+    settings = ty_opts.settings,
+    on_attach = function(client, bufnr)
+        find_uv_python_path(bufnr, client, function(_, uv_python)
+            if not uv_python then return end
+            client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
+                environment = { python = uv_python }
+            })
+            client:notify("workspace/didChangeConfiguration", {
+                settings = client.settings
+            })
+        end)
+    end,
+}
+
 
 return {
     {
@@ -188,9 +237,10 @@ return {
                 },
                 servers = {
                     stylua = { enabled = false },
+                    pyright = { enable = false },
+                    ty = ty_opts,
                     lua_ls = luals_opts,
                     clangd = clangd_opts,
-                    pyright = pyright_opts,
                     xonsh_lsp = xonsh_lsp_opts,
                 },
                 setup = {
