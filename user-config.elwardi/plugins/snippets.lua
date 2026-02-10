@@ -42,7 +42,8 @@ return {
 
             if print_statement == 'printf' then
                 return sn(nil, {
-                    t(print_statement .. '("=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===\\n");')
+                    t(print_statement ..
+                        '("=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===\\n");')
                 })
             elseif ft == 'cpp' then
                 return sn(nil, {
@@ -51,11 +52,13 @@ return {
                 })
             elseif ft == 'foam' then
                 return sn(nil, {
-                    t(print_statement .. '"=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===" << endl;')
+                    t(print_statement ..
+                        '"=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===" << endl;')
                 })
             else
                 return sn(nil, {
-                    t(print_statement .. '("=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===");')
+                    t(print_statement ..
+                        '("=== DEBUG (' .. filename .. ':' .. line .. ') at `' .. next_line .. '` ===");')
                 })
             end
         end
@@ -89,16 +92,17 @@ return {
                 t({ "", "---", "" }),
                 t({ "", "## Context and Problem Statement", "", "" }),
                 i(6, "Describe the context and problem statement in two-three sentences, ending with a question."),
-                t({ "", "",  "## Decision Drivers", "", "" }), i(7, "- Decision driver 1 (concern, force)"),
+                t({ "", "", "## Decision Drivers", "", "" }), i(7, "- Decision driver 1 (concern, force)"),
                 t({ "", "", "## Considered Options", "", "" }), i(8, "- Option 1"),
-                t({ "", "", "## Decision Outcome", "", "Chosen option: "}), i(9, "option"),
+                t({ "", "", "## Decision Outcome", "", "Chosen option: " }), i(9, "option"),
                 t({ " because " }), i(10, "reasons wrt. decision drivers"),
-                t({ "", "", "### Consequences", "", ""}),
-                i(11, "- Positive, improves this and that"), t({"",""}),
-                i(12, "- Neutral, changes this and that but has no significant effects"), t({"",""}),
-                i(13, "- Negative, affects this and that"), t({"",""}),
-                t({"", "", "### Confirmation", "", ""}), i(14, "How to confirm compliance with decision."),
-                t({"", "", "## More information", "", ""}), i(15, "Any more information clarifying components of the decision."),
+                t({ "", "", "### Consequences", "", "" }),
+                i(11, "- Positive, improves this and that"), t({ "", "" }),
+                i(12, "- Neutral, changes this and that but has no significant effects"), t({ "", "" }),
+                i(13, "- Negative, affects this and that"), t({ "", "" }),
+                t({ "", "", "### Confirmation", "", "" }), i(14, "How to confirm compliance with decision."),
+                t({ "", "", "## More information", "", "" }), i(15,
+                "Any more information clarifying components of the decision."),
             }),
         })
 
@@ -139,7 +143,8 @@ return {
                 if tmpl.acceptance_criteria and #tmpl.acceptance_criteria > 0 then
                     table.insert(nodes, t({ "", "<h2>Acceptance Criteria</h2>", "<ac:task-list>" }))
                     for _, criteria in ipairs(tmpl.acceptance_criteria) do
-                        table.insert(nodes, t({ "", "<ac:task><ac:task-status>incomplete</ac:task-status><ac:task-body>" }))
+                        table.insert(nodes,
+                            t({ "", "<ac:task><ac:task-status>incomplete</ac:task-status><ac:task-body>" }))
                         idx = idx + 1
                         table.insert(nodes, i(idx, criteria))
                         table.insert(nodes, t({ "</ac:task-body></ac:task>" }))
@@ -175,16 +180,34 @@ return {
         end
 
         ls.add_snippets("python", {
-            s("uv_script", {
-                t({"# /// script"}),
-                t({"", "# requires-python = \">=", }),
-                f(get_python_version, {}),
-                t({"\"" }),
-                t({"", "# dependencies = [", "# "}),
-                i(1, "\"numpy\","),
-                t({"", "# ]"}),
-                t({"", "# ///"}),
-            }),
+            s("uv_script",
+                {
+                    t({ "# /// script" }),
+                    t({ "", "# requires-python = \">=", }),
+                    f(get_python_version, {}),
+                    t({ "\"" }),
+                    t({ "", "# dependencies = [", "# " }),
+                    i(1, "\"numpy\","),
+                    t({ "", "# ]" }),
+                    t({ "", "# ///" }),
+                }
+
+            ),
+        })
+        ls.add_snippets("xonsh", {
+            s("uv_script",
+                {
+                    t({ "# /// script" }),
+                    t({ "", "# requires-python = \">=", }),
+                    f(get_python_version, {}),
+                    t({ "\"" }),
+                    t({ "", "# dependencies = [", "# " }),
+                    i(1, "\"numpy\","),
+                    t({ "", "# ]" }),
+                    t({ "", "# ///" }),
+                }
+
+            ),
         })
     end,
 }
