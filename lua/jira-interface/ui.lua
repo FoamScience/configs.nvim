@@ -2,6 +2,7 @@ local M = {}
 
 local api = require("jira-interface.api")
 local types = require("jira-interface.types")
+local cache = require("jira-interface.cache")
 local config = require("jira-interface.config")
 local notify = require("jira-interface.notify")
 local atlassian_ui = require("atlassian.ui")
@@ -76,8 +77,23 @@ function M.show_issue(issue)
         table.insert(lines, "<hr />")
         table.insert(lines, "<h2>" .. heading .. "</h2>")
         local raw = (issue.custom_fields_raw or {})[heading]
+
         if raw and type(raw) == "table" and raw.content then
-            local field_csf = bridge.adf_to_csf(raw)
+            -- Promote bullet lists to task lists for acceptance-style fields
+            local adf = vim.deepcopy(raw)
+            for _, node in ipairs(adf.content) do
+                if node.type == "bulletList" then
+                    node.type = "taskList"
+                    for _, item in ipairs(node.content or {}) do
+                        if item.type == "listItem" then
+                            item.type = "taskItem"
+                            item.attrs = item.attrs or {}
+                            item.attrs.state = item.attrs.state or "TODO"
+                        end
+                    end
+                end
+            end
+            local field_csf = bridge.adf_to_csf(adf)
             vim.list_extend(lines, csf.format_lines(field_csf))
         elseif raw and type(raw) == "string" and raw ~= "" then
             table.insert(lines, "<p>" .. raw .. "</p>")
@@ -232,7 +248,21 @@ function M.edit_issue(key)
             table.insert(lines, "<h2>" .. heading .. "</h2>")
             local raw = (issue.custom_fields_raw or {})[heading]
             if raw and type(raw) == "table" and raw.content then
-                local field_csf = bridge.adf_to_csf(raw)
+                -- Promote bullet lists to task lists for acceptance-style fields
+                local adf = vim.deepcopy(raw)
+                for _, node in ipairs(adf.content) do
+                    if node.type == "bulletList" then
+                        node.type = "taskList"
+                        for _, item in ipairs(node.content or {}) do
+                            if item.type == "listItem" then
+                                item.type = "taskItem"
+                                item.attrs = item.attrs or {}
+                                item.attrs.state = item.attrs.state or "TODO"
+                            end
+                        end
+                    end
+                end
+                local field_csf = bridge.adf_to_csf(adf)
                 for _, line in ipairs(vim.split(field_csf, "\n")) do
                     table.insert(lines, line)
                 end
@@ -302,10 +332,18 @@ function M.edit_issue(key)
                         if update_err then
                             notify.error("Update failed: " .. update_err)
                         else
-                            notify.info("Issue updated: " .. key)
                             if vim.api.nvim_buf_is_valid(buf) then
                                 vim.api.nvim_buf_delete(buf, { force = true })
                             end
+                            cache.invalidate_project(issue.project)
+                            api.get_issue(key, function(fetch_err, fresh_issue)
+                                if fetch_err then
+                                    notify.info("Issue updated: " .. key)
+                                else
+                                    notify.info("Issue updated: " .. key)
+                                    M.show_issue(fresh_issue)
+                                end
+                            end)
                         end
                     end)
                 else

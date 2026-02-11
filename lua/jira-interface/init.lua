@@ -376,6 +376,21 @@ function M.create_commands()
         vim.cmd("help atlassian-jira-keymaps")
     end, { desc = "Show help" })
 
+    cmd("JiraDebugFields", function(args)
+        local context = require("jira-interface.context")
+        context.resolve_issue_key_or_pick(args.args, function(key)
+            require("jira-interface.api").debug_fields(key, function(err, fields)
+                if err then
+                    notify.error(err)
+                else
+                    vim.schedule(function()
+                        vim.notify(table.concat(fields, "\n"), vim.log.levels.INFO, { title = "Custom fields for " .. key })
+                    end)
+                end
+            end)
+        end)
+    end, { nargs = "?", desc = "Debug: list custom field IDs for an issue" })
+
     cmd("JiraTest", function(args)
         local tests = require("jira-interface.tests")
         local mode = args.args

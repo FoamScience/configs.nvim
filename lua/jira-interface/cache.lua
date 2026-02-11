@@ -36,4 +36,12 @@ function M.stats()
     return get_cache().stats()
 end
 
+---@param key string Cache key
+---@param fetcher fun(callback: fun(err: string|nil, data: any))
+---@param callback fun(err: string|nil, data: any)
+---@param scope? string Optional scope for cache invalidation
+function M.get_or_fetch(key, fetcher, callback, scope)
+    return get_cache().get_or_fetch(key, fetcher, callback, scope)
+end
+
 return M

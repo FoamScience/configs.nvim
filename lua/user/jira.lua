@@ -14,7 +14,7 @@ require("jira-interface").setup({
     },
     default_project = vim.env.JIRA_PROJECT or nil, -- Optional: search across all projects if not set
     custom_fields = {
-        ["Acceptance Criteria"] = "customfield_10172",
+        ["Acceptance Criteria"] = "customfield_10417",
     },
 })
 

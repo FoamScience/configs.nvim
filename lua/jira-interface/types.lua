@@ -200,7 +200,8 @@ function M.parse_custom_fields_raw(fields)
     local result = {}
     for heading, field_id in pairs(config.options.custom_fields or {}) do
         local value = fields[field_id]
-        if value then
+
+        if value and value ~= vim.NIL then
             result[heading] = value
         end
     end

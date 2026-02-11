@@ -6,6 +6,7 @@ local cache = require("jira-interface.cache")
 local filters = require("jira-interface.filters")
 local config = require("jira-interface.config")
 local notify = require("jira-interface.notify")
+local createmeta = require("jira-interface.createmeta")
 local atlassian_ui = require("atlassian.ui")
 local atlassian_format = require("atlassian.format")
 local csf = require("atlassian.csf")
@@ -90,7 +91,7 @@ function M.show_issues(issues, opts)
                     opts.on_confirm(item.issue)
                 else
                     local ui = require("jira-interface.ui")
-                    ui.show_issue(item.issue)
+                    ui.view(item.issue.key)
                 end
             end
         end,
@@ -426,12 +427,14 @@ function M.select_filter()
     })
 end
 
+-- Module-level storage for create buffer metadata (avoids vim.b serialization issues)
+local create_buf_meta = {}
+
 ---@param type_name? string
 ---@param project? string
 ---@param parent_key? string
 function M.create_issue(type_name, project, parent_key)
     project = project or config.options.default_project
-    local opts = config.options
 
     -- If no project, prompt for one first
     if not project or project == "" then
@@ -457,51 +460,171 @@ function M.create_issue(type_name, project, parent_key)
         return
     end
 
-    -- If no type specified, show picker
-    if not type_name then
-        local all_types = {}
-        for _, t in ipairs(opts.types.lvl1) do
-            table.insert(all_types, t)
-        end
-        for _, t in ipairs(opts.types.lvl2) do
-            table.insert(all_types, t)
-        end
-        for _, t in ipairs(opts.types.lvl3) do
-            table.insert(all_types, t)
+    -- Fetch issue types from server (with cache)
+    createmeta.get_issue_types(project, function(err, issue_types)
+        if err then
+            notify.error("Failed to fetch issue types: " .. tostring(err))
+            return
         end
 
-        vim.ui.select(all_types, { prompt = "Issue type:" }, function(choice)
+        if not issue_types or #issue_types == 0 then
+            notify.error("No issue types available")
+            return
+        end
+
+        -- If type_name was provided, find matching server type
+        if type_name then
+            local matched
+            for _, it in ipairs(issue_types) do
+                if it.name:lower() == type_name:lower() then
+                    matched = it
+                    break
+                end
+            end
+            if matched then
+                M.after_type_selected(project, matched, parent_key)
+            else
+                notify.error("Issue type '" .. type_name .. "' not found")
+            end
+            return
+        end
+
+        -- Show picker with server-sourced types
+        local display_names = {}
+        local type_map = {}
+        for _, it in ipairs(issue_types) do
+            local label = it.name
+            if it.subtask then
+                label = label .. " (subtask)"
+            end
+            table.insert(display_names, label)
+            type_map[label] = it
+        end
+
+        vim.ui.select(display_names, { prompt = "Issue type:" }, function(choice)
             if choice then
-                M.create_issue(choice, project, parent_key)
+                M.after_type_selected(project, type_map[choice], parent_key)
             end
         end)
-        return
-    end
+    end)
+end
 
-    -- Show parent picker for non-epic types
-    local level = types.get_level(type_name)
-    if not parent_key and level > 1 then
-        M.select_parent(project, level, function(selected_parent)
-            M.open_create_buffer(project, type_name, selected_parent)
+---@param project string
+---@param issue_type CreateMetaIssueType
+---@param parent_key? string
+function M.after_type_selected(project, issue_type, parent_key)
+    -- Determine if parent selection is needed
+    local needs_parent = not parent_key
+        and (issue_type.subtask or issue_type.hierarchyLevel < 0
+            or (issue_type.hierarchyLevel == 0 and types.get_level(issue_type.name) > 1))
+
+    if needs_parent then
+        M.select_parent(project, issue_type, function(selected_parent)
+            M.proceed_to_fields(project, issue_type, selected_parent)
         end)
     else
-        M.open_create_buffer(project, type_name, parent_key)
+        M.proceed_to_fields(project, issue_type, parent_key)
     end
 end
 
 ---@param project string
----@param level number Current issue level (2 or 3)
----@param callback fun(parent_key: string|nil)
-function M.select_parent(project, level, callback)
-    -- Level 2 (Feature/Bug) -> parent should be Level 1 (Epic)
-    -- Level 3 (Task) -> parent should be Level 2 (Feature/Bug)
-    local parent_level = level - 1
-    if parent_level < 1 then
-        callback(nil)
+---@param issue_type CreateMetaIssueType
+---@param parent_key? string
+function M.proceed_to_fields(project, issue_type, parent_key)
+    createmeta.get_fields(project, issue_type.id, function(err, server_fields)
+        if err then
+            notify.error("Failed to fetch fields: " .. tostring(err))
+            return
+        end
+
+        local classified = createmeta.classify_all(server_fields or {})
+
+        -- Run picker chain for option fields, then open buffer
+        if #classified.picker > 0 then
+            M.run_picker_chain(classified.picker, {}, function(picker_values)
+                M.open_create_buffer(project, issue_type, parent_key, classified, picker_values)
+            end)
+        else
+            M.open_create_buffer(project, issue_type, parent_key, classified, {})
+        end
+    end)
+end
+
+---@param picker_fields ClassifiedField[]
+---@param values table Accumulated picker selections (fieldId → API value)
+---@param callback fun(values: table)
+function M.run_picker_chain(picker_fields, values, callback)
+    if #picker_fields == 0 then
+        callback(values)
         return
     end
 
-    local jql = filters.builtin.by_level(parent_level, project)
+    local field = picker_fields[1]
+    local remaining = { unpack(picker_fields, 2) }
+    local allowed = field.allowedValues or {}
+
+    if #allowed == 0 then
+        -- No allowed values to pick from, skip
+        M.run_picker_chain(remaining, values, callback)
+        return
+    end
+
+    local display_names = {}
+    local value_map = {}
+
+    -- Optional fields get a skip option
+    if not field.required then
+        table.insert(display_names, "(skip)")
+        value_map["(skip)"] = nil
+    end
+
+    for _, av in ipairs(allowed) do
+        local label = av.name or av.value or tostring(av.id)
+        table.insert(display_names, label)
+        value_map[label] = av
+    end
+
+    local prompt = field.name
+    if field.required then
+        prompt = prompt .. " (required)"
+    end
+
+    vim.ui.select(display_names, { prompt = prompt .. ":" }, function(choice)
+        if not choice then
+            -- User cancelled: if required, abort; otherwise skip
+            if field.required then
+                notify.warn("Required field '" .. field.name .. "' was not selected, aborting")
+                return
+            end
+        elseif choice ~= "(skip)" and value_map[choice] then
+            values[field.fieldId] = createmeta.serialize_picker_value(field, value_map[choice])
+        end
+
+        M.run_picker_chain(remaining, values, callback)
+    end)
+end
+
+---@param project string
+---@param issue_type CreateMetaIssueType
+---@param callback fun(parent_key: string|nil)
+function M.select_parent(project, issue_type, callback)
+    -- Build JQL for potential parents
+    -- Use hierarchyLevel: if current type is subtask/level<=0, parents are level 0+
+    -- For fallback types, use config-based level logic
+    local jql
+    local level = types.get_level(issue_type.name)
+    if level > 1 then
+        local parent_level = level - 1
+        jql = filters.builtin.by_level(parent_level, project)
+    else
+        -- Generic: search open issues in project as potential parents
+        if project and project ~= "" then
+            jql = string.format('project = "%s" AND status != Done ORDER BY updated DESC', project)
+        else
+            jql = 'status != Done ORDER BY updated DESC'
+        end
+    end
+
     api.search(jql, function(err, issues)
         if err then
             notify.error("Failed to fetch parent issues: " .. err)
@@ -565,35 +688,44 @@ function M.select_parent(project, level, callback)
 end
 
 ---@param project string
----@param type_name string
+---@param issue_type CreateMetaIssueType
 ---@param parent_key? string
-function M.open_create_buffer(project, type_name, parent_key)
+---@param classified ClassifiedFields
+---@param picker_values table<string, any> Picker field selections (fieldId → API value)
+function M.open_create_buffer(project, issue_type, parent_key, classified, picker_values)
     local buf = vim.api.nvim_create_buf(false, false)
-    local tmp_name = vim.fn.tempname() .. "_jira_create_" .. project .. "_" .. type_name .. ".csf"
+    local tmp_name = vim.fn.tempname() .. "_jira_create_" .. project .. "_" .. issue_type.name .. ".csf"
     vim.api.nvim_buf_set_name(buf, tmp_name)
     vim.bo[buf].bufhidden = "wipe"
     vim.bo[buf].buftype = "acwrite"
     vim.bo[buf].filetype = "csf"
 
-    -- CSF metadata line + template structure
+    -- CSF metadata line + template from classified fields
     local meta_line = csf.generate_metadata({
-        type = "jira", key = "NEW", project = project, issue_type = type_name,
+        type = "jira", key = "NEW", project = project, issue_type = issue_type.name,
     })
-    local template_lines = {
-        meta_line,
-        "<h1>" .. type_name .. "</h1>",
-        "<h2>Description</h2>",
-        "<p></p>",
+    local template_lines = createmeta.generate_template(classified, issue_type.name)
+    table.insert(template_lines, 1, meta_line)
+
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, template_lines)
+
+    -- Store metadata in module-level table (not vim.b, to avoid serialization issues)
+    create_buf_meta[buf] = {
+        project = project,
+        issue_type = issue_type,
+        parent_key = parent_key,
+        classified = classified,
+        picker_values = picker_values,
     }
 
-    -- Add sections for each configured custom field
-    for heading, _ in pairs(config.options.custom_fields or {}) do
-        table.insert(template_lines, "<h2>" .. heading .. "</h2>")
-        table.insert(template_lines, "<p></p>")
-    end
-
-    table.insert(template_lines, "<hr />")
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, template_lines)
+    -- Cleanup on buffer wipe
+    vim.api.nvim_create_autocmd("BufWipeout", {
+        buffer = buf,
+        once = true,
+        callback = function()
+            create_buf_meta[buf] = nil
+        end,
+    })
 
     vim.api.nvim_set_current_buf(buf)
     atlassian_ui.apply_window_options(buf, vim.api.nvim_get_current_win(), config.options.display)
@@ -609,61 +741,62 @@ function M.open_create_buffer(project, type_name, parent_key)
                 ls.unlink_current()
             end
 
-            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-
-            -- Remove metadata line
-            table.remove(content, 1)
-            -- Extract summary from <h1> title
-            local summary_text, remaining = csf.extract_title(content)
-            content = remaining
-
-            if not summary_text or summary_text == "" then
-                notify.error("Summary is required")
+            local meta = create_buf_meta[buf]
+            if not meta then
+                notify.error("Buffer metadata lost")
                 return
             end
 
-            -- Build section names from custom_fields config
-            local section_names = { "description" }
-            local custom_fields = config.options.custom_fields or {}
-            for heading, _ in pairs(custom_fields) do
-                table.insert(section_names, (heading:lower():gsub("%s+", "_")))
-            end
-            local parsed = csf.extract_sections(content, section_names)
+            -- Extract all fields from buffer using createmeta
+            local fields = createmeta.extract_fields_from_buffer(buf, meta.classified)
 
-            -- Convert description CSF → ADF for Jira API
-            local description_adf = nil
-            if parsed.description and parsed.description ~= "" then
-                description_adf = bridge.csf_to_adf(parsed.description)
+            if not fields.summary or fields.summary == "" or fields.summary == meta.issue_type.name then
+                notify.error("Summary is required (edit the <h1> title)")
+                return
             end
 
-            -- Convert custom field sections CSF → ADF
-            local extra_fields = {}
-            for heading, field_id in pairs(custom_fields) do
-                local key = heading:lower():gsub("%s+", "_")
-                if parsed[key] and parsed[key] ~= "" then
-                    extra_fields[field_id] = bridge.csf_to_adf(parsed[key])
-                end
+            -- Add project and issuetype
+            fields.project = { key = meta.project }
+            fields.issuetype = { id = meta.issue_type.id }
+
+            -- Add parent if specified
+            if meta.parent_key then
+                fields.parent = { key = meta.parent_key }
+            end
+
+            -- Merge picker values
+            for field_id, value in pairs(meta.picker_values or {}) do
+                fields[field_id] = value
             end
 
             if api.is_online then
-                notify.progress_start("create_issue", "Creating " .. type_name)
-                api.create_issue_full(project, type_name, summary_text, description_adf, extra_fields,
-                    parent_key, function(err, issue)
-                        if err then
-                            notify.progress_error("create_issue", "Create failed: " .. err)
-                        else
-                            notify.progress_finish("create_issue", "Created: " .. issue.key)
-                            if vim.api.nvim_buf_is_valid(buf) then
-                                vim.api.nvim_buf_delete(buf, { force = true })
-                            end
-                            cache.invalidate_project(project)
-                            local ui = require("jira-interface.ui")
-                            ui.show_issue(issue)
+                notify.progress_start("create_issue", "Creating " .. meta.issue_type.name)
+                api.create_issue_with_fields(fields, function(create_err, issue)
+                    if create_err then
+                        notify.progress_error("create_issue", "Create failed: " .. tostring(create_err))
+                    else
+                        notify.progress_finish("create_issue", "Created: " .. issue.key)
+                        if vim.api.nvim_buf_is_valid(buf) then
+                            vim.api.nvim_buf_delete(buf, { force = true })
                         end
-                    end)
+                        cache.invalidate_project(meta.project)
+                        local ui = require("jira-interface.ui")
+                        ui.show_issue(issue)
+                    end
+                end)
             else
+                -- Offline: queue with summary + description only
+                local desc_csf = nil
+                local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                table.remove(content, 1) -- metadata
+                local _, remaining = csf.extract_title(content)
+                local parsed = csf.extract_sections(remaining, { "description" })
+                if parsed.description and parsed.description ~= "" then
+                    desc_csf = parsed.description
+                end
+
                 local queue = require("jira-interface.queue")
-                queue.queue_create(project, type_name, summary_text, parsed.description, parent_key)
+                queue.queue_create(meta.project, meta.issue_type.name, fields.summary, desc_csf, meta.parent_key)
                 if vim.api.nvim_buf_is_valid(buf) then
                     vim.api.nvim_buf_delete(buf, { force = true })
                 end

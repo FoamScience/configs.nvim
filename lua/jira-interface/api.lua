@@ -44,15 +44,26 @@ function M.check_connectivity(callback)
     end)
 end
 
+-- Build repeated &fields=X query param string for v3 API
+local function build_fields_param()
+    local field_list = {
+        "summary", "description", "status", "issuetype", "project",
+        "assignee", "parent", "attachment", "comment", "duedate",
+        "created", "updated",
+    }
+    for _, field_id in pairs(config.options.custom_fields or {}) do
+        table.insert(field_list, field_id)
+    end
+    local parts = {}
+    for _, f in ipairs(field_list) do
+        table.insert(parts, "fields=" .. f)
+    end
+    return table.concat(parts, "&")
+end
+
 ---@param jql string
 ---@param callback fun(err: string|nil, issues: JiraIssue[]|nil)
 function M.search(jql, callback)
-    local fields =
-    "summary,description,status,issuetype,project,assignee,parent,attachment,comment,duedate,created,updated"
-    for _, field_id in pairs(config.options.custom_fields or {}) do
-        fields = fields .. "," .. field_id
-    end
-
     local since = config.options.since
     if since and since ~= "" then
         local order_by = jql:match("(ORDER%s+BY%s+.+)$")
@@ -69,7 +80,7 @@ function M.search(jql, callback)
     end
 
     local max_results = config.options.max_results or 100
-    local endpoint = "/search/jql?jql=" .. vim.uri_encode(jql) .. "&fields=" .. fields .. "&maxResults=" .. max_results
+    local endpoint = "/search/jql?jql=" .. vim.uri_encode(jql) .. "&" .. build_fields_param() .. "&maxResults=" .. max_results
 
     M.request(endpoint, "GET", nil, function(err, data)
         if err then
@@ -88,18 +99,43 @@ end
 ---@param key string
 ---@param callback fun(err: string|nil, issue: JiraIssue|nil)
 function M.get_issue(key, callback)
-    local fields =
-    "summary,description,status,issuetype,project,assignee,parent,attachment,comment,duedate,created,updated"
-    for _, field_id in pairs(config.options.custom_fields or {}) do
-        fields = fields .. "," .. field_id
-    end
-
-    M.request("/issue/" .. key .. "?fields=" .. fields, "GET", nil, function(err, data)
+    M.request("/issue/" .. key .. "?" .. build_fields_param(), "GET", nil, function(err, data)
         if err then
             callback(err, nil)
             return
         end
         callback(nil, types.parse_issue(data))
+    end)
+end
+
+--- Debug: dump custom field keys from a raw issue response
+---@param key string
+---@param callback fun(err: string|nil, result: string[]|nil)
+function M.debug_fields(key, callback)
+    M.request("/issue/" .. key, "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        local fields = data.fields or {}
+        local custom = {}
+        for k, v in pairs(fields) do
+            if k:match("^customfield_") then
+                local preview
+                if type(v) == "table" and v.content then
+                    preview = "ADF document"
+                elseif type(v) == "table" then
+                    preview = vim.inspect(v, { depth = 1 })
+                elseif type(v) == "string" then
+                    preview = v:sub(1, 80)
+                else
+                    preview = tostring(v)
+                end
+                table.insert(custom, k .. " = " .. preview)
+            end
+        end
+        table.sort(custom)
+        callback(nil, custom)
     end)
 end
 
@@ -347,6 +383,103 @@ function M.assign_issue(key, account_id, callback)
     local body = { accountId = account_id }
     M.request("/issue/" .. key .. "/assignee", "PUT", body, function(err, _)
         callback(err)
+    end)
+end
+
+-- =============================================================================
+-- Createmeta endpoints (per-project scoped, non-deprecated)
+-- =============================================================================
+
+---@class CreateMetaIssueType
+---@field id string Issue type ID
+---@field name string Issue type name
+---@field subtask boolean Whether this is a subtask type
+---@field hierarchyLevel number Hierarchy level (0 = base, -1 = subtask, 1+ = parent)
+
+---@param project_key string
+---@param callback fun(err: string|nil, types: CreateMetaIssueType[]|nil)
+function M.get_create_issue_types(project_key, callback)
+    local endpoint = "/issue/createmeta/" .. project_key .. "/issuetypes?maxResults=100"
+    M.request(endpoint, "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        local result = {}
+        for _, raw in ipairs(data.issueTypes or data.values or {}) do
+            table.insert(result, {
+                id = raw.id or "",
+                name = raw.name or "",
+                subtask = raw.subtask or false,
+                hierarchyLevel = raw.hierarchyLevel or 0,
+            })
+        end
+        callback(nil, result)
+    end)
+end
+
+---@class CreateMetaField
+---@field fieldId string Field ID (e.g., "summary", "priority", "customfield_10020")
+---@field name string Display name
+---@field required boolean Whether the field is required
+---@field schema table { type, items, system, custom }
+---@field allowedValues? table[] Allowed values for option fields
+---@field hasDefaultValue boolean Whether the field has a default
+---@field operations string[] Allowed operations
+
+---@param project_key string
+---@param issue_type_id string
+---@param callback fun(err: string|nil, fields: CreateMetaField[]|nil)
+function M.get_create_fields(project_key, issue_type_id, callback)
+    local endpoint = "/issue/createmeta/" .. project_key .. "/issuetypes/" .. issue_type_id .. "?maxResults=100"
+    M.request(endpoint, "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        local result = {}
+        for _, raw in ipairs(data.fields or data.values or {}) do
+            table.insert(result, {
+                fieldId = raw.fieldId or raw.key or "",
+                name = raw.name or "",
+                required = raw.required or false,
+                schema = raw.schema or {},
+                allowedValues = raw.allowedValues,
+                hasDefaultValue = raw.hasDefaultValue or false,
+                operations = raw.operations or {},
+            })
+        end
+        callback(nil, result)
+    end)
+end
+
+---@param fields table Complete fields table for POST /issue
+---@param callback fun(err: string|nil, issue: JiraIssue|nil)
+function M.create_issue_with_fields(fields, callback)
+    M.get_current_user(function(user_err, user)
+        if not user_err and user and user.accountId and not fields.assignee then
+            fields.assignee = { accountId = user.accountId }
+        end
+
+        M.request("/issue", "POST", { fields = fields }, function(err, data)
+            if err then
+                -- Retry without assignee if that caused the error
+                if err.message and err.message:match("assignee") then
+                    fields.assignee = nil
+                    M.request("/issue", "POST", { fields = fields }, function(retry_err, retry_data)
+                        if retry_err then
+                            callback(retry_err, nil)
+                        else
+                            M.get_issue(retry_data.key, callback)
+                        end
+                    end)
+                    return
+                end
+                callback(err, nil)
+                return
+            end
+            M.get_issue(data.key, callback)
+        end)
     end)
 end
 
