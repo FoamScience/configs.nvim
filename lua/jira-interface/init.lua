@@ -373,8 +373,7 @@ function M.create_commands()
     end, { desc = "Show connection status" })
 
     cmd("JiraHelp", function()
-        local ui = require("jira-interface.ui")
-        ui.show_help()
+        vim.cmd("help atlassian-jira-keymaps")
     end, { desc = "Show help" })
 
     cmd("JiraTest", function(args)

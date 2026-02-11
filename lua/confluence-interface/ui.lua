@@ -117,7 +117,7 @@ function M.show_page(page)
     end, { buffer = buf, desc = "Open in browser" })
 
     vim.keymap.set("n", "?", function()
-        M.show_help()
+        vim.cmd("help atlassian-confluence-keymaps")
     end, { buffer = buf, desc = "Show help" })
 end
 
@@ -281,47 +281,6 @@ function M.create_page_buffer(space_id, space_key, parent_id)
                 end)
         end,
     })
-end
-
-function M.show_help()
-    local buf, _ = create_window({ title = "Confluence Interface Help", bufname = "confluence://help", width = 60, height = 35 })
-
-    local lines = {
-        "<h1>Confluence Interface - Keybindings</h1>",
-        "<h2>Page View</h2>",
-        "<ul>",
-        "<li><p><code>e</code> - Edit page</p></li>",
-        "<li><p><code>c</code> - Show child pages</p></li>",
-        "<li><p><code>y</code> - Copy page ID</p></li>",
-        "<li><p><code>Y</code> - Copy page URL</p></li>",
-        "<li><p><code>o</code> - Open in browser</p></li>",
-        "<li><p><code>q</code> - Close (<code>:q</code>)</p></li>",
-        "</ul>",
-        "<h2>Picker</h2>",
-        "<ul>",
-        "<li><p><code>&lt;CR&gt;</code> - View page</p></li>",
-        "<li><p><code>&lt;C-e&gt;</code> - Edit page</p></li>",
-        "<li><p><code>&lt;C-y&gt;</code> - Copy URL</p></li>",
-        "<li><p><code>&lt;C-o&gt;</code> - Open in browser</p></li>",
-        "<li><p><code>&lt;C-c&gt;</code> - Show children</p></li>",
-        "<li><p><code>&lt;C-x&gt;</code> - Delete page</p></li>",
-        "</ul>",
-        "<h2>Commands</h2>",
-        "<ul>",
-        "<li><p><code>:ConfluenceSpaces</code> - List all spaces</p></li>",
-        "<li><p><code>:ConfluencePages [space]</code> - Pages in space</p></li>",
-        "<li><p><code>:ConfluenceRecent</code> - Recent pages</p></li>",
-        "<li><p><code>:ConfluenceSearch &lt;query&gt;</code> - Search pages</p></li>",
-        "<li><p><code>:ConfluenceView &lt;id&gt;</code> - View page by ID</p></li>",
-        "<li><p><code>:ConfluenceEdit &lt;id&gt;</code> - Edit page by ID</p></li>",
-        "<li><p><code>:ConfluenceCreate [space]</code> - Create new page</p></li>",
-        "<li><p><code>:ConfluenceRefresh</code> - Clear cache</p></li>",
-        "<li><p><code>:ConfluenceStatus</code> - Connection status</p></li>",
-        "</ul>",
-    }
-
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-    vim.bo[buf].modifiable = false
 end
 
 function M.show_status()

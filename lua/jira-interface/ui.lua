@@ -145,7 +145,7 @@ function M.show_issue(issue)
     end, { buffer = buf, desc = "Copy issue URL" })
 
     vim.keymap.set("n", "?", function()
-        M.show_help()
+        vim.cmd("help atlassian-jira-keymaps")
     end, { buffer = buf, desc = "Show help" })
 end
 
@@ -393,75 +393,10 @@ function M.show_queue()
             end
         end)
     end, { buffer = buf, desc = "Clear all" })
-end
 
-function M.show_help()
-    local buf, _ = create_window({ title = "Jira Interface Help", bufname = "jira://help", width = 70, height = 52 })
-
-    local lines = {
-        "<h1>Jira Interface - Keybindings</h1>",
-        "<h2>Issue View</h2>",
-        "<ul>",
-        "<li><p><code>t</code> - Transition status</p></li>",
-        "<li><p><code>e</code> - Edit issue</p></li>",
-        "<li><p><code>c</code> - Show children</p></li>",
-        "<li><p><code>y</code> - Copy issue key</p></li>",
-        "<li><p><code>Y</code> - Copy issue URL</p></li>",
-        "<li><p><code>q</code> - Close (<code>:q</code>)</p></li>",
-        "</ul>",
-        "<h2>Picker</h2>",
-        "<ul>",
-        "<li><p><code>&lt;CR&gt;</code> - Open issue</p></li>",
-        "<li><p><code>&lt;C-t&gt;</code> - Transition status</p></li>",
-        "<li><p><code>&lt;C-y&gt;</code> - Copy issue key</p></li>",
-        "</ul>",
-        "<h2>Team Dashboard (&lt;leader&gt;jw)</h2>",
-        "<ul>",
-        "<li><p><code>&lt;CR&gt;</code> - View issue</p></li>",
-        "<li><p><code>&lt;C-a&gt;</code> - Assign to me</p></li>",
-        "<li><p><code>&lt;C-t&gt;</code> - Transition status</p></li>",
-        "</ul>",
-        "<h2>TODO to Issue (&lt;leader&gt;jT)</h2>",
-        "<ul>",
-        "<li><p><code>&lt;Tab&gt;</code> - Toggle selection</p></li>",
-        "<li><p><code>&lt;C-a&gt;</code> - Select all</p></li>",
-        "<li><p><code>&lt;C-n&gt;</code> - Select none</p></li>",
-        "<li><p><code>&lt;CR&gt;</code> - Confirm (auto-uses branch issue as parent)</p></li>",
-        "</ul>",
-        "<h2>Context-Aware Commands</h2>",
-        "<ul>",
-        "<li><p><code>:JiraView [key]</code> - View issue (branch or picker)</p></li>",
-        "<li><p><code>:JiraEdit [key]</code> - Edit issue (branch or picker)</p></li>",
-        "<li><p><code>:JiraTransition [key]</code> - Change status</p></li>",
-        "<li><p><code>:JiraStart [key]</code> - Quick transition to In Progress</p></li>",
-        "<li><p><code>:JiraDone [key]</code> - Quick transition to Done</p></li>",
-        "<li><p><code>:JiraReview [key]</code> - Quick transition to In Review</p></li>",
-        "<li><p><code>:JiraQuick &lt;summary&gt;</code> - Create Sub-Task under branch issue</p></li>",
-        "</ul>",
-        "<h2>Search Commands</h2>",
-        "<ul>",
-        "<li><p><code>:JiraSearch</code> - Search all issues</p></li>",
-        "<li><p><code>:JiraMe</code> - My assigned issues</p></li>",
-        "<li><p><code>:JiraProject [name]</code> - Filter by project</p></li>",
-        "<li><p><code>:JiraEpics</code> - Level 1 (Epics)</p></li>",
-        "<li><p><code>:JiraFeatures</code> - Level 2</p></li>",
-        "<li><p><code>:JiraTasks</code> - Level 3 (Tasks)</p></li>",
-        "<li><p><code>:JiraDue [overdue|today|week|soon]</code> - Filter by due date</p></li>",
-        "</ul>",
-        "<h2>Other Commands</h2>",
-        "<ul>",
-        "<li><p><code>:JiraCreate [type]</code> - Create issue (full form)</p></li>",
-        "<li><p><code>:JiraFilter</code> - Manage saved filters</p></li>",
-        "<li><p><code>:JiraTeam [project]</code> - Team workload dashboard</p></li>",
-        "<li><p><code>:JiraTodoToIssue [buffer|project]</code> - Convert TODOs to Sub-Tasks</p></li>",
-        "<li><p><code>:JiraQueue</code> - View offline queue</p></li>",
-        "<li><p><code>:JiraRefresh</code> - Clear cache</p></li>",
-        "<li><p><code>:JiraStatus</code> - Connection status</p></li>",
-        "</ul>",
-    }
-
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-    vim.bo[buf].modifiable = false
+    vim.keymap.set("n", "?", function()
+        vim.cmd("help atlassian-jira-keymaps")
+    end, { buffer = buf, desc = "Show help" })
 end
 
 function M.show_status()

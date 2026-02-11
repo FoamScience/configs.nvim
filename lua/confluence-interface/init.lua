@@ -161,8 +161,7 @@ function M.create_commands()
     end, { desc = "Show connection status" })
 
     cmd("ConfluenceHelp", function()
-        local ui = require("confluence-interface.ui")
-        ui.show_help()
+        vim.cmd("help atlassian-confluence-keymaps")
     end, { desc = "Show help" })
 
     -- Debug commands
