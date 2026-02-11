@@ -95,18 +95,13 @@ local ty_opts = {
     root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
     on_attach = function(client, bufnr)
         find_uv_python_path(bufnr, client, function(_, uv_python)
-            if not uv_python then
-                return
-            end
-            vim.lsp.config.ty = {
-                settings = {
-                    environment = {
-                        python = uv_python,
-                    }
-                }
-            }
-            vim.lsp.enable("ty", false)
-            vim.lsp.enable("ty", true)
+            if not uv_python then return end
+            client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
+                environment = { python = uv_python }
+            })
+            client:notify("workspace/didChangeConfiguration", {
+                settings = client.settings
+            })
         end)
     end,
 }
@@ -117,7 +112,7 @@ end
 
 local ty_bin = mason_bin("ty")
 local xonsh_lsp_opts = {
-    cmd = { "uvx", "xonsh-lsp" },
+    cmd = { "uvx", "-n", "xonsh-lsp" },
     filetypes = { "xonsh" },
     root_markers = { ".xonshrc", "xonshrc", ".git" },
     init_options = {
@@ -126,6 +121,7 @@ local xonsh_lsp_opts = {
     },
     settings = ty_opts.settings,
     on_attach = function(client, bufnr)
+        client.name = "xonsh-lsp[ty]"
         find_uv_python_path(bufnr, client, function(_, uv_python)
             if not uv_python then return end
             client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
@@ -237,7 +233,7 @@ return {
                 },
                 servers = {
                     stylua = { enabled = false },
-                    pyright = { enable = false },
+                    pyright = { enabled = false },
                     ty = ty_opts,
                     lua_ls = luals_opts,
                     clangd = clangd_opts,
