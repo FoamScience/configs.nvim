@@ -25,7 +25,7 @@ M.commands = {
     { name = "Quote",          keywords = { "blockquote", "cite" },    icon = "", description = "Block quote",                       category = "Formatting", filetypes = csf_ft, interactive = false },
 
     -- Code
-    { name = "Code block",     keywords = { "code", "snippet", "pre" }, icon = "", description = "Fenced code block with language",   category = "Code",       filetypes = csf_ft, interactive = true },
+    { name = "Code block",     keywords = { "code", "snippet", "pre" }, icon = "", description = "Fenced code block with language",   category = "Code",       filetypes = csf_ft, interactive = false },
 
     -- Panels (CSF — bridge handles ADF conversion for Jira)
     { name = "Info panel",     keywords = { "info", "note blue" },     icon = "", description = "Blue information panel",             category = "Panels",     filetypes = csf_ft, interactive = false },

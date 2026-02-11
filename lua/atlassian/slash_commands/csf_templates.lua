@@ -21,10 +21,11 @@ M.templates = {
     }, "\n"),
 
     ["Code block"] = table.concat({
-        '<ac:structured-macro ac:name="code">',
-        '  <ac:parameter ac:name="language">${1:java}</ac:parameter>',
-        "  <ac:plain-text-body><![CDATA[${2:code}]]></ac:plain-text-body>",
-        "</ac:structured-macro>",
+        '<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">',
+        "${1:java}",
+        "</ac:parameter><ac:plain-text-body><![CDATA[",
+        "${2:code}",
+        "]]></ac:plain-text-body></ac:structured-macro>",
         "$0",
     }, "\n"),
 

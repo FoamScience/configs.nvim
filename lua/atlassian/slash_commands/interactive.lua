@@ -2,13 +2,6 @@
 -- Invoked after snippet expansion for commands with interactive = true
 local M = {}
 
-local LANGUAGES = {
-    "java", "javascript", "typescript", "python", "lua", "bash", "sh", "c", "cpp",
-    "csharp", "go", "rust", "ruby", "php", "sql", "xml", "html", "css", "json",
-    "yaml", "toml", "markdown", "groovy", "kotlin", "scala", "swift", "dart",
-    "powershell", "dockerfile", "terraform", "hcl",
-}
-
 local STATUS_COLORS = {
     { name = "Green",  desc = "Success / Done" },
     { name = "Yellow", desc = "In Progress / Warning" },
@@ -19,9 +12,7 @@ local STATUS_COLORS = {
 
 ---@param command_name string
 function M.run(command_name)
-    if command_name == "Code block" then
-        M.pick_language()
-    elseif command_name == "Mention" then
+    if command_name == "Mention" then
         M.pick_user()
     elseif command_name == "Page link" then
         M.pick_page()
@@ -30,48 +21,6 @@ function M.run(command_name)
     elseif command_name == "Status" then
         M.pick_status_color()
     end
-end
-
-function M.pick_language()
-    local Snacks = require("snacks")
-    local items = {}
-    for idx, lang in ipairs(LANGUAGES) do
-        table.insert(items, {
-            idx = idx,
-            text = lang,
-            lang = lang,
-        })
-    end
-
-    Snacks.picker.pick({
-        title = "Select Language",
-        items = items,
-        format = function(item, _picker)
-            return { { item.lang, "Normal" } }
-        end,
-        confirm = function(picker, item)
-            picker:close()
-            if item then
-                -- Replace the current placeholder text with the selected language
-                M.replace_snippet_placeholder(item.lang)
-            end
-        end,
-        layout = {
-            layout = {
-                box = "vertical",
-                backdrop = false,
-                row = -1,
-                width = 0,
-                height = 0.3,
-                border = "top",
-                title = " {title} {live} {flags}",
-                title_pos = "left",
-                { win = "input", height = 1, border = "bottom" },
-                { win = "list", border = "none" },
-            },
-        },
-        preview = false,
-    })
 end
 
 function M.pick_user()
@@ -359,9 +308,7 @@ function M.setup_keymap(buf)
         -- Unified CSF detection — both Confluence and Jira buffers contain CSF
         local line = vim.api.nvim_get_current_line()
 
-        if line:match('ac:name="code"') then
-            M.run("Code block")
-        elseif line:match("ri:user") then
+        if line:match("ri:user") then
             M.run("Mention")
         elseif line:match("ri:page") or line:match("ri:content%-title") then
             M.run("Page link")

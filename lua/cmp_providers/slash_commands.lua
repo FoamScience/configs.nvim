@@ -64,6 +64,12 @@ function M:get_completions(ctx, callback)
     -- Unified CSF templates for all filetypes
     local templates = require("atlassian.slash_commands.csf_templates")
 
+    -- textEdit range: from the / trigger to the current cursor position
+    local edit_range = {
+        start = { line = ctx.cursor[1] - 1, character = slash_pos - 1 },
+        ["end"] = { line = ctx.cursor[1] - 1, character = ctx.cursor[2] },
+    }
+
     local items = {}
     for _, cmd in ipairs(commands) do
         local snippet = templates.get(cmd.name)
@@ -76,7 +82,10 @@ function M:get_completions(ctx, callback)
 
             table.insert(items, {
                 label = "/" .. cmd.name,
-                insertText = snippet,
+                textEdit = {
+                    range = edit_range,
+                    newText = snippet,
+                },
                 insertTextFormat = lsp_protocol.InsertTextFormat.Snippet,
                 kind = types.CompletionItemKind.Snippet,
                 filterText = "/" .. table.concat(filter_parts, " "),
@@ -111,17 +120,29 @@ function M:get_completions(ctx, callback)
     return function() end
 end
 
-function M:execute(ctx, item)
-    if not item or not item.data then return end
-    -- Auto-trigger upload flow on confirm (no <C-Space> needed)
-    if item.data.command_name == "Upload" then
-        vim.schedule(function()
-            local ok, upload = pcall(require, "atlassian.csf.upload")
-            if ok then
-                upload.upload_attachment(vim.api.nvim_get_current_buf())
-            end
-        end)
+function M:execute(ctx, item, resolve, default_implementation)
+    -- Apply the text edit / expand snippet first
+    default_implementation()
+
+    if item and item.data then
+        if item.data.command_name == "Upload" then
+            vim.schedule(function()
+                local ok, upload = pcall(require, "atlassian.csf.upload")
+                if ok then
+                    upload.upload_attachment(vim.api.nvim_get_current_buf())
+                end
+            end)
+        elseif item.data.interactive then
+            vim.schedule(function()
+                local ok, interactive = pcall(require, "atlassian.slash_commands.interactive")
+                if ok then
+                    interactive.run(item.data.command_name)
+                end
+            end)
+        end
     end
+
+    resolve()
 end
 
 return M
