@@ -11,6 +11,14 @@ local atlassian_adf = require("atlassian.adf")
 ---@field url string Download URL
 ---@field created string Created timestamp
 
+---@class JiraComment
+---@field id string Comment ID
+---@field author_name string Author display name
+---@field author_account_id string Author account ID
+---@field body table ADF table for comment body
+---@field created string Created timestamp
+---@field updated string Updated timestamp
+
 ---@class JiraIssue
 ---@field key string Issue key (e.g., "PROJ-123")
 ---@field id string Issue ID
@@ -25,7 +33,9 @@ local atlassian_adf = require("atlassian.adf")
 ---@field parent string|nil Parent issue key
 ---@field children string[] Child issue keys
 ---@field attachments JiraAttachment[] Attachments
----@field comment_count number Number of comments
+---@field comments JiraComment[] Comments
+---@field comments_total number Total number of comments
+---@field comment_count number Number of comments (backward compat)
 ---@field web_url string URL to view issue in browser
 ---@field duedate string|nil Due date (YYYY-MM-DD)
 ---@field created string Created timestamp
@@ -108,10 +118,7 @@ function M.parse_issue(raw)
     local issue_type = is_table(fields.issuetype) and fields.issuetype.name or "Unknown"
     local key = raw.key or ""
 
-    local comment_count = 0
-    if is_table(fields.comment) then
-        comment_count = fields.comment.total or 0
-    end
+    local comments, comments_total = M.parse_comments(fields.comment)
 
     local base_url = config.options.auth.url or ""
     if not base_url:match("^https?://") then
@@ -137,7 +144,9 @@ function M.parse_issue(raw)
         parent = is_table(fields.parent) and fields.parent.key or nil,
         children = {},
         attachments = M.parse_attachments(fields.attachment),
-        comment_count = comment_count,
+        comments = comments,
+        comments_total = comments_total,
+        comment_count = comments_total,
         web_url = web_url,
         duedate = type(fields.duedate) == "string" and fields.duedate or nil,
         created = fields.created or "",
@@ -167,6 +176,37 @@ function M.parse_attachments(attachments)
     end
 
     return result
+end
+
+---@param raw table Raw Jira API comment object
+---@return JiraComment
+function M.parse_comment(raw)
+    local author = is_table(raw.author) and raw.author or {}
+    return {
+        id = raw.id or "",
+        author_name = author.displayName or "Unknown",
+        author_account_id = author.accountId or "",
+        body = is_table(raw.body) and raw.body or {},
+        created = raw.created or "",
+        updated = raw.updated or "",
+    }
+end
+
+---@param comment_field any The fields.comment object from Jira API
+---@return JiraComment[], number
+function M.parse_comments(comment_field)
+    local comments = {}
+    local total = 0
+    if not is_table(comment_field) then
+        return comments, total
+    end
+    total = comment_field.total or 0
+    for _, raw in ipairs(comment_field.comments or {}) do
+        if is_table(raw) then
+            table.insert(comments, M.parse_comment(raw))
+        end
+    end
+    return comments, total
 end
 
 ---@param description any

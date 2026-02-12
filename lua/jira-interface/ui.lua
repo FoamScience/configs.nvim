@@ -103,11 +103,8 @@ function M.show_issue(issue)
     end
 
     -- Comments
-    if issue.comment_count and issue.comment_count > 0 then
-        table.insert(lines, "<hr />")
-        table.insert(lines, "<h2>Comments (" .. issue.comment_count .. ")</h2>")
-        table.insert(lines, '<p><a href="' .. issue.web_url .. '">View comments in browser</a></p>')
-    end
+    local comments_mod = require("jira-interface.comments")
+    vim.list_extend(lines, comments_mod.render_comments_section(issue))
 
     -- Attachments
     if issue.attachments and #issue.attachments > 0 then
@@ -163,6 +160,22 @@ function M.show_issue(issue)
     vim.keymap.set("n", "?", function()
         vim.cmd("help atlassian-jira-keymaps")
     end, { buffer = buf, desc = "Show help" })
+
+    vim.keymap.set("n", "a", function()
+        comments_mod.add_comment(issue.key)
+    end, { buffer = buf, desc = "Add comment" })
+
+    vim.keymap.set("n", "C", function()
+        comments_mod.fetch_and_select_comment(issue.key, "edit", function(comment)
+            comments_mod.edit_comment(issue.key, comment)
+        end)
+    end, { buffer = buf, desc = "Edit comment" })
+
+    vim.keymap.set("n", "D", function()
+        comments_mod.fetch_and_select_comment(issue.key, "delete", function(comment)
+            comments_mod.delete_comment(issue.key, comment)
+        end)
+    end, { buffer = buf, desc = "Delete comment" })
 end
 
 ---@param key string

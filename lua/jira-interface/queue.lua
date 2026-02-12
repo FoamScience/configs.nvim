@@ -92,6 +92,17 @@ function M.queue_transition(issue_key, transition_id, transition_name)
     })
 end
 
+---@param issue_key string
+---@param body_csf string CSF string for comment body (converted to ADF on sync)
+function M.queue_comment(issue_key, body_csf)
+    M.add({
+        type = "comment",
+        issue_key = issue_key,
+        data = { body_csf = body_csf },
+        description = string.format("Comment on %s", issue_key),
+    })
+end
+
 ---@param project string
 ---@param issue_type string
 ---@param summary string
@@ -177,6 +188,21 @@ function M.sync_all(callback)
             end)
         elseif edit.type == "transition" then
             api.do_transition(edit.issue_key, edit.data.transition_id, function(err)
+                table.insert(results, {
+                    id = edit.id,
+                    success = err == nil,
+                    error = err,
+                    description = edit.description,
+                })
+                if not err then
+                    M.remove(edit.id)
+                end
+                on_complete()
+            end)
+        elseif edit.type == "comment" then
+            local bridge = require("atlassian.csf.bridge")
+            local body_adf = bridge.csf_to_adf(edit.data.body_csf or "")
+            api.add_comment(edit.issue_key, body_adf, function(err)
                 table.insert(results, {
                     id = edit.id,
                     success = err == nil,

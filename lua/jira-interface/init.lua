@@ -223,6 +223,51 @@ function M.create_commands()
         end)
     end, { nargs = "+", desc = "Quick create Sub-Task under branch issue" })
 
+    -- Comment commands
+    cmd("JiraComment", function(args)
+        local context = require("jira-interface.context")
+        local comments_mod = require("jira-interface.comments")
+        local parts = vim.split(vim.trim(args.args or ""), "%s+", { trimempty = true })
+        local subcommand = parts[1] or "add"
+        local key_arg = parts[2]
+
+        -- If first arg looks like an issue key (e.g., PROJ-123), treat it as key with default "add"
+        if subcommand:match("^[A-Z][A-Z0-9]*%-[0-9]+$") then
+            key_arg = subcommand
+            subcommand = "add"
+        end
+
+        if subcommand == "add" then
+            context.resolve_issue_key_or_pick(key_arg, function(key)
+                comments_mod.add_comment(key)
+            end)
+        elseif subcommand == "edit" then
+            context.resolve_issue_key_or_pick(key_arg, function(key)
+                comments_mod.fetch_and_select_comment(key, "edit", function(comment)
+                    comments_mod.edit_comment(key, comment)
+                end)
+            end)
+        elseif subcommand == "delete" then
+            context.resolve_issue_key_or_pick(key_arg, function(key)
+                comments_mod.fetch_and_select_comment(key, "delete", function(comment)
+                    comments_mod.delete_comment(key, comment)
+                end)
+            end)
+        else
+            notify.error("Unknown subcommand: " .. subcommand .. ". Use add, edit, or delete.")
+        end
+    end, {
+        nargs = "*",
+        desc = "Manage Jira comments (add|edit|delete [key])",
+        complete = function(_, cmdline, _)
+            local parts = vim.split(cmdline, "%s+")
+            if #parts == 2 then
+                return { "add", "edit", "delete" }
+            end
+            return {}
+        end,
+    })
+
     -- Filter commands
     cmd("JiraFilter", function(args)
         local subcommand = args.fargs[1]
@@ -621,6 +666,7 @@ M.cache = require("jira-interface.cache")
 M.queue = require("jira-interface.queue")
 M.types = require("jira-interface.types")
 M.context = require("jira-interface.context")
+M.comments = require("jira-interface.comments")
 M.config = config
 
 return M

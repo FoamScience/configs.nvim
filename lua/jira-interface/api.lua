@@ -387,6 +387,74 @@ function M.assign_issue(key, account_id, callback)
 end
 
 -- =============================================================================
+-- Comment endpoints
+-- =============================================================================
+
+---@param issue_key string
+---@param opts? { startAt?: number, maxResults?: number }
+---@param callback fun(err: string|nil, data: { comments: JiraComment[], total: number }|nil)
+function M.get_comments(issue_key, opts, callback)
+    opts = opts or {}
+    local params = {}
+    if opts.startAt then
+        table.insert(params, "startAt=" .. opts.startAt)
+    end
+    if opts.maxResults then
+        table.insert(params, "maxResults=" .. opts.maxResults)
+    end
+    local query = #params > 0 and ("?" .. table.concat(params, "&")) or ""
+    M.request("/issue/" .. issue_key .. "/comment" .. query, "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        local comments = {}
+        for _, raw in ipairs(data.comments or {}) do
+            table.insert(comments, types.parse_comment(raw))
+        end
+        callback(nil, { comments = comments, total = data.total or #comments })
+    end)
+end
+
+---@param issue_key string
+---@param body_adf table ADF document for comment body
+---@param callback fun(err: string|nil, comment: JiraComment|nil)
+function M.add_comment(issue_key, body_adf, callback)
+    local body = { body = body_adf }
+    M.request("/issue/" .. issue_key .. "/comment", "POST", body, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        callback(nil, types.parse_comment(data))
+    end)
+end
+
+---@param issue_key string
+---@param comment_id string
+---@param body_adf table ADF document for updated comment body
+---@param callback fun(err: string|nil, comment: JiraComment|nil)
+function M.update_comment(issue_key, comment_id, body_adf, callback)
+    local body = { body = body_adf }
+    M.request("/issue/" .. issue_key .. "/comment/" .. comment_id, "PUT", body, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        callback(nil, types.parse_comment(data))
+    end)
+end
+
+---@param issue_key string
+---@param comment_id string
+---@param callback fun(err: string|nil)
+function M.delete_comment(issue_key, comment_id, callback)
+    M.request("/issue/" .. issue_key .. "/comment/" .. comment_id, "DELETE", nil, function(err, _)
+        callback(err)
+    end)
+end
+
+-- =============================================================================
 -- Createmeta endpoints (per-project scoped, non-deprecated)
 -- =============================================================================
 
