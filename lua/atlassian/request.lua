@@ -1,6 +1,47 @@
 local M = {}
 
 local error_mod = require("atlassian.error")
+local notify = require("atlassian.notify")
+
+-- Counter for unique progress keys across all requests
+local request_counter = 0
+
+--- Derive a human-readable progress label from the endpoint and HTTP method.
+---@param endpoint string API endpoint path
+---@param method string HTTP method (GET, POST, PUT, DELETE)
+---@return string
+local function get_progress_label(endpoint, method)
+    -- Order matters: more specific patterns first
+    local patterns = {
+        { "/search",          { GET = "Searching" } },
+        { "/myself",          { GET = "Connecting" } },
+        { "/serverInfo",      { GET = "Connecting" } },
+        { "/issueLinkType",   { GET = "Loading link types" } },
+        { "/issueLink",       { POST = "Creating link", DELETE = "Deleting link" } },
+        { "/transitions",     { GET = "Loading transitions", POST = "Transitioning" } },
+        { "/comment",         { GET = "Loading comments", POST = "Adding comment", PUT = "Updating comment", DELETE = "Deleting comment" } },
+        { "/assignee",        { PUT = "Assigning" } },
+        { "/issue/createmeta", { GET = "Loading metadata" } },
+        { "/issue",           { GET = "Loading issue", POST = "Creating issue", PUT = "Updating issue" } },
+        { "/project",         { GET = "Loading projects" } },
+        { "/user",            { GET = "Loading users" } },
+        { "/spaces",          { GET = "Loading spaces" } },
+        { "/pages",           { GET = "Loading page", POST = "Creating page", PUT = "Updating page", DELETE = "Deleting page" } },
+    }
+
+    for _, entry in ipairs(patterns) do
+        local pattern, labels = entry[1], entry[2]
+        if endpoint:find(pattern, 1, true) then
+            if labels[method] then
+                return labels[method]
+            end
+        end
+    end
+
+    -- Fallback
+    local fallback = { GET = "Loading...", POST = "Creating...", PUT = "Updating...", DELETE = "Deleting..." }
+    return fallback[method] or "Working..."
+end
 
 ---@class AtlassianAuthConfig
 ---@field url string Instance URL
@@ -251,6 +292,13 @@ function M.create_client(config)
     ---@param body? table
     ---@param callback fun(err: AtlassianError|nil, data: table|nil)
     function client.request(endpoint, method, body, callback)
+        -- Automatic fidget progress for every API request
+        request_counter = request_counter + 1
+        local progress_key = "atlassian_req_" .. request_counter
+        local title = config.api_path:find("/wiki", 1, true) and "Confluence" or "Jira"
+        local label = get_progress_label(endpoint, method)
+        notify.progress_start(progress_key, title, label)
+
         M.request({
             auth = config.auth,
             base_url = config.auth.url .. config.api_path,
@@ -259,6 +307,11 @@ function M.create_client(config)
             body = body,
             callback = function(err, data)
                 client.is_online = err == nil or not error_mod.is_network_error(err)
+                if err then
+                    notify.progress_finish(progress_key, "Failed")
+                else
+                    notify.progress_finish(progress_key)
+                end
                 callback(err, data)
             end,
         })
