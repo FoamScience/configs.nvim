@@ -107,6 +107,10 @@ Issue Management ~
   :JiraReview [key]           Move issue to In Review
   :JiraCreate [type]          Create a new issue
   :JiraQuick <summary>        Quick-create with a one-liner
+  :JiraComment [key]          Add a comment (default action)
+  :JiraComment add [key]      Add a comment to an issue
+  :JiraComment edit [key]     Pick and edit a comment
+  :JiraComment delete [key]   Pick and delete a comment
 
 Filters ~
 
@@ -147,6 +151,9 @@ These mappings are available inside a Jira issue-view buffer:
   t     Transition (change status)
   e     Edit issue in CSF buffer
   c     Show children / sub-tasks
+  a     Add comment
+  C     Edit comment (picker)
+  D     Delete comment (picker + confirm)
   y     Copy issue key to clipboard
   Y     Copy issue URL to clipboard
   ?     Show keymap help
