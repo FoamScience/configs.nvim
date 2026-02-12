@@ -268,6 +268,43 @@ function M.create_commands()
         end,
     })
 
+    -- Link commands
+    cmd("JiraLink", function(args)
+        local context = require("jira-interface.context")
+        local links_mod = require("jira-interface.links")
+        local parts = vim.split(vim.trim(args.args or ""), "%s+", { trimempty = true })
+        local subcommand = parts[1] or "add"
+        local key_arg = parts[2]
+
+        -- If first arg looks like an issue key (e.g., PROJ-123), treat it as key with default "add"
+        if subcommand:match("^[A-Z][A-Z0-9]*%-[0-9]+$") then
+            key_arg = subcommand
+            subcommand = "add"
+        end
+
+        if subcommand == "add" then
+            context.resolve_issue_key_or_pick(key_arg, function(key)
+                links_mod.add_link(key)
+            end)
+        elseif subcommand == "delete" then
+            context.resolve_issue_key_or_pick(key_arg, function(key)
+                links_mod.fetch_and_delete_link(key)
+            end)
+        else
+            notify.error("Unknown subcommand: " .. subcommand .. ". Use add or delete.")
+        end
+    end, {
+        nargs = "*",
+        desc = "Manage Jira issue links (add|delete [key])",
+        complete = function(_, cmdline, _)
+            local parts = vim.split(cmdline, "%s+")
+            if #parts == 2 then
+                return { "add", "delete" }
+            end
+            return {}
+        end,
+    })
+
     -- Filter commands
     cmd("JiraFilter", function(args)
         local subcommand = args.fargs[1]
@@ -667,6 +704,7 @@ M.queue = require("jira-interface.queue")
 M.types = require("jira-interface.types")
 M.context = require("jira-interface.context")
 M.comments = require("jira-interface.comments")
+M.links = require("jira-interface.links")
 M.config = config
 
 return M

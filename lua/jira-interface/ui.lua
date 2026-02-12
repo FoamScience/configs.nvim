@@ -102,6 +102,10 @@ function M.show_issue(issue)
         end
     end
 
+    -- Links
+    local links_mod = require("jira-interface.links")
+    vim.list_extend(lines, links_mod.render_links_section(issue))
+
     -- Comments
     local comments_mod = require("jira-interface.comments")
     vim.list_extend(lines, comments_mod.render_comments_section(issue))
@@ -176,6 +180,14 @@ function M.show_issue(issue)
             comments_mod.delete_comment(issue.key, comment)
         end)
     end, { buffer = buf, desc = "Delete comment" })
+
+    vim.keymap.set("n", "L", function()
+        links_mod.add_link(issue.key)
+    end, { buffer = buf, desc = "Add issue link" })
+
+    vim.keymap.set("n", "X", function()
+        links_mod.fetch_and_delete_link(issue.key)
+    end, { buffer = buf, desc = "Delete issue link" })
 end
 
 ---@param key string

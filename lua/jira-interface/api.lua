@@ -48,8 +48,8 @@ end
 local function build_fields_param()
     local field_list = {
         "summary", "description", "status", "issuetype", "project",
-        "assignee", "parent", "attachment", "comment", "duedate",
-        "created", "updated",
+        "assignee", "parent", "attachment", "comment", "issuelinks",
+        "duedate", "created", "updated",
     }
     for _, field_id in pairs(config.options.custom_fields or {}) do
         table.insert(field_list, field_id)
@@ -450,6 +450,53 @@ end
 ---@param callback fun(err: string|nil)
 function M.delete_comment(issue_key, comment_id, callback)
     M.request("/issue/" .. issue_key .. "/comment/" .. comment_id, "DELETE", nil, function(err, _)
+        callback(err)
+    end)
+end
+
+-- =============================================================================
+-- Issue link endpoints
+-- =============================================================================
+
+---@param callback fun(err: string|nil, link_types: { id: string, name: string, inward: string, outward: string }[]|nil)
+function M.get_link_types(callback)
+    M.request("/issueLinkType", "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        local result = {}
+        for _, lt in ipairs(data.issueLinkTypes or {}) do
+            table.insert(result, {
+                id = lt.id or "",
+                name = lt.name or "",
+                inward = lt.inward or "",
+                outward = lt.outward or "",
+            })
+        end
+        callback(nil, result)
+    end)
+end
+
+---@param type_name string Link type name (e.g., "Blocks")
+---@param inward_key string Inward issue key
+---@param outward_key string Outward issue key
+---@param callback fun(err: string|nil)
+function M.create_link(type_name, inward_key, outward_key, callback)
+    local body = {
+        type = { name = type_name },
+        inwardIssue = { key = inward_key },
+        outwardIssue = { key = outward_key },
+    }
+    M.request("/issueLink", "POST", body, function(err, _)
+        callback(err)
+    end)
+end
+
+---@param link_id string
+---@param callback fun(err: string|nil)
+function M.delete_link(link_id, callback)
+    M.request("/issueLink/" .. link_id, "DELETE", nil, function(err, _)
         callback(err)
     end)
 end

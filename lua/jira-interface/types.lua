@@ -19,6 +19,15 @@ local atlassian_adf = require("atlassian.adf")
 ---@field created string Created timestamp
 ---@field updated string Updated timestamp
 
+---@class JiraIssueLink
+---@field id string Link ID
+---@field link_type string Link type name (e.g., "Blocks")
+---@field direction "inward"|"outward" Direction of the relationship
+---@field label string Human-readable relationship text (e.g., "is blocked by")
+---@field issue_key string Linked issue key
+---@field issue_summary string Linked issue summary
+---@field issue_status string Linked issue status
+
 ---@class JiraIssue
 ---@field key string Issue key (e.g., "PROJ-123")
 ---@field id string Issue ID
@@ -35,6 +44,7 @@ local atlassian_adf = require("atlassian.adf")
 ---@field attachments JiraAttachment[] Attachments
 ---@field comments JiraComment[] Comments
 ---@field comments_total number Total number of comments
+---@field links JiraIssueLink[] Issue links
 ---@field comment_count number Number of comments (backward compat)
 ---@field web_url string URL to view issue in browser
 ---@field duedate string|nil Due date (YYYY-MM-DD)
@@ -119,6 +129,7 @@ function M.parse_issue(raw)
     local key = raw.key or ""
 
     local comments, comments_total = M.parse_comments(fields.comment)
+    local links = M.parse_issue_links(fields.issuelinks)
 
     local base_url = config.options.auth.url or ""
     if not base_url:match("^https?://") then
@@ -147,6 +158,7 @@ function M.parse_issue(raw)
         comments = comments,
         comments_total = comments_total,
         comment_count = comments_total,
+        links = links,
         web_url = web_url,
         duedate = type(fields.duedate) == "string" and fields.duedate or nil,
         created = fields.created or "",
@@ -207,6 +219,54 @@ function M.parse_comments(comment_field)
         end
     end
     return comments, total
+end
+
+---@param raw table Raw issue link from Jira API
+---@return JiraIssueLink
+function M.parse_issue_link(raw)
+    local link_type = is_table(raw.type) and raw.type or {}
+    if is_table(raw.inwardIssue) then
+        local issue = raw.inwardIssue
+        local status = is_table(issue.fields) and is_table(issue.fields.status) and issue.fields.status.name or "Unknown"
+        local summary = is_table(issue.fields) and issue.fields.summary or ""
+        return {
+            id = raw.id or "",
+            link_type = link_type.name or "",
+            direction = "inward",
+            label = link_type.inward or "",
+            issue_key = issue.key or "",
+            issue_summary = summary,
+            issue_status = status,
+        }
+    else
+        local issue = raw.outwardIssue or {}
+        local status = is_table(issue.fields) and is_table(issue.fields.status) and issue.fields.status.name or "Unknown"
+        local summary = is_table(issue.fields) and issue.fields.summary or ""
+        return {
+            id = raw.id or "",
+            link_type = link_type.name or "",
+            direction = "outward",
+            label = link_type.outward or "",
+            issue_key = issue.key or "",
+            issue_summary = summary,
+            issue_status = status,
+        }
+    end
+end
+
+---@param issuelinks any The fields.issuelinks array from Jira API
+---@return JiraIssueLink[]
+function M.parse_issue_links(issuelinks)
+    local result = {}
+    if not is_table(issuelinks) then
+        return result
+    end
+    for _, raw in ipairs(issuelinks) do
+        if is_table(raw) then
+            table.insert(result, M.parse_issue_link(raw))
+        end
+    end
+    return result
 end
 
 ---@param description any
