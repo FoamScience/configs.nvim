@@ -146,9 +146,9 @@ function M.show_issue(issue)
         M.edit_issue(issue.key)
     end, { buffer = buf, desc = "Edit issue" })
 
-    vim.keymap.set("n", "c", function()
+    vim.keymap.set("n", "s", function()
         M.show_children(issue.key)
-    end, { buffer = buf, desc = "Show children" })
+    end, { buffer = buf, desc = "Show children / sub-tasks" })
 
     vim.keymap.set("n", "y", function()
         vim.fn.setreg("+", issue.key)
@@ -165,7 +165,7 @@ function M.show_issue(issue)
         vim.cmd("help atlassian-jira-keymaps")
     end, { buffer = buf, desc = "Show help" })
 
-    vim.keymap.set("n", "a", function()
+    vim.keymap.set("n", "c", function()
         comments_mod.add_comment(issue.key)
     end, { buffer = buf, desc = "Add comment" })
 
@@ -188,6 +188,10 @@ function M.show_issue(issue)
     vim.keymap.set("n", "X", function()
         links_mod.fetch_and_delete_link(issue.key)
     end, { buffer = buf, desc = "Delete issue link" })
+
+    vim.keymap.set("n", "a", function()
+        M.show_assign_picker(issue.key, issue.project)
+    end, { buffer = buf, desc = "Assign issue" })
 end
 
 ---@param key string
@@ -236,6 +240,59 @@ function M.show_transition_picker(key)
             else
                 local queue = require("jira-interface.queue")
                 queue.queue_transition(key, transition.id, transition.to)
+            end
+        end)
+    end)
+end
+
+---@param key string
+---@param project string
+function M.show_assign_picker(key, project)
+    api.get_project_members(project, function(err, members)
+        if err then
+            notify.error("Failed to get users: " .. err)
+            return
+        end
+
+        -- Build display items: Unassign first, then all assignable members
+        local items = { "Unassigned" }
+        for _, m in ipairs(members or {}) do
+            table.insert(items, m.displayName)
+        end
+
+        vim.ui.select(items, { prompt = "Assign " .. key .. " to:" }, function(choice, idx)
+            if not choice then
+                return
+            end
+
+            local account_id
+            if idx == 1 then
+                -- Unassign: Jira expects null accountId
+                account_id = nil
+            else
+                account_id = members[idx - 1].accountId
+            end
+
+            if api.is_online then
+                -- For unassign, Jira Cloud needs accountId: null (vim.NIL encodes as JSON null)
+                local effective_id = account_id or vim.NIL
+                api.assign_issue(key, effective_id, function(assign_err)
+                    if assign_err then
+                        notify.error("Assign failed: " .. assign_err)
+                    else
+                        local msg = idx == 1 and (key .. " unassigned") or (key .. " assigned to " .. choice)
+                        notify.info(msg)
+                        api.get_issue(key, function(fetch_err, fresh_issue)
+                            if not fetch_err and fresh_issue then
+                                M.show_issue(fresh_issue)
+                            end
+                        end)
+                    end
+                end)
+            else
+                local queue = require("jira-interface.queue")
+                local desc = idx == 1 and ("Unassign " .. key) or ("Assign " .. key .. " to " .. choice)
+                queue.queue_update(key, { assignee = { accountId = account_id } }, desc)
             end
         end)
     end)

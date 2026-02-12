@@ -153,12 +153,13 @@ These mappings are available inside a Jira issue-view buffer:
   Key   Action ~
   t     Transition (change status)
   e     Edit issue in CSF buffer
-  c     Show children / sub-tasks
-  a     Add comment
+  a     Assign issue (picker)
+  c     Add comment
   C     Edit comment (picker)
   D     Delete comment (picker + confirm)
   L     Add issue link
   X     Delete issue link (picker + confirm)
+  s     Show children / sub-tasks
   y     Copy issue key to clipboard
   Y     Copy issue URL to clipboard
   ?     Show keymap help
