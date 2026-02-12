@@ -111,6 +111,9 @@ Issue Management ~
   :JiraComment add [key]      Add a comment to an issue
   :JiraComment edit [key]     Pick and edit a comment
   :JiraComment delete [key]   Pick and delete a comment
+  :JiraLink [key]             Add an issue link (default action)
+  :JiraLink add [key]         Add an issue link
+  :JiraLink delete [key]      Pick and delete an issue link
 
 Filters ~
 
@@ -154,6 +157,8 @@ These mappings are available inside a Jira issue-view buffer:
   a     Add comment
   C     Edit comment (picker)
   D     Delete comment (picker + confirm)
+  L     Add issue link
+  X     Delete issue link (picker + confirm)
   y     Copy issue key to clipboard
   Y     Copy issue URL to clipboard
   ?     Show keymap help
