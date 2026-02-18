@@ -178,6 +178,20 @@ function M.format(text)
         result = result:gsub("([^\n])(<" .. pat .. ")", "%1\n%2")
     end
 
+    -- Keep container tags and their first child <p> on the same line.
+    -- Without this, <li><p>text</p></li> splits the bullet from its content.
+    local containers = {
+        { open = "li", close = "li" },
+        { open = "td", close = "td" },
+        { open = "th", close = "th" },
+        { open = "blockquote", close = "blockquote" },
+        { open = "ac:task%-body", close = "ac:task%-body" },
+    }
+    for _, c in ipairs(containers) do
+        result = result:gsub("(<" .. c.open .. "[^>]*>)\n(<p[> ])", "%1%2")
+        result = result:gsub("(</p>)\n(</" .. c.close .. ">)", "%1%2")
+    end
+
     return result
 end
 

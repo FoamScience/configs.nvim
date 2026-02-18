@@ -567,10 +567,20 @@ local function csf_element_to_adf(tag, attrs, children)
 
     -- Confluence task list
     if tag == "ac:task-list" then
+        -- Filter out whitespace text nodes; taskList can only contain taskItem
+        local items = {}
+        for _, child in ipairs(children) do
+            if child.type == "taskItem" then
+                table.insert(items, child)
+            end
+        end
         return {
             type = "taskList",
-            attrs = { localId = string.format("%x-%x", os.time(), math.random(0, 0xFFFF)) },
-            content = children,
+            attrs = { localId = string.format("%08x-%04x-4%03x-%04x-%04x%08x",
+                    math.random(0, 0xFFFFFFFF), math.random(0, 0xFFFF),
+                    math.random(0, 0x0FFF), math.random(0x8000, 0xBFFF),
+                    math.random(0, 0xFFFF), math.random(0, 0xFFFFFFFF)) },
+            content = items,
         }
     end
 
@@ -584,13 +594,62 @@ local function csf_element_to_adf(tag, attrs, children)
                 body_content = child._task_body
             end
         end
+        -- ADF taskItem requires block-level content; wrap inline nodes in a paragraph
+        -- Also flatten _mark nodes into proper text nodes with marks arrays
+        local wrapped = {}
+        local inline_acc = {}
+        local function flatten_task_marks(nodes)
+            local result = {}
+            for _, node in ipairs(nodes) do
+                if node._mark then
+                    local inner = flatten_task_marks(node.content or {})
+                    for _, child in ipairs(inner) do
+                        local marks = child.marks or {}
+                        local mark = { type = node._mark }
+                        if node._href then
+                            mark.attrs = { href = node._href }
+                        end
+                        table.insert(marks, mark)
+                        child.marks = marks
+                        table.insert(result, child)
+                    end
+                else
+                    table.insert(result, node)
+                end
+            end
+            return result
+        end
+        body_content = flatten_task_marks(body_content)
+        local function flush_inline()
+            if #inline_acc > 0 then
+                table.insert(wrapped, { type = "paragraph", content = inline_acc })
+                inline_acc = {}
+            end
+        end
+        local block = {
+            paragraph = true, heading = true, codeBlock = true, blockquote = true,
+            bulletList = true, orderedList = true, taskList = true,
+            panel = true, ["table"] = true, mediaSingle = true, rule = true,
+        }
+        for _, node in ipairs(body_content) do
+            if block[node.type] then
+                flush_inline()
+                table.insert(wrapped, node)
+            else
+                table.insert(inline_acc, node)
+            end
+        end
+        flush_inline()
         return {
             type = "taskItem",
             attrs = {
                 state = status,
-                localId = string.format("%x-%x", os.time(), math.random(0, 0xFFFF)),
+                localId = string.format("%08x-%04x-4%03x-%04x-%04x%08x",
+                    math.random(0, 0xFFFFFFFF), math.random(0, 0xFFFF),
+                    math.random(0, 0x0FFF), math.random(0x8000, 0xBFFF),
+                    math.random(0, 0xFFFF), math.random(0, 0xFFFFFFFF)),
             },
-            content = body_content,
+            content = wrapped,
         }
     end
 
@@ -838,6 +897,76 @@ function M.csf_to_adf(csf_string)
         version = 1,
         content = doc_content,
     }
+end
+
+-- =============================================================================
+-- ADF sanitization for Jira API writes
+-- =============================================================================
+
+--- Sanitize an ADF node tree in-place for Jira API submission.
+--- - Downgrades taskList → bulletList, taskItem → listItem (strips localId/state attrs)
+--- - Removes empty paragraph nodes (content is nil or {})
+--- - Filters non-listItem children from bulletList/orderedList (whitespace text nodes)
+--- - Recurses into all content arrays
+---@param node table ADF node (or document) to sanitize in-place
+local function sanitize_node(node)
+    if not node or type(node) ~= "table" then return end
+
+    -- Downgrade task nodes
+    if node.type == "taskList" then
+        node.type = "bulletList"
+        node.attrs = nil
+    elseif node.type == "taskItem" then
+        node.type = "listItem"
+        node.attrs = nil
+    end
+
+    -- Recurse into children first
+    if node.content then
+        for _, child in ipairs(node.content) do
+            sanitize_node(child)
+        end
+    end
+
+    -- Filter invalid children from list nodes (whitespace text nodes left by CSF parser)
+    if node.type == "bulletList" or node.type == "orderedList" then
+        local filtered = {}
+        for _, child in ipairs(node.content or {}) do
+            if child.type == "listItem" then
+                table.insert(filtered, child)
+            end
+        end
+        node.content = filtered
+    end
+
+    -- Remove empty paragraphs and empty mediaSingle from parent content arrays
+    if node.content then
+        local cleaned = {}
+        for _, child in ipairs(node.content) do
+            local is_empty = (child.type == "paragraph" or child.type == "mediaSingle")
+                and (not child.content or #child.content == 0)
+            if not is_empty then
+                table.insert(cleaned, child)
+            end
+        end
+        node.content = cleaned
+    end
+
+    -- Ensure container nodes that require children have at least one
+    if (node.type == "panel" or node.type == "blockquote") and (not node.content or #node.content == 0) then
+        node.content = { { type = "paragraph", content = { { type = "text", text = " " } } } }
+    end
+end
+
+--- Sanitize an ADF document for Jira API submission.
+--- Cleans the document in-place: downgrades task lists, removes empty paragraphs,
+--- filters invalid list children.
+---@param adf table ADF document to sanitize in-place
+---@return table The same ADF document (for chaining)
+function M.sanitize_for_jira(adf)
+    if not adf then return adf end
+    sanitize_node(adf)
+    return adf
 end
 
 return M

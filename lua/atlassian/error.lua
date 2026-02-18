@@ -132,6 +132,15 @@ end
 
 ---@param err any
 ---@return boolean
+function M.is_validation_error(err)
+    if M.is_error(err) then
+        return err.category == "validation"
+    end
+    return false
+end
+
+---@param err any
+---@return boolean
 function M.is_retryable(err)
     if M.is_error(err) then
         return err.retryable
