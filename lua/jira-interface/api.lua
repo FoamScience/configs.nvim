@@ -9,6 +9,9 @@ local error_mod = require("atlassian.error")
 ---@type boolean
 M.is_online = true
 
+-- Whether custom field IDs have been resolved from the server
+local _fields_resolved = false
+
 -- Create API client using shared request module
 local function get_client()
     return atlassian_request.create_client({
@@ -44,67 +47,154 @@ function M.check_connectivity(callback)
     end)
 end
 
--- Build repeated &fields=X query param string for v3 API
+-- Build comma-separated fields= query param for v3 API
 local function build_fields_param()
     local field_list = {
         "summary", "description", "status", "issuetype", "project",
         "assignee", "parent", "attachment", "comment", "issuelinks",
         "duedate", "created", "updated",
     }
-    for _, field_id in pairs(config.options.custom_fields or {}) do
-        table.insert(field_list, field_id)
+    for _, value in pairs(config.options.custom_fields or {}) do
+        if type(value) == "table" then
+            -- Array of candidate field IDs — request all of them
+            for _, id in ipairs(value) do
+                table.insert(field_list, id)
+            end
+        else
+            table.insert(field_list, value)
+        end
     end
-    local parts = {}
-    for _, f in ipairs(field_list) do
-        table.insert(parts, "fields=" .. f)
+    return "fields=" .. table.concat(field_list, ",")
+end
+
+--- Fetch all field definitions from Jira (for auto-discovering custom field IDs)
+---@param callback fun(err: string|nil, fields: table[]|nil)
+function M.get_all_fields(callback)
+    M.request("/field", "GET", nil, function(err, data)
+        if err then
+            callback(err, nil)
+            return
+        end
+        callback(nil, data)
+    end)
+end
+
+--- Resolve custom field IDs from the server.
+--- If custom_fields is pre-configured, resolves heading names to actual IDs.
+--- If custom_fields is empty, auto-discovers rich text custom fields.
+--- Runs once per session; subsequent calls invoke the callback immediately.
+---@param callback fun()
+local function ensure_custom_fields_resolved(callback)
+    if _fields_resolved then
+        callback()
+        return
     end
-    return table.concat(parts, "&")
+
+    M.get_all_fields(function(err, fields)
+        _fields_resolved = true -- don't retry on error
+        if err or not fields then
+            callback()
+            return
+        end
+
+        local custom = config.options.custom_fields
+        if not custom then
+            config.options.custom_fields = {}
+            custom = config.options.custom_fields
+        end
+
+        -- Build name → list of IDs lookup, and detect rich text fields
+        local name_to_ids = {} ---@type table<string, string[]>
+        for _, field in ipairs(fields) do
+            if field.custom and field.name then
+                local schema = field.schema or {}
+                if schema.type == "doc" or (schema.custom and schema.custom:match("textarea")) then
+                    if not name_to_ids[field.name] then
+                        name_to_ids[field.name] = {}
+                    end
+                    table.insert(name_to_ids[field.name], field.id)
+                end
+            end
+        end
+
+        if vim.tbl_isempty(custom) then
+            -- Auto-discover: register all rich text custom fields (all candidate IDs)
+            for name, ids in pairs(name_to_ids) do
+                custom[name] = ids
+            end
+        else
+            -- Resolve pre-configured heading names to full candidate lists
+            for heading, configured in pairs(custom) do
+                local ids = name_to_ids[heading]
+                if ids then
+                    -- Merge: keep configured ID(s) + add any server-discovered ones
+                    local all = type(configured) == "table" and vim.deepcopy(configured) or { configured }
+                    local seen = {}
+                    for _, id in ipairs(all) do seen[id] = true end
+                    for _, id in ipairs(ids) do
+                        if not seen[id] then
+                            table.insert(all, id)
+                        end
+                    end
+                    custom[heading] = all
+                elseif type(configured) == "string" then
+                    custom[heading] = { configured }
+                end
+            end
+        end
+
+        callback()
+    end)
 end
 
 ---@param jql string
 ---@param callback fun(err: string|nil, issues: JiraIssue[]|nil)
 function M.search(jql, callback)
-    local since = config.options.since
-    if since and since ~= "" then
-        local order_by = jql:match("(ORDER%s+BY%s+.+)$")
-        if order_by then
-            local base = vim.trim(jql:gsub("%s*ORDER%s+BY%s+.+$", ""))
-            if base ~= "" then
-                jql = base .. " AND created >= " .. since .. " " .. order_by
+    ensure_custom_fields_resolved(function()
+        local since = config.options.since
+        if since and since ~= "" then
+            local order_by = jql:match("(ORDER%s+BY%s+.+)$")
+            if order_by then
+                local base = vim.trim(jql:gsub("%s*ORDER%s+BY%s+.+$", ""))
+                if base ~= "" then
+                    jql = base .. " AND created >= " .. since .. " " .. order_by
+                else
+                    jql = "created >= " .. since .. " " .. order_by
+                end
             else
-                jql = "created >= " .. since .. " " .. order_by
+                jql = jql .. " AND created >= " .. since
             end
-        else
-            jql = jql .. " AND created >= " .. since
-        end
-    end
-
-    local max_results = config.options.max_results or 100
-    local endpoint = "/search/jql?jql=" .. vim.uri_encode(jql) .. "&" .. build_fields_param() .. "&maxResults=" .. max_results
-
-    M.request(endpoint, "GET", nil, function(err, data)
-        if err then
-            callback(err, nil)
-            return
         end
 
-        local issues = {}
-        for _, raw in ipairs(data.issues or {}) do
-            table.insert(issues, types.parse_issue(raw))
-        end
-        callback(nil, issues)
+        local max_results = config.options.max_results or 100
+        local endpoint = "/search/jql?jql=" .. vim.uri_encode(jql) .. "&" .. build_fields_param() .. "&maxResults=" .. max_results
+
+        M.request(endpoint, "GET", nil, function(err, data)
+            if err then
+                callback(err, nil)
+                return
+            end
+
+            local issues = {}
+            for _, raw in ipairs(data.issues or {}) do
+                table.insert(issues, types.parse_issue(raw))
+            end
+            callback(nil, issues)
+        end)
     end)
 end
 
 ---@param key string
 ---@param callback fun(err: string|nil, issue: JiraIssue|nil)
 function M.get_issue(key, callback)
-    M.request("/issue/" .. key .. "?" .. build_fields_param(), "GET", nil, function(err, data)
-        if err then
-            callback(err, nil)
-            return
-        end
-        callback(nil, types.parse_issue(data))
+    ensure_custom_fields_resolved(function()
+        M.request("/issue/" .. key .. "?" .. build_fields_param(), "GET", nil, function(err, data)
+            if err then
+                callback(err, nil)
+                return
+            end
+            callback(nil, types.parse_issue(data))
+        end)
     end)
 end
 
@@ -219,7 +309,9 @@ function M.create_issue_full(project, issue_type, summary, description, extra_fi
         end
 
         if description and description ~= "" then
-            fields.description = type(description) == "table" and description or atlassian_adf.text_to_adf(description)
+            local desc_adf = type(description) == "table" and description or atlassian_adf.text_to_adf(description)
+            local bridge = require("atlassian.csf.bridge")
+            fields.description = bridge.sanitize_for_jira(desc_adf)
         end
 
         if parent_key then
@@ -228,7 +320,7 @@ function M.create_issue_full(project, issue_type, summary, description, extra_fi
 
         M.request("/issue", "POST", { fields = fields }, function(err, data)
             if err then
-                if err.message:match("assignee") then
+                if err.message and err.message:match("assignee") then
                     fields.assignee = nil
                     M.request("/issue", "POST", { fields = fields }, function(retry_err, retry_data)
                         if retry_err then
@@ -241,7 +333,7 @@ function M.create_issue_full(project, issue_type, summary, description, extra_fi
                 end
                 -- For any validation error, check raw response and enrich with valid issue types
                 local raw = error_mod.is_error(err) and err.raw_response or ""
-                local is_type_err = err.message:match("issuetype") or err.message:match("issue type")
+                local is_type_err = (err.message and err.message:match("issuetype")) or (err.message and err.message:match("issue type"))
                     or raw:match("issuetype")
                 if is_type_err then
                     M.request("/project/" .. project, "GET", nil, function(_, proj_data)
@@ -271,8 +363,10 @@ end
 function M.update_extra_fields_and_fetch(key, extra_fields, callback)
     if extra_fields and not vim.tbl_isempty(extra_fields) then
         local update_fields = {}
+        local bridge = require("atlassian.csf.bridge")
         for field_id, value in pairs(extra_fields) do
-            update_fields[field_id] = type(value) == "table" and value or atlassian_adf.text_to_adf(value)
+            local adf = type(value) == "table" and value or atlassian_adf.text_to_adf(value)
+            update_fields[field_id] = bridge.sanitize_for_jira(adf)
         end
         M.update_issue(key, update_fields, function(_)
             M.get_issue(key, callback)

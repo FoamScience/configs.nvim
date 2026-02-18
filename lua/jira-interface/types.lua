@@ -281,45 +281,90 @@ function M.parse_description(description)
     return nil
 end
 
----@param fields table
----@return table|string|nil Raw ADF or string for acceptance criteria
-function M.parse_acceptance_criteria_raw(fields)
-    local ac_field = (config.options.custom_fields or {})["Acceptance Criteria"]
-    if ac_field and ac_field ~= "" then
-        local value = fields[ac_field]
-        if value then
-            return value
+--- Find a custom_fields entry by heading (case-insensitive)
+---@param heading_pattern string
+---@return string[] candidate field IDs
+local function find_custom_field_candidates(heading_pattern)
+    local pattern = heading_pattern:lower()
+    for heading, field_ref in pairs(config.options.custom_fields or {}) do
+        if heading:lower() == pattern then
+            return type(field_ref) == "table" and field_ref or { field_ref }
+        end
+    end
+    return {}
+end
+
+--- Look up a value across multiple candidate field IDs
+---@param fields table Raw Jira fields
+---@param candidates string[]
+---@return any|nil
+local function find_first_value(fields, candidates)
+    for _, cid in ipairs(candidates) do
+        local value = fields[cid]
+        if value and value ~= vim.NIL then
+            if type(value) == "table" then
+                if value.content or next(value) then return value end
+            elseif value ~= "" then
+                return value
+            end
         end
     end
     return nil
 end
 
 ---@param fields table
+---@return table|string|nil Raw ADF or string for acceptance criteria
+function M.parse_acceptance_criteria_raw(fields)
+    local candidates = find_custom_field_candidates("acceptance criteria")
+    return find_first_value(fields, candidates)
+end
+
+---@param fields table
 ---@return table<string, any> Map of section heading → raw field value
 function M.parse_custom_fields_raw(fields)
-    local result = {}
-    for heading, field_id in pairs(config.options.custom_fields or {}) do
-        local value = fields[field_id]
+    local custom = config.options.custom_fields or {}
 
-        if value and value ~= vim.NIL then
-            result[heading] = value
+    local result = {}
+    local resolved_ids = {}
+    for heading, field_ref in pairs(custom) do
+        -- field_ref is either a string (single ID) or a table (array of candidate IDs)
+        local candidates = type(field_ref) == "table" and field_ref or { field_ref }
+        local found_id = nil
+        local found_value = find_first_value(fields, candidates)
+        if found_value then
+            -- determine which candidate matched
+            for _, cid in ipairs(candidates) do
+                local v = fields[cid]
+                if v and v ~= vim.NIL then
+                    found_id = cid
+                    break
+                end
+            end
+        end
+
+        if found_value then
+            result[heading] = found_value
+            resolved_ids[heading] = found_id
+        else
+            -- Store first candidate as fallback for writes
+            resolved_ids[heading] = candidates[1]
         end
     end
+    -- Store which field ID was resolved for each heading (used by edit save)
+    result._resolved_ids = resolved_ids
     return result
 end
 
 ---@param fields table
 ---@return string|nil
 function M.parse_acceptance_criteria(fields)
-    local ac_field = (config.options.custom_fields or {})["Acceptance Criteria"]
-    if ac_field and ac_field ~= "" then
-        local value = fields[ac_field]
-        if value then
-            if type(value) == "string" and value ~= "" then
-                return value
-            elseif type(value) == "table" and value.content then
-                return atlassian_adf.adf_to_text(value)
-            end
+    local candidates = find_custom_field_candidates("acceptance criteria")
+    local value = find_first_value(fields, candidates)
+    if value then
+        if type(value) == "string" and value ~= "" then
+            return value
+        elseif type(value) == "table" and value.content then
+            return atlassian_adf.adf_to_text(value)
         end
     end
 

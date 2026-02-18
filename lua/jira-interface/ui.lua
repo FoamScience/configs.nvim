@@ -192,6 +192,11 @@ function M.show_issue(issue)
     vim.keymap.set("n", "a", function()
         M.show_assign_picker(issue.key, issue.project)
     end, { buffer = buf, desc = "Assign issue" })
+
+    vim.keymap.set("n", "n", function()
+        local picker = require("jira-interface.picker")
+        picker.create_issue(nil, issue.project, issue.key)
+    end, { buffer = buf, desc = "Create child issue" })
 end
 
 ---@param key string
@@ -307,6 +312,7 @@ function M.edit_issue(key)
         end
 
         local buf, _ = create_window({ title = "Edit " .. key, bufname = "jira://" .. key .. "/edit", mode = "buffer" })
+        vim.bo[buf].buftype = "acwrite"
 
         -- Build CSF content: <h1> = summary, <h2> sections = editable fields
         local lines = {
@@ -390,14 +396,23 @@ function M.edit_issue(key)
 
                 -- Convert description CSF → ADF
                 if parsed.description then
-                    fields.description = bridge.csf_to_adf(parsed.description)
+                    fields.description = bridge.sanitize_for_jira(bridge.csf_to_adf(parsed.description))
                 end
 
                 -- Convert custom field sections CSF → ADF
-                for heading, field_id in pairs(custom_fields) do
+                local resolved_ids = (issue.custom_fields_raw or {})._resolved_ids or {}
+                for heading, _ in pairs(custom_fields) do
                     local skey = heading:lower():gsub("%s+", "_")
                     if parsed[skey] then
-                        fields[field_id] = bridge.csf_to_adf(parsed[skey])
+                        -- Use the resolved field ID that had data, or first candidate
+                        local field_id = resolved_ids[heading]
+                        if not field_id then
+                            local ref = custom_fields[heading]
+                            field_id = type(ref) == "table" and ref[1] or ref
+                        end
+                        if field_id then
+                            fields[field_id] = bridge.sanitize_for_jira(bridge.csf_to_adf(parsed[skey]))
+                        end
                     end
                 end
 
@@ -412,7 +427,7 @@ function M.edit_issue(key)
                 if api.is_online then
                     api.update_issue(key, fields, function(update_err)
                         if update_err then
-                            notify.error("Update failed: " .. update_err)
+                            notify.error(notify.format_api_error(update_err, "updating " .. key))
                         else
                             if vim.api.nvim_buf_is_valid(buf) then
                                 vim.api.nvim_buf_delete(buf, { force = true })

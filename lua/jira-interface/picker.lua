@@ -13,7 +13,7 @@ local csf = require("atlassian.csf")
 local bridge = require("atlassian.csf.bridge")
 
 -- Fixed column widths
-local COL_KEY = 12
+local COL_KEY = 20
 local COL_STATUS = 14
 local COL_TYPE = 10
 local COL_DUE = 20

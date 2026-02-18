@@ -125,12 +125,12 @@ function M.add_comment(issue_key)
                 return
             end
 
-            local body_adf = bridge.csf_to_adf(body_csf)
+            local body_adf = bridge.sanitize_for_jira(bridge.csf_to_adf(body_csf))
 
             if api.is_online then
                 api.add_comment(issue_key, body_adf, function(add_err)
                     if add_err then
-                        notify.error("Failed to add comment: " .. add_err)
+                        notify.error(notify.format_api_error(add_err, "adding comment"))
                     else
                         if vim.api.nvim_buf_is_valid(buf) then
                             vim.api.nvim_buf_delete(buf, { force = true })
@@ -203,11 +203,11 @@ function M.edit_comment(issue_key, comment)
             end
 
             local body_csf = table.concat(body_lines, "\n")
-            local body_adf = bridge.csf_to_adf(body_csf)
+            local body_adf = bridge.sanitize_for_jira(bridge.csf_to_adf(body_csf))
 
             api.update_comment(issue_key, comment.id, body_adf, function(update_err)
                 if update_err then
-                    notify.error("Failed to update comment: " .. update_err)
+                    notify.error(notify.format_api_error(update_err, "updating comment"))
                 else
                     if vim.api.nvim_buf_is_valid(buf) then
                         vim.api.nvim_buf_delete(buf, { force = true })

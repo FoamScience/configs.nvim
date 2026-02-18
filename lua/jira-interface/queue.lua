@@ -201,7 +201,7 @@ function M.sync_all(callback)
             end)
         elseif edit.type == "comment" then
             local bridge = require("atlassian.csf.bridge")
-            local body_adf = bridge.csf_to_adf(edit.data.body_csf or "")
+            local body_adf = bridge.sanitize_for_jira(bridge.csf_to_adf(edit.data.body_csf or ""))
             api.add_comment(edit.issue_key, body_adf, function(err)
                 table.insert(results, {
                     id = edit.id,

@@ -214,50 +214,6 @@ function M.get_field_hint(field)
 end
 
 -- =============================================================================
--- ADF sanitization for custom fields
--- =============================================================================
-
--- Strips whitespace text nodes that the CSF parser leaves between elements.
-local function sanitize_adf_node(node)
-    if not node or type(node) ~= "table" then return end
-
-    -- Recurse into children
-    if node.content then
-        for _, child in ipairs(node.content) do
-            sanitize_adf_node(child)
-        end
-    end
-
-    -- Filter invalid children from list nodes (removes whitespace text nodes
-    -- left by the CSF parser between <ac:task> / <li> elements)
-    if node.type == "bulletList" or node.type == "orderedList" then
-        local filtered = {}
-        for _, child in ipairs(node.content or {}) do
-            if child.type == "listItem" then
-                table.insert(filtered, child)
-            end
-        end
-        node.content = filtered
-    elseif node.type == "taskList" then
-        local filtered = {}
-        for _, child in ipairs(node.content or {}) do
-            if child.type == "taskItem" then
-                table.insert(filtered, child)
-            end
-        end
-        node.content = filtered
-    end
-end
-
----@param adf table ADF document to sanitize in-place
-function M.sanitize_adf_for_custom_field(adf)
-    if not adf or not adf.content then return end
-    for _, node in ipairs(adf.content) do
-        sanitize_adf_node(node)
-    end
-end
-
--- =============================================================================
 -- Value extraction from buffer
 -- =============================================================================
 
@@ -298,11 +254,7 @@ function M.extract_fields_from_buffer(buf, classified)
     -- Convert rich text sections to ADF
     for normalized, field in pairs(rich_text_map) do
         if parsed[normalized] and parsed[normalized] ~= "" then
-            local adf = bridge.csf_to_adf(parsed[normalized])
-            -- Custom fields don't support taskList — convert to bulletList
-            if field.fieldId ~= "description" then
-                M.sanitize_adf_for_custom_field(adf)
-            end
+            local adf = bridge.sanitize_for_jira(bridge.csf_to_adf(parsed[normalized]))
             fields[field.fieldId] = adf
         end
     end

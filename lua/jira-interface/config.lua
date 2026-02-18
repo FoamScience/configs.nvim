@@ -62,9 +62,7 @@ M.defaults = {
         "Blocked",
         "Done",
     },
-    custom_fields = {
-        ["Acceptance Criteria"] = "customfield_10020",
-    },
+    custom_fields = {},
     data_dir = vim.fn.stdpath("data") .. "/jira-interface",
     -- Templates: structured data expanded as LuaSnip snippets in the create buffer.
     -- description_sections: list of { heading, placeholder } pairs rendered as ### sub-headings.
