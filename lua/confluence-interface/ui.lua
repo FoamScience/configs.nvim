@@ -200,7 +200,7 @@ function M.edit_page(page_id)
                 api.update_page(meta_id, title, storage_content, meta_version,
                     function(update_err, updated_page)
                         if update_err then
-                            notify.progress_error("save", "Save failed: " .. update_err)
+                            notify.progress_error("save", notify.format_api_error(update_err, "saving page"))
                         else
                             notify.progress_finish("save", "Saved: " .. updated_page.title)
                             vim.bo[buf].modified = false
@@ -272,7 +272,7 @@ function M.create_page_buffer(space_id, space_key, parent_id)
             api.create_page(meta_space_id, title, storage_content, meta_parent_id,
                 function(err, page)
                     if err then
-                        notify.progress_error("create", "Create failed: " .. err)
+                        notify.progress_error("create", notify.format_api_error(err, "creating page"))
                     else
                         notify.progress_finish("create", "Created: " .. page.title)
                         cache.invalidate_space(space_key)

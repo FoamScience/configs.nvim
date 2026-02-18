@@ -107,7 +107,7 @@ function M.show_pages(pages, opts)
                         if input == "yes" then
                             api.delete_page(item.page.id, function(err)
                                 if err then
-                                    notify.error("Delete failed: " .. err)
+                                    notify.error(notify.format_api_error(err, "deleting page"))
                                 else
                                     notify.info("Deleted: " .. item.page.title)
                                     picker:close()

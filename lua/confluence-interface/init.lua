@@ -130,7 +130,7 @@ function M.create_commands()
                 local api = require("confluence-interface.api")
                 api.delete_page(page_id, function(err)
                     if err then
-                        notify.error("Delete failed: " .. err)
+                        notify.error(notify.format_api_error(err, "deleting page"))
                     else
                         notify.info("Page deleted")
                         local cache = require("confluence-interface.cache")
