@@ -56,7 +56,7 @@ M.builtin = {}
 
 ---@return string
 function M.builtin.assigned_to_me()
-    return "assignee = currentUser() ORDER BY updated DESC"
+    return "assignee = currentUser() AND status != Done ORDER BY updated DESC"
 end
 
 ---@return string

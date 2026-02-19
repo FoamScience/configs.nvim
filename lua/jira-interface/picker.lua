@@ -199,7 +199,7 @@ end
 
 function M.assigned_to_me()
     local jql = filters.builtin.assigned_to_me()
-    M.search(jql, { title = "Assigned to Me", cache_key = "assigned_to_me" })
+    M.search(jql, { title = "Assigned to Me (Active)", cache_key = "assigned_to_me" })
 end
 
 function M.created_by_me()
