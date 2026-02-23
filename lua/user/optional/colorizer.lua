@@ -15,6 +15,7 @@ function M.config()
 			"html",
 			"astro",
 			"lua",
+			"mermaid",
 		},
 		user_default_options = {
 			names = false,
