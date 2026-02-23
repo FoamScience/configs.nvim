@@ -112,6 +112,11 @@ function M.classify_field(field)
         return "text_line"
     end
 
+    -- Required fields we don't recognize: treat as rich_text so they appear in the buffer
+    if field.required then
+        return "rich_text"
+    end
+
     -- Default: skip unknown complex types
     return "skip"
 end
@@ -129,6 +134,19 @@ function M.classify_all(fields)
 
     for _, field in ipairs(fields) do
         local category = M.classify_field(field)
+        local schema = field.schema or {}
+        vim.notify(
+            string.format(
+                "[createmeta] field=%s name=%q required=%s category=%s schema.type=%s schema.custom=%s",
+                field.fieldId or "?",
+                field.name or "?",
+                tostring(field.required),
+                category,
+                schema.type or "nil",
+                schema.custom or "nil"
+            ),
+            vim.log.levels.INFO
+        )
         local classified = {
             fieldId = field.fieldId,
             name = field.name,
@@ -172,7 +190,9 @@ function M.generate_template(classified, issue_type_name)
     table.insert(lines, "<h1>" .. issue_type_name .. "</h1>")
 
     -- Rich text sections as h2
+    vim.notify("[generate_template] rich_text count=" .. #classified.rich_text, vim.log.levels.WARN)
     for _, field in ipairs(classified.rich_text) do
+        vim.notify("[generate_template] adding h2: " .. field.name .. " (fieldId=" .. field.fieldId .. ")", vim.log.levels.WARN)
         table.insert(lines, "<h2>" .. field.name .. "</h2>")
         table.insert(lines, "<p></p>")
     end
