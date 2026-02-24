@@ -357,6 +357,9 @@ end
 -- Forward declaration
 local parse_children
 
+-- Forward declaration (defined after split_paragraph_blocks)
+local flatten_marks
+
 ---@param tag string
 ---@param attrs table
 ---@param children table[]
@@ -410,6 +413,36 @@ local function csf_element_to_adf(tag, attrs, children)
     end
 
     if tag == "li" then
+        -- ADF requires listItem children to be block-level nodes.
+        -- If children are inline (text, _mark, hardBreak), wrap them in a paragraph.
+        local has_inline = false
+        for _, child in ipairs(children) do
+            if child._mark or child.type == "text" or child.type == "hardBreak" then
+                has_inline = true
+                break
+            end
+        end
+        if has_inline then
+            -- Separate into runs: consecutive inline nodes get wrapped in a paragraph,
+            -- block nodes stay as-is.
+            local wrapped = {}
+            local inline_buf = {}
+            for _, child in ipairs(children) do
+                if child._mark or child.type == "text" or child.type == "hardBreak" then
+                    table.insert(inline_buf, child)
+                else
+                    if #inline_buf > 0 then
+                        table.insert(wrapped, { type = "paragraph", content = flatten_marks(inline_buf) })
+                        inline_buf = {}
+                    end
+                    table.insert(wrapped, child)
+                end
+            end
+            if #inline_buf > 0 then
+                table.insert(wrapped, { type = "paragraph", content = flatten_marks(inline_buf) })
+            end
+            children = wrapped
+        end
         return { type = "listItem", content = children }
     end
 
@@ -785,7 +818,7 @@ end
 
 ---@param nodes table[] Mixed ADF nodes (some with _mark)
 ---@return table[] Flattened ADF text nodes with marks applied
-local function flatten_marks(nodes)
+flatten_marks = function(nodes)
     local result = {}
     for _, node in ipairs(nodes) do
         if node._mark then
