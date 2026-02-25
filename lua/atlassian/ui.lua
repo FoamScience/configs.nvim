@@ -50,12 +50,24 @@ function M.create_window(opts)
     local display = opts.display or {}
     local mode = display.mode or "float"
 
-    local buf = vim.api.nvim_create_buf(true, true)
+    -- Reuse existing buffer with the same name if it exists
+    local buf
+    if opts.bufname then
+        local existing = vim.fn.bufnr(opts.bufname)
+        if existing ~= -1 then
+            buf = existing
+        end
+    end
+
+    if not buf then
+        buf = vim.api.nvim_create_buf(true, true)
+        if opts.bufname then
+            vim.api.nvim_buf_set_name(buf, opts.bufname)
+        end
+    end
+
     vim.bo[buf].bufhidden = "hide"
     vim.bo[buf].filetype = opts.filetype or "markdown"
-    if opts.bufname then
-        vim.api.nvim_buf_set_name(buf, opts.bufname)
-    end
 
     local win
 

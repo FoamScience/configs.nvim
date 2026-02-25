@@ -88,6 +88,8 @@ function M.add_comment(issue_key)
         bufname = "jira://" .. issue_key .. "/comment/new",
     })
 
+    vim.bo[buf].buftype = "acwrite"
+
     local lines = {
         csf.generate_metadata({ type = "jira", key = issue_key }),
         "<h2>New Comment</h2>",
@@ -158,6 +160,8 @@ function M.edit_comment(issue_key, comment)
         title = "Edit Comment - " .. issue_key,
         bufname = "jira://" .. issue_key .. "/comment/" .. comment.id,
     })
+
+    vim.bo[buf].buftype = "acwrite"
 
     local lines = {
         csf.generate_metadata({ type = "jira", key = issue_key }),
