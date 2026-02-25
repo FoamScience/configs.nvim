@@ -26,6 +26,7 @@ Features:
 
   - Fuzzy search and telescope-style pickers
   - Kanban boards for sprints and projects
+  - Draft-first editing: `:w` saves locally, `<leader>ss` submits
   - Offline queue for write operations
   - Slash commands (blink.cmp integration)
   - Image preview in floating windows
@@ -97,6 +98,11 @@ Search ~
   :JiraDue [filter]           Due-date filter
                               Filters: overdue, today, week, soon
 
+Common ~
+
+  :AtlassianSubmit            Submit current draft buffer to remote
+                              (same as `<leader>ss`)
+
 Issue Management ~
 
   :JiraView [key]             View issue details
@@ -150,20 +156,32 @@ ISSUE VIEW KEYMAPS                              *atlassian-jira-keymaps*
 
 These mappings are available inside a Jira issue-view buffer:
 
-  Key   Action ~
-  t     Transition (change status)
-  e     Edit issue in CSF buffer
-  a     Assign issue (picker)
-  c     Add comment
-  C     Edit comment (picker)
-  D     Delete comment (picker + confirm)
-  L     Add issue link
-  X     Delete issue link (picker + confirm)
-  n     Create child issue under this issue
-  s     Show children / sub-tasks
-  y     Copy issue key to clipboard
-  Y     Copy issue URL to clipboard
-  ?     Show keymap help
+  Key           Action ~
+  t             Transition (change status)
+  e             Edit issue in CSF buffer
+  a             Assign issue (picker)
+  c             Add comment
+  C             Edit comment (picker)
+  D             Delete comment (picker + confirm)
+  L             Add issue link
+  X             Delete issue link (picker + confirm)
+  n             Create child issue under this issue
+  s             Show children / sub-tasks
+  y             Copy issue key to clipboard
+  Y             Copy issue URL to clipboard
+  ?             Show keymap help
+
+EDIT BUFFER KEYMAPS                 *atlassian-edit-keymaps*
+
+These mappings are available in any edit/create/comment buffer
+(Jira and Confluence):
+
+  Key           Action ~
+  :w            Save draft locally (no API call)
+  <leader>ss    Submit changes to remote API
+  :AtlassianSubmit  Same as `<leader>ss`
+
+The winbar shows "DRAFT" while the buffer has not been submitted.
 
 ---------------------------------------------------------------------------
 PICKER KEYMAPS                           *atlassian-jira-picker-keymaps*
