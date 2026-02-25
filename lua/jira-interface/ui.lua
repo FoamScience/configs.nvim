@@ -129,6 +129,7 @@ function M.show_issue(issue)
     table.insert(lines, "<p><em>Updated: " .. atlassian_format.format_timestamp(issue.updated) ..
         " (" .. atlassian_format.format_relative_time(issue.updated) .. ")</em></p>")
 
+    vim.bo[buf].modifiable = true
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.bo[buf].modifiable = false
 
@@ -500,6 +501,7 @@ function M.show_queue()
     table.insert(lines, "<hr />")
     table.insert(lines, "<p><strong>Actions:</strong> [s]ync all | [d]elete item | [c]lear all</p>")
 
+    vim.bo[buf].modifiable = true
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.bo[buf].modifiable = false
 
