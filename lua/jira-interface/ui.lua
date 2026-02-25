@@ -368,90 +368,89 @@ function M.edit_issue(key)
             vim.b[buf].atlassian_attachments = issue.attachments
         end
 
-        -- Save handler
-        vim.api.nvim_create_autocmd("BufWriteCmd", {
-            buffer = buf,
-            callback = function()
-                local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        -- Submit handler
+        local function do_submit()
+            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-                -- Remove metadata line
-                table.remove(content, 1)
-                -- Extract summary from <h1> title
-                local summary_text, remaining = csf.extract_title(content)
-                content = remaining
+            -- Remove metadata line
+            table.remove(content, 1)
+            -- Extract summary from <h1> title
+            local summary_text, remaining = csf.extract_title(content)
+            content = remaining
 
-                local fields = {}
+            local fields = {}
 
-                if summary_text and summary_text ~= issue.summary then
-                    fields.summary = summary_text
-                end
+            if summary_text and summary_text ~= issue.summary then
+                fields.summary = summary_text
+            end
 
-                -- Build section names from custom_fields config
-                local section_names = { "description" }
-                local custom_fields = config.options.custom_fields or {}
-                for heading, _ in pairs(custom_fields) do
-                    table.insert(section_names, (heading:lower():gsub("%s+", "_")))
-                end
-                local parsed = csf.extract_sections(content, section_names)
+            -- Build section names from custom_fields config
+            local section_names = { "description" }
+            local custom_fields = config.options.custom_fields or {}
+            for heading, _ in pairs(custom_fields) do
+                table.insert(section_names, (heading:lower():gsub("%s+", "_")))
+            end
+            local parsed = csf.extract_sections(content, section_names)
 
-                -- Convert description CSF → ADF
-                if parsed.description then
-                    fields.description = bridge.sanitize_for_jira(bridge.csf_to_adf(parsed.description))
-                end
+            -- Convert description CSF → ADF
+            if parsed.description then
+                fields.description = bridge.sanitize_for_jira(bridge.csf_to_adf(parsed.description))
+            end
 
-                -- Convert custom field sections CSF → ADF
-                local resolved_ids = (issue.custom_fields_raw or {})._resolved_ids or {}
-                for heading, _ in pairs(custom_fields) do
-                    local skey = heading:lower():gsub("%s+", "_")
-                    if parsed[skey] then
-                        -- Use the resolved field ID that had data, or first candidate
-                        local field_id = resolved_ids[heading]
-                        if not field_id then
-                            local ref = custom_fields[heading]
-                            field_id = type(ref) == "table" and ref[1] or ref
-                        end
-                        if field_id then
-                            fields[field_id] = bridge.sanitize_for_jira(bridge.csf_to_adf(parsed[skey]))
-                        end
+            -- Convert custom field sections CSF → ADF
+            local resolved_ids = (issue.custom_fields_raw or {})._resolved_ids or {}
+            for heading, _ in pairs(custom_fields) do
+                local skey = heading:lower():gsub("%s+", "_")
+                if parsed[skey] then
+                    -- Use the resolved field ID that had data, or first candidate
+                    local field_id = resolved_ids[heading]
+                    if not field_id then
+                        local ref = custom_fields[heading]
+                        field_id = type(ref) == "table" and ref[1] or ref
+                    end
+                    if field_id then
+                        fields[field_id] = bridge.sanitize_for_jira(bridge.csf_to_adf(parsed[skey]))
                     end
                 end
+            end
 
-                if vim.tbl_isempty(fields) then
-                    notify.info("No changes to save")
-                    if vim.api.nvim_buf_is_valid(buf) then
-                        vim.api.nvim_buf_delete(buf, { force = true })
-                    end
-                    return
+            if vim.tbl_isempty(fields) then
+                notify.info("No changes to save")
+                if vim.api.nvim_buf_is_valid(buf) then
+                    vim.api.nvim_buf_delete(buf, { force = true })
                 end
+                return
+            end
 
-                if api.is_online then
-                    api.update_issue(key, fields, function(update_err)
-                        if update_err then
-                            notify.error(notify.format_api_error(update_err, "updating " .. key))
-                        else
-                            if vim.api.nvim_buf_is_valid(buf) then
-                                vim.api.nvim_buf_delete(buf, { force = true })
+            if api.is_online then
+                api.update_issue(key, fields, function(update_err)
+                    if update_err then
+                        notify.error(notify.format_api_error(update_err, "updating " .. key))
+                    else
+                        if vim.api.nvim_buf_is_valid(buf) then
+                            vim.api.nvim_buf_delete(buf, { force = true })
+                        end
+                        cache.invalidate_project(issue.project)
+                        api.get_issue(key, function(fetch_err, fresh_issue)
+                            if fetch_err then
+                                notify.info("Issue updated: " .. key)
+                            else
+                                notify.info("Issue updated: " .. key)
+                                M.show_issue(fresh_issue)
                             end
-                            cache.invalidate_project(issue.project)
-                            api.get_issue(key, function(fetch_err, fresh_issue)
-                                if fetch_err then
-                                    notify.info("Issue updated: " .. key)
-                                else
-                                    notify.info("Issue updated: " .. key)
-                                    M.show_issue(fresh_issue)
-                                end
-                            end)
-                        end
-                    end)
-                else
-                    local queue = require("jira-interface.queue")
-                    queue.queue_update(key, fields, "Update " .. key)
-                    if vim.api.nvim_buf_is_valid(buf) then
-                        vim.api.nvim_buf_delete(buf, { force = true })
+                        end)
                     end
+                end)
+            else
+                local queue = require("jira-interface.queue")
+                queue.queue_update(key, fields, "Update " .. key)
+                if vim.api.nvim_buf_is_valid(buf) then
+                    vim.api.nvim_buf_delete(buf, { force = true })
                 end
-            end,
-        })
+            end
+        end
+
+        require("atlassian.submit").register(buf, { submit = do_submit, label = "Jira Issue" })
     end)
 end
 

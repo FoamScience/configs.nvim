@@ -731,78 +731,77 @@ function M.open_create_buffer(project, issue_type, parent_key, classified, picke
     atlassian_ui.apply_window_options(buf, vim.api.nvim_get_current_win(), config.options.display)
     vim.bo[buf].modified = false
 
-    -- Save handler
-    vim.api.nvim_create_autocmd("BufWriteCmd", {
-        buffer = buf,
-        callback = function()
-            -- Exit snippet session if active
-            local ls_ok2, ls = pcall(require, "luasnip")
-            if ls_ok2 and ls.get_active_snip() then
-                ls.unlink_current()
-            end
+    -- Submit handler
+    local function do_submit()
+        -- Exit snippet session if active
+        local ls_ok2, ls = pcall(require, "luasnip")
+        if ls_ok2 and ls.get_active_snip() then
+            ls.unlink_current()
+        end
 
-            local meta = create_buf_meta[buf]
-            if not meta then
-                notify.error("Buffer metadata lost")
-                return
-            end
+        local meta = create_buf_meta[buf]
+        if not meta then
+            notify.error("Buffer metadata lost")
+            return
+        end
 
-            -- Extract all fields from buffer using createmeta
-            local fields = createmeta.extract_fields_from_buffer(buf, meta.classified)
+        -- Extract all fields from buffer using createmeta
+        local fields = createmeta.extract_fields_from_buffer(buf, meta.classified)
 
-            if not fields.summary or fields.summary == "" or fields.summary == meta.issue_type.name then
-                notify.error("Summary is required (edit the <h1> title)")
-                return
-            end
+        if not fields.summary or fields.summary == "" or fields.summary == meta.issue_type.name then
+            notify.error("Summary is required (edit the <h1> title)")
+            return
+        end
 
-            -- Add project and issuetype
-            fields.project = { key = meta.project }
-            fields.issuetype = { id = meta.issue_type.id }
+        -- Add project and issuetype
+        fields.project = { key = meta.project }
+        fields.issuetype = { id = meta.issue_type.id }
 
-            -- Add parent if specified
-            if meta.parent_key then
-                fields.parent = { key = meta.parent_key }
-            end
+        -- Add parent if specified
+        if meta.parent_key then
+            fields.parent = { key = meta.parent_key }
+        end
 
-            -- Merge picker values
-            for field_id, value in pairs(meta.picker_values or {}) do
-                fields[field_id] = value
-            end
+        -- Merge picker values
+        for field_id, value in pairs(meta.picker_values or {}) do
+            fields[field_id] = value
+        end
 
-            if api.is_online then
-                notify.progress_start("create_issue", "Creating " .. meta.issue_type.name)
-                api.create_issue_with_fields(fields, function(create_err, issue)
-                    if create_err then
-                        notify.progress_error("create_issue", "Create failed: " .. tostring(create_err))
-                    else
-                        notify.progress_finish("create_issue", "Created: " .. issue.key)
-                        if vim.api.nvim_buf_is_valid(buf) then
-                            vim.api.nvim_buf_delete(buf, { force = true })
-                        end
-                        cache.invalidate_project(meta.project)
-                        local ui = require("jira-interface.ui")
-                        ui.show_issue(issue)
+        if api.is_online then
+            notify.progress_start("create_issue", "Creating " .. meta.issue_type.name)
+            api.create_issue_with_fields(fields, function(create_err, issue)
+                if create_err then
+                    notify.progress_error("create_issue", "Create failed: " .. tostring(create_err))
+                else
+                    notify.progress_finish("create_issue", "Created: " .. issue.key)
+                    if vim.api.nvim_buf_is_valid(buf) then
+                        vim.api.nvim_buf_delete(buf, { force = true })
                     end
-                end)
-            else
-                -- Offline: queue with summary + description only
-                local desc_csf = nil
-                local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-                table.remove(content, 1) -- metadata
-                local _, remaining = csf.extract_title(content)
-                local parsed = csf.extract_sections(remaining, { "description" })
-                if parsed.description and parsed.description ~= "" then
-                    desc_csf = parsed.description
+                    cache.invalidate_project(meta.project)
+                    local ui = require("jira-interface.ui")
+                    ui.show_issue(issue)
                 end
-
-                local queue = require("jira-interface.queue")
-                queue.queue_create(meta.project, meta.issue_type.name, fields.summary, desc_csf, meta.parent_key)
-                if vim.api.nvim_buf_is_valid(buf) then
-                    vim.api.nvim_buf_delete(buf, { force = true })
-                end
+            end)
+        else
+            -- Offline: queue with summary + description only
+            local desc_csf = nil
+            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+            table.remove(content, 1) -- metadata
+            local _, remaining = csf.extract_title(content)
+            local parsed = csf.extract_sections(remaining, { "description" })
+            if parsed.description and parsed.description ~= "" then
+                desc_csf = parsed.description
             end
-        end,
-    })
+
+            local queue = require("jira-interface.queue")
+            queue.queue_create(meta.project, meta.issue_type.name, fields.summary, desc_csf, meta.parent_key)
+            if vim.api.nvim_buf_is_valid(buf) then
+                vim.api.nvim_buf_delete(buf, { force = true })
+            end
+        end
+    end
+
+    require("atlassian.submit").register(buf, { submit = do_submit, label = "Jira Issue" })
 end
 
 return M

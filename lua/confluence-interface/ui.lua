@@ -169,46 +169,45 @@ function M.edit_page(page_id)
         vim.api.nvim_set_current_buf(buf)
         vim.bo[buf].modified = false
 
-        -- Save handler
-        vim.api.nvim_create_autocmd("BufWriteCmd", {
-            buffer = buf,
-            callback = function()
-                local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        -- Submit handler
+        local function do_submit()
+            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-                -- Parse metadata from first line
-                local meta = csf.parse_metadata(content[1] or "")
-                local meta_id = meta and meta.id or page.id
-                local meta_version = meta and meta.version or page.version
+            -- Parse metadata from first line
+            local meta = csf.parse_metadata(content[1] or "")
+            local meta_id = meta and meta.id or page.id
+            local meta_version = meta and meta.version or page.version
 
-                -- Remove metadata line
+            -- Remove metadata line
+            table.remove(content, 1)
+
+            -- Extract title from <h1>
+            local title, remaining = csf.extract_title(content)
+            title = title or page.title
+            content = remaining
+
+            -- Remove leading empty lines
+            while content[1] and content[1]:match("^%s*$") do
                 table.remove(content, 1)
+            end
 
-                -- Extract title from <h1>
-                local title, remaining = csf.extract_title(content)
-                title = title or page.title
-                content = remaining
+            -- Content is already CSF storage format — send directly
+            local storage_content = table.concat(content, "\n")
 
-                -- Remove leading empty lines
-                while content[1] and content[1]:match("^%s*$") do
-                    table.remove(content, 1)
-                end
+            notify.progress_start("save", "Saving page...")
+            api.update_page(meta_id, title, storage_content, meta_version,
+                function(update_err, updated_page)
+                    if update_err then
+                        notify.progress_error("save", notify.format_api_error(update_err, "saving page"))
+                    else
+                        notify.progress_finish("save", "Saved: " .. updated_page.title)
+                        vim.bo[buf].modified = false
+                        cache.invalidate_space(page.space_key)
+                    end
+                end)
+        end
 
-                -- Content is already CSF storage format — send directly
-                local storage_content = table.concat(content, "\n")
-
-                notify.progress_start("save", "Saving page...")
-                api.update_page(meta_id, title, storage_content, meta_version,
-                    function(update_err, updated_page)
-                        if update_err then
-                            notify.progress_error("save", notify.format_api_error(update_err, "saving page"))
-                        else
-                            notify.progress_finish("save", "Saved: " .. updated_page.title)
-                            vim.bo[buf].modified = false
-                            cache.invalidate_space(page.space_key)
-                        end
-                    end)
-            end,
-        })
+        require("atlassian.submit").register(buf, { submit = do_submit, label = "Confluence Page" })
     end)
 end
 
@@ -236,51 +235,50 @@ function M.create_page_buffer(space_id, space_key, parent_id)
     atlassian_ui.apply_window_options(buf, vim.api.nvim_get_current_win(), config.options.display)
     vim.bo[buf].modified = false
 
-    -- Save handler
-    vim.api.nvim_create_autocmd("BufWriteCmd", {
-        buffer = buf,
-        callback = function()
-            -- Exit snippet session if active
-            local luasnip_ok, luasnip = pcall(require, "luasnip")
-            if luasnip_ok and luasnip.get_active_snip() then
-                luasnip.unlink_current()
-            end
+    -- Submit handler
+    local function do_submit()
+        -- Exit snippet session if active
+        local luasnip_ok, luasnip = pcall(require, "luasnip")
+        if luasnip_ok and luasnip.get_active_snip() then
+            luasnip.unlink_current()
+        end
 
-            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-            -- Parse CSF metadata
-            local meta = csf.parse_metadata(content[1] or "")
-            local meta_space_id = meta and meta.space_id or space_id
-            local meta_parent_id = meta and meta.parent_id or parent_id
+        -- Parse CSF metadata
+        local meta = csf.parse_metadata(content[1] or "")
+        local meta_space_id = meta and meta.space_id or space_id
+        local meta_parent_id = meta and meta.parent_id or parent_id
 
-            -- Remove metadata line
+        -- Remove metadata line
+        table.remove(content, 1)
+
+        -- Extract title from <h1>
+        local title, remaining = csf.extract_title(content)
+        title = title or "Untitled"
+        content = remaining
+
+        while content[1] and content[1]:match("^%s*$") do
             table.remove(content, 1)
+        end
 
-            -- Extract title from <h1>
-            local title, remaining = csf.extract_title(content)
-            title = title or "Untitled"
-            content = remaining
+        -- Content is already CSF — send directly
+        local storage_content = table.concat(content, "\n")
 
-            while content[1] and content[1]:match("^%s*$") do
-                table.remove(content, 1)
-            end
+        notify.progress_start("create", "Creating page...")
+        api.create_page(meta_space_id, title, storage_content, meta_parent_id,
+            function(err, page)
+                if err then
+                    notify.progress_error("create", notify.format_api_error(err, "creating page"))
+                else
+                    notify.progress_finish("create", "Created: " .. page.title)
+                    cache.invalidate_space(space_key)
+                    M.show_page(page)
+                end
+            end)
+    end
 
-            -- Content is already CSF — send directly
-            local storage_content = table.concat(content, "\n")
-
-            notify.progress_start("create", "Creating page...")
-            api.create_page(meta_space_id, title, storage_content, meta_parent_id,
-                function(err, page)
-                    if err then
-                        notify.progress_error("create", notify.format_api_error(err, "creating page"))
-                    else
-                        notify.progress_finish("create", "Created: " .. page.title)
-                        cache.invalidate_space(space_key)
-                        M.show_page(page)
-                    end
-                end)
-        end,
-    })
+    require("atlassian.submit").register(buf, { submit = do_submit, label = "Confluence Page" })
 end
 
 function M.show_status()

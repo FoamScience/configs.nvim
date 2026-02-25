@@ -101,56 +101,55 @@ function M.add_comment(issue_key)
     -- Place cursor inside the <p> tag
     vim.api.nvim_win_set_cursor(0, { 3, 3 })
 
-    vim.api.nvim_create_autocmd("BufWriteCmd", {
-        buffer = buf,
-        callback = function()
-            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local function do_submit()
+        local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-            -- Remove metadata line and <h2> header
-            table.remove(content, 1)
-            -- Remove section header
-            local body_lines = {}
-            local past_header = false
-            for _, line in ipairs(content) do
-                if past_header then
-                    table.insert(body_lines, line)
-                elseif vim.trim(line):match("^<h2>") then
-                    past_header = true
-                else
-                    table.insert(body_lines, line)
-                end
-            end
-
-            local body_csf = table.concat(body_lines, "\n")
-            if vim.trim(body_csf) == "" or vim.trim(body_csf) == "<p></p>" then
-                notify.info("Empty comment, not saving")
-                return
-            end
-
-            local body_adf = bridge.sanitize_for_jira(bridge.csf_to_adf(body_csf))
-
-            if api.is_online then
-                api.add_comment(issue_key, body_adf, function(add_err)
-                    if add_err then
-                        notify.error(notify.format_api_error(add_err, "adding comment"))
-                    else
-                        if vim.api.nvim_buf_is_valid(buf) then
-                            vim.api.nvim_buf_delete(buf, { force = true })
-                        end
-                        cache.invalidate_project(config.options.default_project)
-                        notify.info("Comment added to " .. issue_key)
-                        refresh_issue_view(issue_key)
-                    end
-                end)
+        -- Remove metadata line and <h2> header
+        table.remove(content, 1)
+        -- Remove section header
+        local body_lines = {}
+        local past_header = false
+        for _, line in ipairs(content) do
+            if past_header then
+                table.insert(body_lines, line)
+            elseif vim.trim(line):match("^<h2>") then
+                past_header = true
             else
-                local queue = require("jira-interface.queue")
-                queue.queue_comment(issue_key, body_csf)
-                if vim.api.nvim_buf_is_valid(buf) then
-                    vim.api.nvim_buf_delete(buf, { force = true })
-                end
+                table.insert(body_lines, line)
             end
-        end,
-    })
+        end
+
+        local body_csf = table.concat(body_lines, "\n")
+        if vim.trim(body_csf) == "" or vim.trim(body_csf) == "<p></p>" then
+            notify.info("Empty comment, not saving")
+            return
+        end
+
+        local body_adf = bridge.sanitize_for_jira(bridge.csf_to_adf(body_csf))
+
+        if api.is_online then
+            api.add_comment(issue_key, body_adf, function(add_err)
+                if add_err then
+                    notify.error(notify.format_api_error(add_err, "adding comment"))
+                else
+                    if vim.api.nvim_buf_is_valid(buf) then
+                        vim.api.nvim_buf_delete(buf, { force = true })
+                    end
+                    cache.invalidate_project(config.options.default_project)
+                    notify.info("Comment added to " .. issue_key)
+                    refresh_issue_view(issue_key)
+                end
+            end)
+        else
+            local queue = require("jira-interface.queue")
+            queue.queue_comment(issue_key, body_csf)
+            if vim.api.nvim_buf_is_valid(buf) then
+                vim.api.nvim_buf_delete(buf, { force = true })
+            end
+        end
+    end
+
+    require("atlassian.submit").register(buf, { submit = do_submit, label = "Jira Comment" })
 end
 
 ---@param issue_key string
@@ -187,41 +186,40 @@ function M.edit_comment(issue_key, comment)
         end,
     })
 
-    vim.api.nvim_create_autocmd("BufWriteCmd", {
-        buffer = buf,
-        callback = function()
-            local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local function do_submit()
+        local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-            -- Remove metadata line and section header
-            table.remove(content, 1)
-            local body_lines = {}
-            local past_header = false
-            for _, line in ipairs(content) do
-                if past_header then
-                    table.insert(body_lines, line)
-                elseif vim.trim(line):match("^<h2>") then
-                    past_header = true
-                else
-                    table.insert(body_lines, line)
-                end
+        -- Remove metadata line and section header
+        table.remove(content, 1)
+        local body_lines = {}
+        local past_header = false
+        for _, line in ipairs(content) do
+            if past_header then
+                table.insert(body_lines, line)
+            elseif vim.trim(line):match("^<h2>") then
+                past_header = true
+            else
+                table.insert(body_lines, line)
             end
+        end
 
-            local body_csf = table.concat(body_lines, "\n")
-            local body_adf = bridge.sanitize_for_jira(bridge.csf_to_adf(body_csf))
+        local body_csf = table.concat(body_lines, "\n")
+        local body_adf = bridge.sanitize_for_jira(bridge.csf_to_adf(body_csf))
 
-            api.update_comment(issue_key, comment.id, body_adf, function(update_err)
-                if update_err then
-                    notify.error(notify.format_api_error(update_err, "updating comment"))
-                else
-                    if vim.api.nvim_buf_is_valid(buf) then
-                        vim.api.nvim_buf_delete(buf, { force = true })
-                    end
-                    notify.info("Comment updated on " .. issue_key)
-                    refresh_issue_view(issue_key)
+        api.update_comment(issue_key, comment.id, body_adf, function(update_err)
+            if update_err then
+                notify.error(notify.format_api_error(update_err, "updating comment"))
+            else
+                if vim.api.nvim_buf_is_valid(buf) then
+                    vim.api.nvim_buf_delete(buf, { force = true })
                 end
-            end)
-        end,
-    })
+                notify.info("Comment updated on " .. issue_key)
+                refresh_issue_view(issue_key)
+            end
+        end)
+    end
+
+    require("atlassian.submit").register(buf, { submit = do_submit, label = "Jira Comment" })
 end
 
 ---@param issue_key string
