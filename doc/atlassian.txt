@@ -169,6 +169,7 @@ These mappings are available inside a Jira issue-view buffer:
   s             Show children / sub-tasks
   y             Copy issue key to clipboard
   Y             Copy issue URL to clipboard
+  gx            Open link under cursor in browser
   ?             Show keymap help
 
 EDIT BUFFER KEYMAPS                 *atlassian-edit-keymaps*
@@ -242,6 +243,7 @@ buffer:
   y     Copy page ID to clipboard
   Y     Copy page URL to clipboard
   o     Open page in browser
+  gx    Open link under cursor in browser
   ?     Show keymap help
 
 ---------------------------------------------------------------------------
