@@ -198,6 +198,8 @@ function M.show_issue(issue)
         local picker = require("jira-interface.picker")
         picker.create_issue(nil, issue.project, issue.key)
     end, { buffer = buf, desc = "Create child issue" })
+
+    atlassian_ui.setup_view_keymaps(buf)
 end
 
 ---@param key string

@@ -119,6 +119,8 @@ function M.show_page(page)
     vim.keymap.set("n", "?", function()
         vim.cmd("help atlassian-confluence-keymaps")
     end, { buffer = buf, desc = "Show help" })
+
+    atlassian_ui.setup_view_keymaps(buf)
 end
 
 ---@param page_id string

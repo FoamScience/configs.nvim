@@ -128,6 +128,53 @@ function M.create_window(opts)
     return buf, win
 end
 
+--- Extract the nearest href URL from an <a> tag on the current line near the cursor.
+--- Falls back to the URL/word under the cursor.
+---@param buf number
+---@return string|nil
+local function extract_url_at_cursor(buf)
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    local row = cursor[1]
+    local col = cursor[2]
+    local line = vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1] or ""
+
+    -- Collect all <a href="..."> spans with their positions
+    local best_url, best_dist
+    for start_pos, url, end_pos in line:gmatch('()<a href="([^"]+)".-</a>()') do
+        local dist = 0
+        if col < start_pos - 1 then
+            dist = start_pos - 1 - col
+        elseif col >= end_pos - 1 then
+            dist = col - (end_pos - 2)
+        end
+        if not best_dist or dist < best_dist then
+            best_url = url
+            best_dist = dist
+        end
+    end
+    if best_url then return best_url end
+
+    -- Fallback: try to find a URL pattern under/near cursor
+    local url = vim.fn.expand("<cWORD>")
+    if url and url:match("^https?://") then return url end
+
+    return nil
+end
+
+--- Set up standard Neovim g-prefixed keymaps for CSF view buffers.
+--- Provides gx (open link) with smart href extraction.
+---@param buf number
+function M.setup_view_keymaps(buf)
+    vim.keymap.set("n", "gx", function()
+        local url = extract_url_at_cursor(buf)
+        if url then
+            vim.ui.open(url)
+        else
+            vim.notify("No link found on this line", vim.log.levels.WARN)
+        end
+    end, { buffer = buf, desc = "Open link under cursor" })
+end
+
 ---@param str string
 ---@param width number
 ---@return string
