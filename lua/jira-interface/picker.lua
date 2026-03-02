@@ -100,7 +100,7 @@ function M.show_issues(issues, opts)
                 if item and item.issue then
                     picker:close()
                     local ui = require("jira-interface.ui")
-                    ui.show_transition_picker(item.issue.key)
+                    ui.show_transition_picker(item.issue.key, item.issue.status)
                 end
             end,
             copy_key = function(_, item)

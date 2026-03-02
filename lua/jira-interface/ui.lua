@@ -140,7 +140,7 @@ function M.show_issue(issue)
 
     -- Keymaps for actions
     vim.keymap.set("n", "t", function()
-        M.show_transition_picker(issue.key)
+        M.show_transition_picker(issue.key, issue.status)
     end, { buffer = buf, desc = "Transition status" })
 
     vim.keymap.set("n", "e", function()
@@ -214,7 +214,7 @@ function M.view(key)
 end
 
 ---@param key string
-function M.show_transition_picker(key)
+function M.show_transition_picker(key, current_status)
     api.get_transitions(key, function(err, transitions)
         if err then
             notify.error("Failed to get transitions: " .. err)
@@ -228,7 +228,11 @@ function M.show_transition_picker(key)
 
         local items = {}
         for _, t in ipairs(transitions) do
-            table.insert(items, t.name .. " -> " .. t.to)
+            if current_status then
+                table.insert(items, current_status .. " -> " .. t.to)
+            else
+                table.insert(items, t.name .. " -> " .. t.to)
+            end
         end
 
         vim.ui.select(items, { prompt = "Select transition:" }, function(choice, idx)
