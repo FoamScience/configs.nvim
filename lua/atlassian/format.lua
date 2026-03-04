@@ -32,6 +32,17 @@ function M.format_relative_time(iso_timestamp)
         return iso_timestamp
     end
 
+    -- Parse timezone offset from ISO timestamp (e.g., +0100, -0530, +0000)
+    local offset_sec = 0
+    local sign, oh, om = iso_timestamp:match("([%+%-])(%d%d):?(%d%d)%s*$")
+    if sign and oh and om then
+        offset_sec = (tonumber(oh) * 3600 + tonumber(om) * 60) * (sign == "+" and 1 or -1)
+    end
+
+    -- os.time({...}) interprets the table as local time, so we need the local-UTC offset
+    -- to convert the parsed (potentially non-local) timestamp to a correct UTC epoch
+    local local_offset = os.time(os.date("*t")) - os.time(os.date("!*t"))
+
     local ts = os.time({
         year = tonumber(year),
         month = tonumber(month),
@@ -39,7 +50,8 @@ function M.format_relative_time(iso_timestamp)
         hour = tonumber(hour),
         min = tonumber(min),
         sec = tonumber(sec) or 0,
-    })
+    }) - local_offset -- undo local interpretation
+       - offset_sec   -- apply the source timezone offset
 
     local now = os.time()
     local diff = now - ts
