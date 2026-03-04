@@ -50,8 +50,8 @@ function M.format_relative_time(iso_timestamp)
         hour = tonumber(hour),
         min = tonumber(min),
         sec = tonumber(sec) or 0,
-    }) - local_offset -- undo local interpretation
-       - offset_sec   -- apply the source timezone offset
+    }) + local_offset -- undo local interpretation: os.time() assumed local, add offset to get UTC
+       - offset_sec   -- apply source timezone offset: e.g., +0000 means already UTC, +0100 means subtract 1h
 
     local now = os.time()
     local diff = now - ts
