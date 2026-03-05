@@ -51,6 +51,11 @@ function M.create_commands()
         picker.created_by_me()
     end, { desc = "Show issues created by me" })
 
+    cmd("JiraAssignedNotCreated", function()
+        local picker = require("jira-interface.picker")
+        picker.assigned_not_created()
+    end, { desc = "Show issues assigned to me but created by others" })
+
     cmd("JiraProject", function(args)
         local picker = require("jira-interface.picker")
         if args.args and args.args ~= "" then

@@ -207,6 +207,11 @@ function M.created_by_me()
     M.search(jql, { title = "Created by Me", cache_key = "created_by_me" })
 end
 
+function M.assigned_not_created()
+    local jql = filters.builtin.assigned_not_created()
+    M.search(jql, { title = "Assigned to Me (Not My Issues)", cache_key = "assigned_not_created" })
+end
+
 ---@param project? string
 function M.by_project(project)
     project = project or config.options.default_project

@@ -64,6 +64,11 @@ function M.builtin.created_by_me()
     return "reporter = currentUser() ORDER BY created DESC"
 end
 
+---@return string
+function M.builtin.assigned_not_created()
+    return "assignee = currentUser() AND reporter != currentUser() AND status != Done ORDER BY statusCategory DESC, duedate ASC, updated DESC"
+end
+
 ---@param project string
 ---@return string
 function M.builtin.by_project(project)
