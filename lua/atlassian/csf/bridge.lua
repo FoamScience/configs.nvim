@@ -165,7 +165,9 @@ local function adf_node_to_csf(node)
             return '<ac:image><ri:url ri:value="' .. url .. '" /></ac:image>'
         else
             local filename = node.attrs and node.attrs.alt or node.attrs and node.attrs.id or ""
-            return '<ac:image><ri:attachment ri:filename="' .. filename .. '" /></ac:image>'
+            local id = node.attrs and node.attrs.id
+            local id_attr = id and (' ri:id="' .. id .. '"') or ""
+            return '<ac:image><ri:attachment ri:filename="' .. filename .. '"' .. id_attr .. ' /></ac:image>'
         end
 
     elseif t == "taskList" then
@@ -735,12 +737,16 @@ local function csf_element_to_adf(tag, attrs, children)
                     },
                 }
             elseif child._ri_attachment then
+                local media_attrs = { type = "file", alt = child._ri_attachment }
+                if child._ri_attachment_id then
+                    media_attrs.id = child._ri_attachment_id
+                end
                 return {
                     type = "mediaSingle",
                     content = {
                         {
                             type = "media",
-                            attrs = { type = "file", alt = child._ri_attachment },
+                            attrs = media_attrs,
                         },
                     },
                 }
@@ -754,7 +760,7 @@ local function csf_element_to_adf(tag, attrs, children)
     end
 
     if tag == "ri:attachment" then
-        return { _ri_attachment = attrs["ri:filename"] or "" }
+        return { _ri_attachment = attrs["ri:filename"] or "", _ri_attachment_id = attrs["ri:id"] }
     end
 
     -- Fallback

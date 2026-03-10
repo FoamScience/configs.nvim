@@ -44,13 +44,19 @@ function M.upload_attachment(buf)
         local filename = vim.fn.fnamemodify(file_path, ":t")
         notify.progress_start("upload", "Uploading " .. filename)
 
-        local function on_done(err, _)
+        local function on_done(err, data)
             if err then
                 notify.progress_error("upload", "Upload failed: " .. tostring(err))
                 return
             end
             notify.progress_finish("upload", "Uploaded: " .. filename)
-            M.insert_tag(buf, filename)
+            -- Extract attachment ID from response (Jira returns an array)
+            local attachment_id
+            if type(data) == "table" then
+                local attachment = data[1] or data
+                attachment_id = attachment and tostring(attachment.id)
+            end
+            M.insert_tag(buf, filename, attachment_id)
         end
 
         if meta.type == "jira" then
@@ -63,11 +69,13 @@ end
 
 ---@param buf number Buffer handle
 ---@param filename string Uploaded filename
-function M.insert_tag(buf, filename)
+---@param attachment_id? string Attachment ID from the upload response
+function M.insert_tag(buf, filename, attachment_id)
     local ext = (filename:match("%.(%w+)$") or ""):lower()
     local tag
     if image_extensions[ext] then
-        tag = '<ac:image><ri:attachment ri:filename="' .. filename .. '" /></ac:image>'
+        local id_attr = attachment_id and (' ri:id="' .. attachment_id .. '"') or ""
+        tag = '<ac:image><ri:attachment ri:filename="' .. filename .. '"' .. id_attr .. ' /></ac:image>'
     else
         tag = '<a href="attachment:' .. filename .. '">' .. filename .. '</a>'
     end
