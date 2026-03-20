@@ -234,6 +234,15 @@ return {
                 servers = {
                     stylua = { enabled = false },
                     pyright = { enabled = false },
+                    jsonls = {
+                        on_attach = function(_, bufnr)
+                            for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
+                                vim.wo[win].foldmethod = "expr"
+                                vim.wo[win].foldexpr = "v:lua.vim.lsp.foldexpr()"
+                                vim.wo[win].foldlevel = 99
+                            end
+                        end,
+                    },
                     ty = ty_opts,
                     lua_ls = luals_opts,
                     clangd = clangd_opts,
@@ -351,6 +360,31 @@ return {
                     ensure_installed = install,
                     automatic_enable = { exclude = mason_exclude },
                 })
+
+                -- Auto-enable mason-installed LSPs not explicitly configured in
+                -- opts.servers. Builds a reverse lookup from all lspconfig configs
+                -- to match mason bin names to lspconfig server names.
+                local mr = require("mason-registry")
+                local mapped = require("mason-lspconfig.mappings").get_mason_map()
+                local lspconfigs = require("lspconfig.configs")
+                -- Build cmd→server lookup from lspconfig definitions
+                local bin_to_server = {}
+                for name, cfg in pairs(lspconfigs) do
+                    local default = cfg.default_config or {}
+                    local cmd = default.cmd and default.cmd[1]
+                    if cmd then
+                        bin_to_server[vim.fn.fnamemodify(cmd, ":t")] = name
+                    end
+                end
+                for _, pkg in ipairs(mr.get_installed_packages()) do
+                    if vim.tbl_contains(pkg.spec.categories, "LSP") then
+                        local server = mapped.package_to_lspconfig[pkg.name]
+                            or bin_to_server[pkg.name]
+                        if server and not opts.servers[server] then
+                            vim.lsp.enable(server)
+                        end
+                    end
+                end
             end
         end),
     },

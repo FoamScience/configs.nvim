@@ -10,7 +10,7 @@ local ensure_installed = vim.tbl_deep_extend('keep',
 function M.config()
     require("mason-lspconfig").setup({
         ensure_installed = ensure_installed,
-        automatic_enable = false,
+        automatic_enable = true,
         automatic_installation = true,
         ui = {
             border = "rounded",
