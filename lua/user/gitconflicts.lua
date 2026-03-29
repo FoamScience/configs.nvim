@@ -1,9 +1,9 @@
 local M = {
-	"whiteinge/diffconflicts",
-    event = {"BufReadPre", "BufNewFile"},
+    "mistweaverco/diffconflicts.nvim",
+    event = { "BufReadPre", "BufNewFile" },
 }
 M.config = function()
-    --require("diffconflicts").setup{}
+    require("diffconflicts").setup {}
 end
 
 return M
