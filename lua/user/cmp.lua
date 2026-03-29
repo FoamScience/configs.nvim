@@ -54,16 +54,17 @@ M.config = function()
                     score_offset = 100,
                 },
                 jira = {
-                    module = "cmp_providers.jira",
+                    module = "atlassian-cmp.jira",
                     min_keyword_length = 2,
                 },
                 confluence = {
-                    module = "cmp_providers.confluence",
+                    module = "atlassian-cmp.confluence",
                     min_keyword_length = 2,
                 },
                 slash_commands = {
-                    module = "cmp_providers.slash_commands",
+                    module = "atlassian-cmp.slash_commands",
                     min_keyword_length = 1,
+                    score_offset = 100,
                     should_show_items = function(ctx)
                         local col = ctx.cursor[2]
                         if col <= 0 then return false end

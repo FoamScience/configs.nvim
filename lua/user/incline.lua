@@ -92,6 +92,18 @@ function M.config()
                 guibg = colors.bg or ft_color,
                 guifg = colors.fg or helpers.contrast_color(ft_color),
             }
+            -- NotebookLM artifact status
+            local nlm_ok, nlm_incline = pcall(require, "notebooklm.incline")
+            if nlm_ok then
+                local nlm_segs = nlm_incline.render_segments()
+                if nlm_segs then
+                    table.insert(res, { "  ", guifg = "#585b70" })
+                    for _, seg in ipairs(nlm_segs) do
+                        table.insert(res, seg)
+                    end
+                end
+            end
+
             if not navic_ok then return res end
             local data_length = #res[3][1] + 6
 

@@ -23,7 +23,7 @@ function M.config()
         { "<leader>n", group = "navigation", icon = icons.ui.Forward },
         {
             "<leader>nn",
-            "<cmd>topleft Outline<cr>",
+            "<cmd>Outline<cr>",
             desc = "Outline of symbols",
         },
     }
@@ -374,7 +374,7 @@ function M.config()
         },
     })
 
-    local jira_ok, _ = pcall(require, "jira-interface")
+    local jira_ok = vim.env.JIRA_API_TOKEN and #vim.api.nvim_get_runtime_file("lua/jira-interface/init.lua", false) > 0
     if jira_ok then
         vim.list_extend(mappings, {
             { "<leader>j", group = "Jira", icon = icons.ui.List },
@@ -477,7 +477,7 @@ function M.config()
         })
     end
 
-    local confluence_ok, _ = pcall(require, "confluence-interface")
+    local confluence_ok = (vim.env.CONFLUENCE_API_TOKEN or vim.env.JIRA_API_TOKEN) and #vim.api.nvim_get_runtime_file("lua/confluence-interface/init.lua", false) > 0
     if confluence_ok then
         vim.list_extend(mappings, {
             { "<leader>c", group = "Confluence", icon = icons.kind.Text },
@@ -649,47 +649,6 @@ function M.config()
         })
     end
 
-    -- Tutorial system (only if started without files)
-    local function started_with_files()
-        local args = vim.fn.argv()
-        for _, arg in ipairs(args) do
-            if not arg:match("^%-") then
-                return true
-            end
-        end
-        return false
-    end
-
-    if not started_with_files() then
-        vim.list_extend(mappings, {
-            { "<leader>t", group = "Tutorials", icon = icons.ui.BookMark },
-            {
-                "<leader>tt",
-                "<cmd>Tutorials<cr>",
-                desc = "Open tutorial picker",
-            },
-            {
-                "<leader>tn",
-                "<cmd>TutorialNext<cr>",
-                desc = "Next step",
-            },
-            {
-                "<leader>tp",
-                "<cmd>TutorialPrev<cr>",
-                desc = "Previous step",
-            },
-            {
-                "<leader>tq",
-                "<cmd>TutorialQuit<cr>",
-                desc = "Quit tutorial",
-            },
-            {
-                "<leader>tr",
-                "<cmd>TutorialRestart<cr>",
-                desc = "Restart tutorial",
-            },
-        })
-    end
 
     wk.setup {
         preset = "helix",

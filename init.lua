@@ -53,9 +53,7 @@ spec("user.optional.tpipeline", {"full"}) -- Tmux statusline (moved to full-only
 spec("user.optional.cinnamon", {"full"})  -- Scrolling animations
 spec("user.render-markdown", {"full"})    -- Heavy markdown rendering
 spec("user.incline", {"full"})            -- Floating window decorations
-spec("user.tutorials", {"full"})          -- tutorials on effective editing with this configuration
-spec("user.jira", {"full"})               -- jira client
-spec("user.confluence", {"full"})         -- confluence client
+spec("user.atlassian", {"full"})          -- jira & confluence client
 
 -- Load user-config directory (for separate user repo integration)
 -- Users can symlink their config repo to ~/.config/nvim/user-config/
