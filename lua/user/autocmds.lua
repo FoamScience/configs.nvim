@@ -41,13 +41,6 @@ vim.filetype.add({
     filename = { ['.xonshrc'] = 'xonsh', ['xonshrc'] = 'xonsh' },
 })
 
-vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-    pattern = { '*.xsh', '*.xonshrc', '.xonshrc', 'xonshrc' },
-    callback = function()
-        vim.bo.filetype = 'xonsh'
-    end,
-})
-
 vim.api.nvim_create_autocmd({ "CmdWinEnter" }, {
     desc = "Huh?",
     callback = function()
