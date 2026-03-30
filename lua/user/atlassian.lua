@@ -4,7 +4,7 @@ if not has_creds then return {} end
 return {
     "FoamScience/conflira.nvim",
     dependencies = { "folke/snacks.nvim" },
-    lazy = false,
+    event = "VeryLazy",
     config = function()
         vim.schedule(function()
             if vim.env.JIRA_API_TOKEN then

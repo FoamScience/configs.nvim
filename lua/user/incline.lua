@@ -4,6 +4,9 @@ local M = {
         require('incline').setup()
     end,
     event = 'VeryLazy',
+    cond = function()
+        return vim.env.SSH_CONNECTION == nil
+    end,
     dependencies = {
         "nvim-tree/nvim-web-devicons",
         "SmiteshP/nvim-navic",

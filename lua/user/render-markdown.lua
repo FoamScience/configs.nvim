@@ -3,7 +3,7 @@ local filetypes = { "markdown", "codecompanion", "latex", "tex", "typst", "yaml"
 local M = {
     'MeanderingProgrammer/render-markdown.nvim',
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
-    event = 'VeryLazy'
+    ft = filetypes,
 }
 
 M.config = function()

@@ -35,5 +35,14 @@ require("lazy").setup({
 	},
 	performance = {
 		reset_packpath = true,
+		rtp = {
+			disabled_plugins = {
+				"matchparen",
+				"netrwPlugin",
+				"rplugin",
+				"spellfile",
+				"tutor",
+			},
+		},
 	},
 })
