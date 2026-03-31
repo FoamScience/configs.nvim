@@ -73,7 +73,7 @@ local function check_neovim()
     local version_str = string.format("%d.%d.%d", version.major, version.minor, version.patch)
 
     -- Require v0.11.4 or newer
-    if version.major > 0 or (version.major == 0 and version.minor >= 11 and version.patch >= 4) then
+    if version.major > 0 or (version.major == 0 and (version.minor > 11 or (version.minor == 11 and version.patch >= 4))) then
         health.ok("Neovim " .. version_str .. " (v0.11.4+ required)")
     elseif version.major == 0 and version.minor == 11 then
         health.warn("Neovim " .. version_str .. " (v0.11.4+ recommended)", {
@@ -85,8 +85,6 @@ local function check_neovim()
             "This configuration requires Neovim v0.11.4 or newer",
             "Download from: https://github.com/neovim/neovim/releases",
         })
-        table.insert(missing_required,
-            { name = "neovim", install = get_install_cmd("neovim", "neovim", "neovim", "neovim", "neovim") })
     end
 end
 

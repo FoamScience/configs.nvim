@@ -1,6 +1,9 @@
 local M = {
 	"monaqa/dial.nvim",
-	event = "VeryLazy",
+	keys = {
+		{ "<C-a>", mode = { "n", "v" }, desc = "Increment" },
+		{ "<C-x>", mode = { "n", "v" }, desc = "Decrement" },
+	},
 }
 
 function M.config()

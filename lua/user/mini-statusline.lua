@@ -1,10 +1,11 @@
 -- 0.33ms replacement for lualine
-local icons = require("user.lspicons")
-
 local M = {
     "echasnovski/mini.nvim",
     event = "VeryLazy",
 }
+
+-- Defer icon loading until config() runs, not at spec-parse time
+local icons
 
 local function clients_lsp()
     local clients = vim.lsp.get_clients({ bufnr = 0 })
@@ -58,17 +59,16 @@ local function git_blame()
 end
 
 local function diagnostics()
-    local diag = vim.diagnostic.get(0)
-    local errors = #vim.tbl_filter(function(d) return d.severity == vim.diagnostic.severity.ERROR end, diag)
-    local warnings = #vim.tbl_filter(function(d) return d.severity == vim.diagnostic.severity.WARN end, diag)
-    local hints = #vim.tbl_filter(function(d) return d.severity == vim.diagnostic.severity.HINT end, diag)
-    local info = #vim.tbl_filter(function(d) return d.severity == vim.diagnostic.severity.INFO end, diag)
-
+    local counts = { 0, 0, 0, 0 }
+    for _, d in ipairs(vim.diagnostic.get(0)) do
+        counts[d.severity] = counts[d.severity] + 1
+    end
+    local S = vim.diagnostic.severity
     local result = {}
-    if errors > 0 then table.insert(result, icons.diagnostics.Error .. errors) end
-    if warnings > 0 then table.insert(result, icons.diagnostics.Warning .. warnings) end
-    if hints > 0 then table.insert(result, icons.diagnostics.Hint .. hints) end
-    if info > 0 then table.insert(result, icons.diagnostics.Information .. info) end
+    if counts[S.ERROR] > 0 then result[#result+1] = icons.diagnostics.Error .. counts[S.ERROR] end
+    if counts[S.WARN] > 0 then result[#result+1] = icons.diagnostics.Warning .. counts[S.WARN] end
+    if counts[S.HINT] > 0 then result[#result+1] = icons.diagnostics.Hint .. counts[S.HINT] end
+    if counts[S.INFO] > 0 then result[#result+1] = icons.diagnostics.Information .. counts[S.INFO] end
     return table.concat(result, " ")
 end
 
@@ -93,6 +93,7 @@ M.sidebar_filetypes = {
 }
 
 function M.config()
+    icons = require("user.lspicons")
     require('mini.ai').setup()
     require('mini.operators').setup({
         exchange = { prefix = 'ge' },

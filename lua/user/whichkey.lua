@@ -374,7 +374,7 @@ function M.config()
         },
     })
 
-    local jira_ok = vim.env.JIRA_API_TOKEN and #vim.api.nvim_get_runtime_file("lua/jira-interface/init.lua", false) > 0
+    local jira_ok = vim.env.JIRA_API_TOKEN and pcall(require, "jira-interface")
     if jira_ok then
         vim.list_extend(mappings, {
             { "<leader>j", group = "Jira", icon = icons.ui.List },
@@ -477,7 +477,7 @@ function M.config()
         })
     end
 
-    local confluence_ok = (vim.env.CONFLUENCE_API_TOKEN or vim.env.JIRA_API_TOKEN) and #vim.api.nvim_get_runtime_file("lua/confluence-interface/init.lua", false) > 0
+    local confluence_ok = (vim.env.CONFLUENCE_API_TOKEN or vim.env.JIRA_API_TOKEN) and pcall(require, "confluence-interface")
     if confluence_ok then
         vim.list_extend(mappings, {
             { "<leader>c", group = "Confluence", icon = icons.kind.Text },

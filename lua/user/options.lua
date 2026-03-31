@@ -7,7 +7,10 @@ vim.opt.swapfile = false -- no swapfiles
 vim.opt.splitbelow = true -- horizontal splits will automatically be below
 vim.opt.splitright = true -- vertical splits will automatically be to the right
 
-vim.opt.clipboard = "unnamedplus" -- allows neovim to access the system clipboard
+-- Defer clipboard provider detection to avoid blocking startup
+vim.schedule(function()
+    vim.opt.clipboard = "unnamedplus"
+end)
 
 vim.opt.cmdheight = 1 -- more space in the neovim command line for displaying messages
 vim.opt.completeopt = { "menuone", "noselect" } -- cmp
