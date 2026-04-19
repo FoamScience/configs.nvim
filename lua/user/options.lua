@@ -20,7 +20,7 @@ vim.opt.hlsearch = false -- no highlight after search
 vim.opt.ignorecase = true -- ignore case
 vim.opt.showcmd = false
 
-vim.opt.mouse = "" -- no mouse
+vim.opt.mouse = "" -- who needs mouse
 
 vim.opt.showmode = false -- no annoying __ INSERT __
 vim.opt.expandtab = true -- tabs to spaces
@@ -36,16 +36,16 @@ vim.opt.updatetime = 100 -- faster completion (4000ms default)
 
 vim.opt.number = true -- set numbered lines
 vim.opt.relativenumber = true -- set relative numbered lines
-vim.opt.numberwidth = 4 -- number column width to 4
+vim.opt.numberwidth = 5 -- number column width to 4
 vim.opt.signcolumn = "yes" -- show the sign column
 
 vim.opt.undofile = true -- enable persistent undo
-vim.opt.cursorline = true -- highlight the current line
+vim.opt.cursorline = false -- highlight the current line
 
 vim.opt.wrap = false -- display lines as one long line
 
-vim.opt.scrolloff = 999 -- keep cursor around the center of the screen
-vim.opt.sidescrolloff = 10 -- show 10 chars when scrolling horizontally
+--vim.opt.scrolloff = 999 -- keep cursor around the center of the screen
+--vim.opt.sidescrolloff = 10 -- show 10 chars when scrolling horizontally
 
 vim.opt.virtualedit = "block" -- allow cursor to move where there is no text in visual block mode
 vim.opt.inccommand = "split" -- live replace preview
@@ -56,13 +56,12 @@ vim.opt.fillchars:append {
 }
 
 vim.opt.laststatus = 3
-vim.opt.splitkeep = "screen"
+vim.opt.splitkeep = "cursor"
 
 vim.opt.undodir = "/tmp/.vim-undo-dir"
 if not vim.fn.isdirectory("/tmp/.vim-undo-dir") then
     vim.fn.mkdir(vim.opt.undodir, "p")
 end
-vim.opt.undofile = true
 
 vim.opt.shortmess:append "c"
 

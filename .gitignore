@@ -6,3 +6,4 @@ user-config
 result
 result-*
 .direnv/
+lua/.luarc.json

@@ -141,7 +141,7 @@ return {
         event = { "BufReadPost", "BufNewFile" },
         dependencies = {
             "mason.nvim",
-            "folke/lazydev.nvim",
+            { "folke/lazydev.nvim", ft = "lua" },
             { "mason-org/mason-lspconfig.nvim", config = function() end },
             {
                 "p00f/clangd_extensions.nvim",
@@ -251,7 +251,9 @@ return {
                 setup = {
                     lua_ls = function()
                         require("lazydev").setup({
-                            ft = "lua",
+                            library = {
+                                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+                            },
                         })
                     end
                 },

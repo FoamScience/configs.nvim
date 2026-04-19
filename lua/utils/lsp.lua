@@ -164,7 +164,7 @@ M.workspace_diagnostics = function(client, bufnr, workspace_files)
                     languageId = filetype
                 }
             }
-            client.notify('textDocument/didOpen', params)
+            client:notify('textDocument/didOpen', params)
         end
         ::continue::
     end
