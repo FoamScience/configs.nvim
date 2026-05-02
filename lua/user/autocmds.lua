@@ -134,24 +134,3 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
     end
 })
 
-vim.api.nvim_create_autocmd('User', {
-    pattern = 'TSUpdate',
-    callback = function()
-        require('nvim-treesitter.parsers').xonsh = {
-            install_info = {
-                url = 'https://github.com/FoamScience/tree-sitter-xonsh',
-                queries = 'queries/',
-            },
-        }
-    end
-})
-
-vim.api.nvim_create_autocmd('FileType', {
-    pattern = 'xonsh',
-    callback = function(args)
-        if not require('nvim-treesitter.parsers').xonsh then
-            vim.treesitter.start(args.buf, 'xonsh')
-        end
-    end,
-})
-

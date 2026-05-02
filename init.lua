@@ -19,7 +19,7 @@ spec "user.devicons"
 spec "user.whichkey"
 spec "user.noice"
 spec "user.fidget"
-spec "user.treesitter"
+require "user.treesitter"
 spec "user.lspconfig"
 spec "user.todocomments"
 spec "user.gitsigns"
@@ -46,6 +46,7 @@ spec "user.remote-nvim"
 
 -- Full-only plugins (excluded from SSH due to latency/GUI dependencies)
 spec("user.snacks", {"full"})             -- Heavy file scanning with latency
+spec("user.image", {"full"})              -- Image rendering in-terminal
 spec("user.img-clip", {"full"})           -- Clipboard/GUI-dependent
 spec("user.project", {"full"})            -- Heavy directory scanning
 spec("user.nvimtree", {"full"})           -- Large directory browsing over latency

@@ -8,7 +8,6 @@ local M = {
 }
 
 function M.config()
-	--require("csvlens").setup({})
 	require("csvview").setup({
 		keymaps = {
 			textobject_field_inner = { "if", mode = { "o", "x" } },

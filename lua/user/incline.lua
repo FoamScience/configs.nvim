@@ -49,18 +49,30 @@ end
 -- Get merge branch info for DiffConflicts decoration
 function M.get_merge_info()
     if M._merge_info then return M._merge_info end
-    local info = { head = nil, incoming = nil }
+    local info = { head = nil, incoming = nil, base = nil }
     local head = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null"):gsub("%s+$", "")
-    if vim.v.shell_error == 0 and head ~= "" then
+    if vim.v.shell_error == 0 and head ~= "" and head ~= "HEAD" then
         info.head = head
     end
     -- Try MERGE_HEAD for merge, REBASE_HEAD for rebase
-    local merge_head = vim.fn.system("git log --oneline -1 MERGE_HEAD 2>/dev/null"):gsub("%s+$", "")
-    if vim.v.shell_error == 0 and merge_head ~= "" then
+    local merge_head_sha = vim.fn.system("git rev-parse --short MERGE_HEAD 2>/dev/null"):gsub("%s+$", "")
+    if vim.v.shell_error == 0 and merge_head_sha ~= "" then
         -- Try to get the branch name from MERGE_MSG
         local merge_msg = vim.fn.system("head -1 $(git rev-parse --git-dir)/MERGE_MSG 2>/dev/null"):gsub("%s+$", "")
         local branch = merge_msg:match("Merge branch '([^']+)'") or merge_msg:match("Merge .+ '([^']+)'")
-        info.incoming = branch or merge_head
+        info.incoming = branch or merge_head_sha
+        -- Merge base (common ancestor) between HEAD and MERGE_HEAD
+        local base = vim.fn.system("git merge-base --short HEAD MERGE_HEAD 2>/dev/null"):gsub("%s+$", "")
+        if vim.v.shell_error ~= 0 or base == "" then
+            base = vim.fn.system("git merge-base HEAD MERGE_HEAD 2>/dev/null"):gsub("%s+$", ""):sub(1, 7)
+        end
+        if base ~= "" then info.base = base end
+    else
+        -- Rebase case
+        local rebase_head = vim.fn.system("git rev-parse --short REBASE_HEAD 2>/dev/null"):gsub("%s+$", "")
+        if vim.v.shell_error == 0 and rebase_head ~= "" then
+            info.incoming = rebase_head
+        end
     end
     M._merge_info = info
     return info
@@ -70,12 +82,13 @@ end
 function M.get_diffconflicts_role(bufname)
     local name = vim.fn.fnamemodify(bufname, ":t")
     -- Explicit DiffConflicts buffer names
-    if name == "RCONFL" then return "REMOTE" end
+    -- RCONFL = working tree file with conflict markers (the merged view)
+    if name == "RCONFL" then return "MERGED" end
     if name == "LOCAL" then return "LOCAL" end
     if name == "BASE" then return "BASE" end
     if name == "REMOTE" then return "REMOTE" end
     -- jj-style names
-    if name == "snapshot" then return "REMOTE" end
+    if name == "snapshot" then return "MERGED" end
     if name == "left" then return "LOCAL" end
     if name == "base" then return "BASE" end
     if name == "right" then return "REMOTE" end
@@ -123,20 +136,20 @@ function M.get_diffview_info(bufname)
     return { side = side, label = label }
 end
 
--- Check if a buffer is the LOCAL side in git DiffConflicts (original file diffed with RCONFL)
+-- Check if buffer participates in DiffConflicts. Returns role for the working
+-- file (MERGED) when it sits alongside LOCAL/BASE/REMOTE scratch buffers.
 function M.get_diffconflicts_role_for_win(bufnr, winid)
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     local explicit = M.get_diffconflicts_role(bufname)
     if explicit then return explicit end
-    -- Check if this window is in diff mode alongside an RCONFL buffer
     if not vim.wo[winid].diff then return nil end
     local tab_wins = vim.api.nvim_tabpage_list_wins(0)
     for _, w in ipairs(tab_wins) do
         if w ~= winid then
             local b = vim.api.nvim_win_get_buf(w)
-            local n = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(b), ":t")
-            if n == "RCONFL" or n == "snapshot" then
-                return "LOCAL"
+            local sibling = M.get_diffconflicts_role(vim.api.nvim_buf_get_name(b))
+            if sibling == "LOCAL" or sibling == "REMOTE" or sibling == "BASE" then
+                return "MERGED"
             end
         end
     end
@@ -201,16 +214,23 @@ function M.config()
             local winid = vim.fn.bufwinid(props.buf)
             local dc_role = M.get_diffconflicts_role_for_win(props.buf, winid ~= -1 and winid or 0)
             local dc_label = nil
+            local dc_badge_bg = nil
             if dc_role then
                 local palette = require("catppuccin.palettes").get_palette()
                 local info = M.get_merge_info()
-                local branch
                 if dc_role == "LOCAL" then
-                    branch = info.head
+                    dc_label = info.head and ("OURS: " .. info.head) or "OURS (HEAD)"
+                    dc_badge_bg = palette.blue
                 elseif dc_role == "REMOTE" then
-                    branch = info.incoming
+                    dc_label = info.incoming and ("THEIRS: " .. info.incoming) or "THEIRS (incoming)"
+                    dc_badge_bg = palette.peach
+                elseif dc_role == "BASE" then
+                    dc_label = info.base and ("BASE: " .. info.base) or "BASE (common ancestor)"
+                    dc_badge_bg = palette.mauve
+                elseif dc_role == "MERGED" then
+                    dc_label = "MERGED (conflicts)"
+                    dc_badge_bg = palette.red
                 end
-                dc_label = dc_role .. (branch and (" ← " .. branch) or "")
                 -- For DiffConflicts buffers, use the original file's icon
                 if winid ~= -1 then
                     local diff_wins = vim.tbl_filter(function(w)
@@ -244,10 +264,11 @@ function M.config()
             }
             -- Append DiffConflicts role badge
             if dc_label then
+                local bg = dc_badge_bg or colors.bg or ft_color
                 table.insert(res, {
                     { ' ' .. dc_label .. ' ', gui = 'bold' },
-                    guibg = colors.bg or ft_color,
-                    guifg = colors.fg or helpers.contrast_color(ft_color),
+                    guibg = bg,
+                    guifg = helpers.contrast_color(bg),
                 })
             end
             -- Append diffview rev badge
