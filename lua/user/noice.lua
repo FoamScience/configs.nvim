@@ -49,7 +49,7 @@ function M.config()
 			enabled = true,
 			view_history = "popup",
 		},
-		popupmenu = { -- conflicts with cmp auto-completion
+		popupmenu = { -- handled by blink.cmp cmdline
 			enabled = false,
 			backend = false,
 		},

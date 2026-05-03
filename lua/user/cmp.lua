@@ -1,7 +1,7 @@
 local M = {
     "saghen/blink.cmp",
     version = '1.*',
-    event = "InsertEnter",
+    event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
         { 'rafamadriz/friendly-snippets', },
         { 'L3MON4D3/LuaSnip',             version = 'v2.*' },
@@ -99,6 +99,21 @@ M.config = function()
         snippets = { preset = 'luasnip' },
         signature = { window = { border = 'single' } },
         term = { enabled = true },
+        cmdline = {
+            enabled = true,
+            keymap = { preset = 'cmdline' },
+            completion = {
+                menu = { auto_show = true },
+                ghost_text = { enabled = true },
+                list = { selection = { preselect = false, auto_insert = true } },
+            },
+            sources = function()
+                local t = vim.fn.getcmdtype()
+                if t == '/' or t == '?' then return { 'buffer' } end
+                if t == ':' or t == '@' then return { 'cmdline', 'path' } end
+                return {}
+            end,
+        },
         completion = {
             keyword = { range = 'prefix' },
             documentation = {

@@ -247,6 +247,17 @@ return {
                     lua_ls = luals_opts,
                     clangd = clangd_opts,
                     xonsh_lsp = xonsh_lsp_opts,
+                    rust_analyzer = {
+                        on_attach = function(client, _)
+                            client.server_capabilities.inlayHintProvider = nil
+                            client.server_capabilities.codeLensProvider = nil
+                        end,
+                        settings = {
+                            ["rust-analyzer"] = {
+                                lens = { enable = false },
+                            },
+                        },
+                    },
                 },
                 setup = {
                     lua_ls = function()
