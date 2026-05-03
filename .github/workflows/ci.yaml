@@ -37,10 +37,10 @@ jobs:
           export PATH="$HOME/.cargo/bin:$PATH"
 
       - name: Set up Neovim
-        run: |
-          sudo add-apt-repository ppa:neovim-ppa/${{ matrix.neovim_version }} -y
-          sudo apt-get update
-          sudo apt-get install neovim -y
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: ${{ matrix.neovim_version == 'unstable' && 'nightly' || 'stable' }}
 
       - name: Set up Neovim configuration directory
         run: |
