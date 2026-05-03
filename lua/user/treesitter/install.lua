@@ -337,4 +337,10 @@ function M.recheck_prereqs()
     return M.check_prereqs()
 end
 
+function M.nvimts_queries_runtime()
+    local rt = fs.joinpath(nvimts_queries_root(), 'runtime')
+    if vim.fn.isdirectory(rt) == 1 then return rt end
+    return nil
+end
+
 return M

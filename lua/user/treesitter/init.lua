@@ -81,6 +81,19 @@ vim.api.nvim_create_autocmd('FileType', {
 
 vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 
+-- Add the curated nvim-treesitter query bundle to rtp so "; inherits: X"
+-- directives in highlights.scm (e.g. javascript inherits ecma,jsx) resolve.
+-- Must run AFTER lazy.nvim rebuilds rtp, so use VimEnter.
+vim.api.nvim_create_autocmd('VimEnter', {
+    once = true,
+    callback = function()
+        local nvimts_rt = install.nvimts_queries_runtime()
+        if nvimts_rt and vim.fn.isdirectory(nvimts_rt) == 1 then
+            vim.opt.runtimepath:prepend(nvimts_rt)
+        end
+    end,
+})
+
 -- Install missing parsers asynchronously after startup.
 vim.schedule(function()
     install.install(ensure_installed, false)
