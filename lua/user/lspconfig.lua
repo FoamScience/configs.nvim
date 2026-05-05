@@ -12,6 +12,12 @@ local luals_opts = {
             completion = {
                 callSnippet = "Replace",
             },
+            codeLens = {
+                enable = false,
+            },
+            hint = {
+                enable = false,
+            },
             doc = {
                 privateName = { "^_" },
             },
@@ -141,7 +147,7 @@ return {
         event = { "BufReadPost", "BufNewFile" },
         dependencies = {
             "mason.nvim",
-            { "folke/lazydev.nvim", ft = "lua" },
+            { "folke/lazydev.nvim",             ft = "lua" },
             { "mason-org/mason-lspconfig.nvim", config = function() end },
             {
                 "p00f/clangd_extensions.nvim",
@@ -244,7 +250,12 @@ return {
                         end,
                     },
                     ty = ty_opts,
-                    lua_ls = luals_opts,
+                    lua_ls = vim.tbl_deep_extend("force", luals_opts, {
+                        on_attach = function(client, _)
+                            client.server_capabilities.inlayHintProvider = nil
+                            client.server_capabilities.codeLensProvider = nil
+                        end,
+                    }),
                     clangd = clangd_opts,
                     xonsh_lsp = xonsh_lsp_opts,
                     rust_analyzer = {
@@ -316,7 +327,7 @@ return {
                             vim.lsp.codelens.enable(true)
                             vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
                                 buffer = buffer,
-                                callback = function (copts) return vim.lsp.codelens.enable(true, copts) end,
+                                callback = function(copts) return vim.lsp.codelens.enable(true, copts) end,
                             })
                         end
                     end,
