@@ -94,20 +94,30 @@ local default_python = vim.fn.exepath("python3") or vim.fn.exepath("python")
 local ty_opts = {
     cmd = { "ty", "server" },
     settings = {
-        environment = {
-            python = default_python,
-        }
+        ty = {
+            configuration = {
+                environment = {
+                    python = default_python,
+                },
+            },
+        },
     },
     root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
     on_attach = function(client, bufnr)
         find_uv_python_path(bufnr, client, function(_, uv_python)
             if not uv_python then return end
-            client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
-                environment = { python = uv_python }
+            local current = vim.tbl_get(client.settings or {}, "ty", "configuration", "environment", "python")
+            if current == uv_python then return end
+            -- ty does not re-resolve site-packages on didChangeConfiguration;
+            -- restart this client for the buffer with the detected env.
+            local new_config = vim.deepcopy(client.config)
+            new_config.settings = vim.tbl_deep_extend("force", new_config.settings or {}, {
+                ty = { configuration = { environment = { python = uv_python } } },
             })
-            client:notify("workspace/didChangeConfiguration", {
-                settings = client.settings
-            })
+            client:stop()
+            vim.schedule(function()
+                vim.lsp.start(new_config, { bufnr = bufnr })
+            end)
         end)
     end,
 }
