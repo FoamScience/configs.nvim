@@ -391,42 +391,6 @@ function M.config()
                 icon = icons.kind.User,
             },
             {
-                "<leader>jc",
-                "<cmd>JiraCreatedByMe<cr>",
-                desc = "Created by me",
-                icon = icons.kind.User,
-            },
-            {
-                "<leader>jp",
-                "<cmd>JiraProject<cr>",
-                desc = "By project",
-                icon = icons.kind.Folder,
-            },
-            {
-                "<leader>jd",
-                "<cmd>JiraDue<cr>",
-                desc = "By due date",
-                icon = icons.ui.Calendar,
-            },
-            {
-                "<leader>je",
-                "<cmd>JiraEpics<cr>",
-                desc = "Epics",
-                icon = icons.kind.Class,
-            },
-            {
-                "<leader>jf",
-                "<cmd>JiraFeatures<cr>",
-                desc = "Features/Bugs",
-                icon = icons.kind.Interface,
-            },
-            {
-                "<leader>jt",
-                "<cmd>JiraTasks<cr>",
-                desc = "Tasks",
-                icon = icons.ui.BoxChecked,
-            },
-            {
                 "<leader>jn",
                 "<cmd>JiraCreate<cr>",
                 desc = "New issue",
@@ -445,22 +409,10 @@ function M.config()
                 icon = icons.diagnostics.Information,
             },
             {
-                "<leader>jw",
-                "<cmd>JiraTeam<cr>",
-                desc = "Team workload",
-                icon = icons.kind.Struct,
-            },
-            {
                 "<leader>jb",
                 "<cmd>JiraBoard<cr>",
                 desc = "Board view",
                 icon = icons.ui.Table,
-            },
-            {
-                "<leader>jS",
-                "<cmd>JiraSprint<cr>",
-                desc = "Sprint view",
-                icon = icons.ui.Calendar,
             },
             {
                 "<leader>jT",
