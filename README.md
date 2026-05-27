@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/supports%20nvim-v0.11.4%20%7C%20v0.12-huh?style=for-the-badge&logo=neovim&logoColor=green)
+![](https://img.shields.io/badge/supports%20nvim-v0.12%2B-huh?style=for-the-badge&logo=neovim&logoColor=green)
 
 This is my minimal(?), clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
 
@@ -59,7 +59,7 @@ Run `:checkhealth config` (or `:ConfigHealth`) to verify your setup, see what's 
 them; here is a list of what fuels this configuration:
 
 **Required dependencies:**
-- [Neovim][] **nightly** (v0.11.4 or newer), [NodeJS][] **v22** (or newer), preferably installed with [NVM][],
+- [Neovim][] **v0.12.x or newer**, [NodeJS][] **v22** (or newer), preferably installed with [NVM][],
 - Python 3 and (optionally) [Rust][]
 - The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`, or with `cargo`
 - For installing some LSP servers, you will need the `unzip` command

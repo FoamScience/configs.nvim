@@ -72,17 +72,12 @@ local function check_neovim()
     local version = vim.version()
     local version_str = string.format("%d.%d.%d", version.major, version.minor, version.patch)
 
-    -- Require v0.11.4 or newer
-    if version.major > 0 or (version.major == 0 and (version.minor > 11 or (version.minor == 11 and version.patch >= 4))) then
-        health.ok("Neovim " .. version_str .. " (v0.11.4+ required)")
-    elseif version.major == 0 and version.minor == 11 then
-        health.warn("Neovim " .. version_str .. " (v0.11.4+ recommended)", {
-            "Some features may not work correctly",
-            "Update: https://github.com/neovim/neovim/releases",
-        })
+    -- Require v0.12.0 or newer
+    if version.major > 0 or (version.major == 0 and version.minor >= 12) then
+        health.ok("Neovim " .. version_str .. " (v0.12+ required)")
     else
         health.error("Neovim " .. version_str .. " is too old", {
-            "This configuration requires Neovim v0.11.4 or newer",
+            "This configuration requires Neovim v0.12.0 or newer",
             "Download from: https://github.com/neovim/neovim/releases",
         })
     end
