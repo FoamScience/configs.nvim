@@ -4,18 +4,6 @@ local M = {
 }
 
 M.config = function()
-    local v = vim.version()
-    local version_str = string.format("v%d.%d.%d", v.major, v.minor, v.patch)
-    local minor_str = string.format("v%d.%d", v.major, v.minor)
-
-    local header = table.concat({
-        "",
-        "NVIM " .. version_str,
-        "",
-        "Nvim is open source and freely distributable",
-        "https://neovim.io/#chat",
-    }, "\n")
-
     -- Quick health check (all local, fast)
     local checks = {
         { "node",        vim.fn.executable("node") == 1 },
@@ -35,11 +23,26 @@ M.config = function()
     local config_dir = vim.fn.stdpath("config")
     local git_line = "Checking for config updates…"
 
+    -- `:intro` text (version + open-source lines). The logo above is rendered as
+    -- separate sections so its two colors can be highlighted like vanilla.
+    local v = vim.version()
+    local header = table.concat({
+        "NVIM " .. string.format("v%d.%d.%d", v.major, v.minor, v.patch),
+        "",
+        "Nvim is open source and freely distributable",
+        "https://neovim.io/#chat",
+    }, "\n")
+
     require("snacks").setup({
         dashboard = {
             enabled = true,
             preset = { header = header },
             sections = {
+                -- Vanilla :intro logo: first pillar = Special (pink), rest = String (green)
+                { text = { { "│", hl = "Special" }, { " ╲ ││", hl = "String" } }, align = "center" },
+                { text = { { "││", hl = "Special" }, { "╲╲││", hl = "String" } }, align = "center" },
+                { text = { { "││", hl = "Special" }, { " ╲ │", hl = "String" } }, align = "center" },
+                { padding = 1 },
                 { section = "header" },
                 { padding = 1 },
                 { text = health_line, align = "center" },
