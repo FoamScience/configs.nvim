@@ -94,6 +94,8 @@ M.sidebar_filetypes = {
 
 function M.config()
     icons = require("user.lspicons")
+    require('mini.icons').setup()
+    require('mini.icons').mock_nvim_web_devicons()
     require('mini.ai').setup()
     require('mini.operators').setup({
         exchange = { prefix = 'ge' },

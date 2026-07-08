@@ -8,7 +8,7 @@ local M = {
         return vim.env.SSH_CONNECTION == nil
     end,
     dependencies = {
-        "nvim-tree/nvim-web-devicons",
+        "echasnovski/mini.nvim",
         "SmiteshP/nvim-navic",
     }
 }

@@ -15,7 +15,6 @@ require "user.news"
 require("user.tree-climb")
 -- Core plugins (loaded in all presets)
 spec "user.colorscheme"
-spec "user.devicons"
 spec "user.whichkey"
 spec "user.noice"
 spec "user.fidget"
