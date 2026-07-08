@@ -143,7 +143,7 @@ function M.config()
         },
         {
             "<leader>lf",
-            "<cmd>lua vim.lsp.buf.format({async = true, timeout_ms = 1000000})<cr>",
+            function() require("conform").format({ async = true, lsp_format = "fallback" }) end,
             desc = "Format",
             icon = icons.kind.Namespace,
         },
