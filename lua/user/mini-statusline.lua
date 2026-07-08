@@ -120,11 +120,10 @@ function M.config()
             replace = '<leader>sr',
         },
     })
-    require('mini.diff').setup()
     require('which-key').add({
         "<leader>gdD",
         function()
-            MiniDiff.toggle_overlay()
+            require('gitsigns').preview_hunk_inline()
         end,
         desc = "Toggle hunk overlay",
         icon = icons.kind.Boolean
