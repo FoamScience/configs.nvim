@@ -2,7 +2,7 @@ local filetypes = { "markdown", "codecompanion", "latex", "tex", "typst", "yaml"
 
 local M = {
     'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' },
     ft = filetypes,
 }
 

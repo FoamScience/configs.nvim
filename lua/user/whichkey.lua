@@ -21,6 +21,10 @@ function M.config()
             desc = "Buffer Local Keymaps",
         },
         { "<leader>n", group = "navigation", icon = icons.ui.Forward },
+        { "<leader>t", group = "Test",     icon = icons.ui.BoxChecked },
+        { "<leader>x", group = "Trouble",  icon = icons.diagnostics.Warning },
+        { "<leader>r", group = "Refactor", icon = icons.ui.Pencil },
+        { "<leader>m", group = "CMake",    icon = icons.misc.Package },
         {
             "<leader>nn",
             "<cmd>Outline<cr>",
@@ -143,7 +147,7 @@ function M.config()
         },
         {
             "<leader>lf",
-            "<cmd>lua vim.lsp.buf.format({async = true, timeout_ms = 1000000})<cr>",
+            function() require("conform").format({ async = true, lsp_format = "fallback" }) end,
             desc = "Format",
             icon = icons.kind.Namespace,
         },
@@ -372,6 +376,18 @@ function M.config()
             "<cmd>DiffConflicts<cr>",
             desc = "Diff Conflicts",
         },
+    })
+
+    vim.list_extend(mappings, {
+        { "<leader>p",  group = "GitPlay",                     icon = icons.git.Branch },
+        { "<leader>pp", "<cmd>GitPlay<cr>",                    desc = "Pick commit / branch (default)" },
+        { "<leader>pc", "<cmd>GitPlay HEAD<cr>",               desc = "Play full history (animated)" },
+        { "<leader>pz", "<cmd>GitPlay zz<cr>",                 desc = "Play uncommitted (zz)" },
+        { "<leader>pd", "<cmd>GitPlay diff<cr>",               desc = "Replay unstaged diff" },
+        { "<leader>pD", "<cmd>GitPlay diff --staged<cr>",      desc = "Replay staged diff" },
+        { "<leader>pt", "<cmd>GitPlay stash<cr>",              desc = "Replay a stash" },
+        { "<leader>ps", "<cmd>GitPlay screensaver<cr>",        desc = "Screensaver" },
+        { "<leader>px", "<cmd>GitPlay stop<cr>",               desc = "Stop" },
     })
 
     local jira_ok = vim.env.JIRA_API_TOKEN and pcall(require, "jira-interface")

@@ -2,7 +2,8 @@ local has_creds = vim.env.JIRA_API_TOKEN or vim.env.CONFLUENCE_API_TOKEN
 if not has_creds then return {} end
 
 return {
-    "FoamScience/conflira.nvim",
+    --"FoamScience/conflira.nvim",
+    dir = "~/repo/conflira.nvim/",
     dependencies = { "folke/snacks.nvim", "grapp-dev/nui-components.nvim" },
     event = "VeryLazy",
     ft = "csf",

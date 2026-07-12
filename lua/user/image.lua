@@ -26,7 +26,6 @@ return {
 
     {
         "3rd/image.nvim",
-        dependencies = { "leafo/magick" },
         ft = { "markdown", "norg", "vimwiki", "html", "css", "tex", "typst" },
         cmd = { "Image" },
         opts = {

@@ -94,6 +94,8 @@ M.sidebar_filetypes = {
 
 function M.config()
     icons = require("user.lspicons")
+    require('mini.icons').setup()
+    require('mini.icons').mock_nvim_web_devicons()
     require('mini.ai').setup()
     require('mini.operators').setup({
         exchange = { prefix = 'ge' },
@@ -118,11 +120,10 @@ function M.config()
             replace = '<leader>sr',
         },
     })
-    require('mini.diff').setup()
     require('which-key').add({
         "<leader>gdD",
         function()
-            MiniDiff.toggle_overlay()
+            require('gitsigns').preview_hunk_inline()
         end,
         desc = "Toggle hunk overlay",
         icon = icons.kind.Boolean
