@@ -378,6 +378,18 @@ function M.config()
         },
     })
 
+    vim.list_extend(mappings, {
+        { "<leader>p",  group = "GitPlay",                     icon = icons.git.Branch },
+        { "<leader>pp", "<cmd>GitPlay<cr>",                    desc = "Pick commit / branch (default)" },
+        { "<leader>pc", "<cmd>GitPlay HEAD<cr>",               desc = "Play full history (animated)" },
+        { "<leader>pz", "<cmd>GitPlay zz<cr>",                 desc = "Play uncommitted (zz)" },
+        { "<leader>pd", "<cmd>GitPlay diff<cr>",               desc = "Replay unstaged diff" },
+        { "<leader>pD", "<cmd>GitPlay diff --staged<cr>",      desc = "Replay staged diff" },
+        { "<leader>pt", "<cmd>GitPlay stash<cr>",              desc = "Replay a stash" },
+        { "<leader>ps", "<cmd>GitPlay screensaver<cr>",        desc = "Screensaver" },
+        { "<leader>px", "<cmd>GitPlay stop<cr>",               desc = "Stop" },
+    })
+
     local jira_ok = vim.env.JIRA_API_TOKEN and pcall(require, "jira-interface")
     if jira_ok then
         vim.list_extend(mappings, {
