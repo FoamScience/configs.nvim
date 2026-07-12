@@ -10,6 +10,7 @@
   "cloak.nvim": { "branch": "main", "commit": "648aca6d33ec011dc3166e7af3b38820d01a71e4" },
   "cmake-tools.nvim": { "branch": "master", "commit": "22859d754b5de738cfe9945e0910729f63deefd0" },
   "cmp-git": { "branch": "main", "commit": "e645f69b93eede43fb644bb1a0b1db3eef1108a3" },
+  "conflira.nvim": { "branch": "main", "commit": "21656424c1c433d70cb22063cfc32a1785642bce" },
   "conform.nvim": { "branch": "master", "commit": "619363c30309d29ffa631e67c8183f2a72caa373" },
   "csvview.nvim": { "branch": "main", "commit": "5c22774c3ecc7f8883af5d143b366e45b1f0875d" },
   "dial.nvim": { "branch": "master", "commit": "f2634758455cfa52a8acea6f142dcd6271a1bf57" },
