@@ -120,9 +120,7 @@ docker run -it --rm nvim-config:latest bash
 
 ### General
 
-- [keymaps.lua:](lua/user/keymaps.lua) very few key bindings to get you started
-  - `<tab>` and `<S-tab>` in normal mode are used for buffer switching
-- [which-key.lua:](lua/user/which-key.lua) shows all available keymaps
+- [whichkey.lua:](lua/user/whichkey.lua) shows all available keymaps
   - Press `<leader>` to check available keymaps
   - Shows Vim keymaps on `` ` `` (marks), `"` (registers), `z` (folds and spelling), `g` (operators)
   and `<c-w>` (window navigation)
@@ -133,7 +131,7 @@ docker run -it --rm nvim-config:latest bash
   - `<leader>fu` browses the Undo tree with diffs
   - `<leader>fP` opens Plugin configuration files
   - Note: Excluded from SSH preset due to performance considerations
-- [projects.lua:](lua/user/projects.lua) a project manager, mostly for detecting root directories
+- [project.lua:](lua/user/project.lua) a project manager, mostly for detecting root directories
   - `<leader>fp` to open recent projects list
 - [dial.lua:](lua/user/optional/dial.lua) a plugin for incrementing and decrementing stuff
   - Overhauled `<c-a>` and `<c-x>` to increment and decrement things (numbers, dates, ..., etc)
@@ -141,21 +139,21 @@ docker run -it --rm nvim-config:latest bash
   - Press `<leader>fc` to see a live demo of all available color schemes
   - By default, we are using [Catppuccin-Mocha](https://catppuccin.com/)
 - [undo.lua](lua/user/undo.lua) is an Undo tree visualizer, with diff views. `<leader>eu` to toggle.
-- [news.lua](lua/user/news.lua) provides the `:ConfigNews` command to check for configuration updates
-  - Shows commits you're behind and displays a changelog
-  - Helps keep your config in sync with the upstream repository 
 
 ### UI
 
 - [snacks.lua](lua/user/snacks.lua) a collection of UI niceties from folke (includes fuzzy finder)
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer
   - `<leader>ee` to toggle
+- [oil.lua:](lua/user/oil.lua) file explorer as an editable buffer, replaces netrw
+  - `-` opens the parent directory
 - [mini-statusline.lua](./lua/user/mini-statusline.lua) fast and minimal statusline with enhanced LSP status
 - [tpipeline.lua](lua/user/optional/tpipeline.lua) unified statusline for Neovim and Tmux
   - Displays single statusline across both Neovim and Tmux for seamless integration
   - Only loaded in "full" preset
 - [incline.lua](lua/user/incline.lua) floating buffer names at top-right corners of windows
 - [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
+- [fidget.lua:](lua/user/fidget.lua) LSP progress notifications in the corner
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
 - [cinnamon.lua:](lua/user/optional/cinnamon.lua) optional scrolling cursor animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
@@ -163,25 +161,26 @@ docker run -it --rm nvim-config:latest bash
 - [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
   for current file and setting global options accordingly.
   - Should be automatic, but `:GuessIndent` helps
-- ~~[image.lua:](lua/user/optional/image.lua) optionally render Markdown images~~
-  - Enabled only if running on `kitty` terminal and using `imagemagick` backend.
-  - Replaced with `snacks.image` which has similar constraints
+- [image.lua:](lua/user/image.lua) inline/floating image rendering via image.nvim, replaces `snacks.image`
+  - Needs `imagemagick` (`magick`/`convert`) on PATH, and `kitty` or `wezterm` with the kitty graphics protocol enabled
+  - `<leader>vi` to render the image under the cursor
 
 ### Productivity
 
-- [todo-comments.lua:](lua/user/todo-comments.lua) highlights `@todo:`, `@body:`, `@warn:`, etc. in comments
+- [todo-comments.lua:](lua/user/todocomments.lua) highlights `@todo:`, `@body:`, `@warn:`, etc. in comments
   - `:TodoTelescope` command opens a fuzzy finder for all such comments in the current buffer
   - Use [todo-issue Github action](https://github.com/DerJuulsn/todo-issue) to convert your committed
     Todos to Github issues.
-- [jira.lua:](lua/user/jira.lua) is a custom plugin, functionning as a thin Jira client
-  - Its backbone ships with this configuration ([jira-interface](lua/jira-interface))
-  - Opinionated jira structure, but customizable
-  - Loaded only if `JIRA_API_TOKEN` is set
-  - Have to set `JIRA_API_TOKEN`, `JIRA_URL` and `JIRA_EMAIL`/`JIRA_USER`
-  - `<leader>j` to get started
-- [confluence.lua:](lua/user/confluence.lua) is a custom plugin, functionning as a thin Confluence client
-  - Uses same environment variables as the Jira client; or you can also supply `CONFLUENCE_*` versions
-  - `<leader>c` to get started
+- [atlassian.lua:](lua/user/atlassian.lua) conflira.nvim, a thin Jira and Confluence client (merges the former separate jira/confluence plugins)
+  - Loaded only if `JIRA_API_TOKEN` or `CONFLUENCE_API_TOKEN` is set
+  - Have to set `JIRA_API_TOKEN`/`CONFLUENCE_API_TOKEN`, `JIRA_URL`/`CONFLUENCE_URL` and `JIRA_EMAIL`/`CONFLUENCE_EMAIL`
+  - `<leader>j` for Jira, `<leader>c` for Confluence
+- [markdown-toc.lua:](lua/user/markdown-toc.lua) auto-generates and updates a Markdown table of contents
+  - Updates on save for Markdown files
+- [img-clip.lua:](lua/user/img-clip.lua) pastes clipboard images into the buffer (e.g. Markdown image links)
+  - Excluded over SSH
+- [neotest.lua:](lua/user/neotest.lua) test runner UI, with neotest-python (pytest) as the Python adapter
+  - `<leader>t` for test commands (run nearest/file/directory/last, summary, output, watch)
 
 ### Navigation
 
@@ -192,16 +191,16 @@ docker run -it --rm nvim-config:latest bash
   - `R` in operator mode to do operations between flash tree-sitter searches
   - `<ctrl-s>` to toggle flash in regular search mode
   - `<leader>v` for incremental treesitter selection (next: `<leader>v`, prev: `<BS>`)
-- [tree-climb.lua:](lua/user/tree-climb.lua) treesitter-based code navigation
-  - Navigate through code structure using treesitter nodes with `<M-n>` and `<M-N>`
-  - Enhanced structural movement commands
 - [outline.lua:](lua/user/outline.lua) fast local code navigation
   - `<leader>nn` to toggle
   - `?` to see keymaps for the outline window
+- [trouble.lua:](lua/user/trouble.lua) pretty list for diagnostics, symbols, LSP refs and the quickfix/location list
+  - `<leader>x` for Trouble commands
+- [qf.lua:](lua/user/qf.lua) nvim-bqf, a better preview and UI for the quickfix window
 
 ### Language support and LSPs
 
-- [treesitter.lua:](lua/user/treesitter.lua) syntax highlighting and code folding
+- [treesitter/init.lua:](lua/user/treesitter/init.lua) syntax highlighting and code folding, via a thin custom grammar installer (replaces the archived nvim-treesitter plugin)
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
   - Auto-installs tree-sitter grammars for languages the first time they are encountered
   - with `xonsh` support through the [xonsh-lsp](https://github.com/FoamScience/xonsh-language-server)
@@ -215,13 +214,25 @@ docker run -it --rm nvim-config:latest bash
   - `K` for hover info
   - Enhanced keybindings for type hierarchy, call graphs, and symbol navigation
   - You can also get to similar functionality through `<leader>l` which uses which-key
+  - Also pulls in clangd_extensions.nvim (AST view, memory usage) for C++ and lazydev.nvim for Lua/`vim.*` completion
 - [cmp.lua:](lua/user/cmp.lua) autocompletion engine using blink.cmp (faster than nvim-cmp)
   - `<tab>` to cycle through suggestions, `<cr>` to confirm
   - Autocompletes file paths, snippets, and LSP-related things
   - Includes Unicode character completion provider for special characters
   - Buffer completion is left to vim's native: `<c-x>-n` menu
   - Also provides command line completion on `:`
-- [garbage.lua:](lua/user/garbage.lua) a garbage collection for inactive LSP servers
+- [conform.lua:](lua/user/conform.lua) formatter orchestration (stylua, ruff_format, clang-format, latexindent, typstyle, shfmt, ...)
+  - `<leader>lf` to format, falling back to the LSP formatter if none matches
+  - Format-on-save; `:FormatDisable[!]` / `:FormatEnable` to toggle
+- [cmake-tools.lua:](lua/user/cmake-tools.lua) CMake configure/build/run from inside Neovim
+  - `<leader>m` for CMake commands (generate, build, run, select target/type, clean)
+  - Soft-links `compile_commands.json` to the project root, which `clangd` picks up
+- [refactoring.lua:](lua/user/refactoring.lua) language-aware extract/inline refactors (C++, Python, Lua, ...)
+  - `<leader>r` for refactor commands (extract function/variable/block, inline variable)
+- [lean.lua:](user-config.elwardi/plugins/lean.lua) Lean 4 theorem prover support via lean.nvim
+  - Loads for `*.lean` files
+- [typst.lua:](lua/user/optional/typst.lua) live-preview for Typst documents via typst-preview.nvim
+  - Opens the preview in the browser for `typst` files
 - [navic.lua:](lua/user/navic.lua) shows code structure at the cursor in the winbar
 - [remote-nvim.lua:](lua/user/remote-nvim.lua) connect to remote Neovim instances over SSH
   - Commands: `:RemoteStart`, `:RemoteStop`, `:RemoteInfo`
@@ -232,16 +243,22 @@ docker run -it --rm nvim-config:latest bash
 - [gitsigns.lua:](lua/user/gitsigns.lua) shows git diff in the sign column
 - [diffview.lua:](lua/user/diffview.lua) a diff viewer for Git diffs
   - `<leader>gd` to open, or `:DiffviewOpen` in normal mode
-- [gitconflicts.lua:](lua/user/gitconflicts.lua) shows better diffs for git conflicts.
+- [gitconflicts.lua:](lua/user/gitconflicts.lua) git conflict resolution UI via diffconflicts.nvim
   - `<leader>gt` to open, or `:DiffConflicts` in normal mode
+- [butlr.lua:](user-config.elwardi/plugins/butlr.lua) GitButler hunk navigation and actions via butlr.nvim
+  - Only enabled inside a GitButler-managed repo (needs the `but` CLI)
+  - `<leader>b` for Butler commands (navigate hunks, rub/assign, absorb, discard, undo)
 
 ### Miscellaneous
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
-- [csv.lua:](lua/user/optional/csv.lua) a CSV viewer which uses CSVView plugin.
+- [csv.lua:](lua/user/optional/csv.lua) a CSV viewer/editor using csvview.nvim.
+  - `<leader>cv` toggles the aligned CSV display
 - [haunt.lua:](lua/user/optional/haunt.lua) Line notes that do not affect the code source.
-- [cloak.lua:](lua/user/optional/cloak.lua) Hiding environment variables.
+- [cloak.lua:](lua/user/optional/cloack.lua) Hiding environment variables.
   - `:CloackDisable` to see the variables' values.
+- [wrapped.lua:](user-config.elwardi/plugins/wrapped.lua) a GitHub-Wrapped-style yearly recap via wrapped.nvim (UI built on nvzone/volt)
+  - `:WrappedNvim` to open
 
 ## Configuration Presets
 
