@@ -1,129 +1,125 @@
-![](https://img.shields.io/badge/supports%20nvim-v0.12%2B-huh?style=for-the-badge&logo=neovim&logoColor=green)
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%"
+       alt="configs.nvim — a Neovim configuration driven from one leader key, showing the which-key panel with the find, LSP, git, edit, navigation, test, CMake, trouble, refactor, notes, butler and select groups">
+</p>
 
-This is my minimal(?), clutter-free, less-than-a-million-keymaps Neovim configuration for day-to-day programming.
+My minimal(?), clutter-free Neovim configuration for day-to-day programming. Everything is reachable from
+`<space>`, so there is nothing to memorize before you start.
 
-> [!TIP]
-> Best used with **Kitty** terminal (or Alacritty if you prefer that), running a PowerLine font (or at least,
-> a font that has some ligatures support)
+```sh
+mv ~/.config/nvim ~/.config/nvim.bak    # back up whatever is there
+git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
+nvim +ConfigHealth                      # see what is still missing
+```
 
+Then press `<space>` and read the menu.
 
-> [!IMPORTANT]
-> Want to get started? -> Press `<space>` and discover what's possible from there
-
-Here are a few programming languages I usually write in:
-- C++/C (and OpenFOAM code)
-- Python, Lua as scripting languages
-- HTML, CSS, JavaScript/TypeScript for web development
-- Markdown for writing READMEs and other documentation, LATEX for academic writing
-- GdScript, GLSL for game development
-- Obviously, Bash for shell scripting
-
-This configuration intentionally avoids:
-- Format-on-Save (too complex and opinionated)
-- AI assistants (Copilot, CodeCompanion, Avante - removed for simplicity)
-- DAP debugging plugins (removed in favor of simpler debugging workflows)
-
-> [!IMPORTANT]
-> Check out the [Screenshots][] for a preview of what this configuration has to offer.
+## What it looks like
 
 ![screenshot](./screenshots/nvim.png)
 
-<!-- mtoc-start:cb9ef56 -->
+The [screenshots gallery](/screenshots/README.md) walks through which-key, file exploring, the statusline and
+winbar, Noice, todo comments, flash hopping, the symbol outline, LSP features and Git operations.
 
-* [Requirements](#requirements)
-* [Set up](#set-up)
-* [List of plugins and important configs](#list-of-plugins-and-important-configs)
-  * [General Notes](#general-notes)
-  * [General](#general)
-  * [UI](#ui)
-  * [Productivity](#productivity)
-  * [Navigation](#navigation)
-  * [Language support and LSPs](#language-support-and-lsps)
-  * [Git integration](#git-integration)
-  * [Miscellaneous](#miscellaneous)
-* [Configuration Presets](#configuration-presets)
-  * [Setting Your Preset](#setting-your-preset)
-  * [SSH Usage Example](#ssh-usage-example)
-* [Documentation](#documentation)
-* [User Configuration Integration](#user-configuration-integration)
-  * [Setup](#setup)
-  * [Example User Plugin Spec](#example-user-plugin-spec)
-* [Plugin Version Management](#plugin-version-management)
-  * [Checking for Updates](#checking-for-updates)
-  * [Plugin Update Workflow](#plugin-update-workflow)
+## What it is
 
-<!-- mtoc-end:cb9ef56 -->
-## Requirements
+A working config for the languages I write every day:
 
-Run `:checkhealth config` (or `:ConfigHealth`) to verify your setup, see what's missing and how to install
-them; here is a list of what fuels this configuration:
+- C++/C (and OpenFOAM code)
+- Python and Lua as scripting languages
+- HTML, CSS, JavaScript/TypeScript for web development
+- Markdown for documentation, LaTeX for academic writing
+- GDScript and GLSL for game development
+- Bash for shell scripting
 
-**Required dependencies:**
-- [Neovim][] **v0.12.x or newer**, [NodeJS][] **v22** (or newer), preferably installed with [NVM][],
+And what it deliberately leaves out:
+
+- Format-on-save is on through conform, but opt-out: `:FormatDisable!` for the buffer, `:FormatDisable` globally
+- AI assistants (Copilot, CodeCompanion, Avante) — removed for simplicity
+- DAP debugging plugins — removed in favour of simpler debugging workflows
+
+## Getting started
+
+> [!TIP]
+> Best used with **Kitty** (or Alacritty if you prefer that), running a PowerLine font, or at least a font
+> with some ligature support.
+
+
+Run `:checkhealth config` (or `:ConfigHealth`) to verify your setup, see what is missing and how to install it.
+[This docker file](/dockerImages/config.dockerfile) shows how to install most of it on the latest Ubuntu LTS.
+
+**Required:**
+
+- [Neovim][] **v0.12.x or newer**, [NodeJS][] **v22** (or newer), preferably installed with [NVM][]
 - Python 3 and (optionally) [Rust][]
-- The tree-sitter CLI. Install with `npm install -g tree-sitter-cli`, or with `cargo`
-- For installing some LSP servers, you will need the `unzip` command
-- For Todo-comments and various other searching tasks, you will want [RIPGrep][]
+- The tree-sitter CLI: `npm install -g tree-sitter-cli`, or through `cargo`
+- `unzip`, for installing some LSP servers
+- [RIPGrep][], for todo-comments and various other searching tasks
 - A terminal with ligature support ([Kitty][], Warp, Alacritty, etc.)
-  - For kitty, I like to set (after installing Comic Code Ligatures, Font Awesome and Symbols Nerd Font Mono):
-    ```
-    font_family      ComicCodeLigatures
-    symbol_map U+f000-U+f0e2 fontawesome
-    symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
-    ```
 
 **Optional:**
+
 - [ImageMagick][] for in-terminal image display, if your terminal supports it
-- `latex2text` command if you want to render Tex equations in Markdown
-- Also [mermaid-cli][] for mermaid charts in markdown files
-  - Note that on Ubuntu 23+ this requires changes to apparmor policies on retricting user namespaces;
-    if you don't write mermaid charts often, don't bother with this. Otherwise, you'll have to do the policy changes manually
+- `latex2text` to render TeX equations in Markdown
+- [mermaid-cli][] for mermaid charts in Markdown
+  - On Ubuntu 23+ this needs apparmor policy changes around user namespaces; if you do not write mermaid charts
+    often, do not bother
 
-## Set up
+<details>
+<summary>Kitty font setup I use</summary>
 
-1. Then, applying this configuration is as easy as:
-```sh
-# Backup old configs and clone the new ones
-mv ~/.config/nvim ~/.config/nvim.bak
-git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
-# also, update with git pull
+After installing Comic Code Ligatures, Font Awesome and Symbols Nerd Font Mono:
+
 ```
-1. Run `:checkhealth config` to see what dependencies you are missing.
-   [this docker file](/dockerImages/config.dockerfile) shows how to install
-   most of the required ones on latest Ubuntu LTS release.
+font_family      ComicCodeLigatures
+symbol_map U+f000-U+f0e2 fontawesome
+symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
+```
 
-From there, the `:ConfigNews` command helps you keep your configuration up-to-date with this repo by checking for new commits and displaying a changelog.
+</details>
 
-Or you can give it a try in a Docker container:
+<details>
+<summary>Try it in Docker instead</summary>
+
 ```sh
 cd dockerImages
-docker build -t nvim-config:latest -f config.dockerfile . 
+docker build -t nvim-config:latest -f config.dockerfile .
 docker run -it --rm nvim-config:latest bash
 (container)> USER=me nvim
 ```
 
-## List of plugins and important configs
+</details>
 
-### General Notes
+Once installed, `:ConfigNews` keeps you up-to-date with this repo by checking for new commits and showing a
+changelog.
 
-- The canonical way to move between open buffers is `<tab>` and `<S-tab>` in normal mode.
-- The canonical way to move on the visible screen portion is by pressing `s` and `S` in normal mode.
-- The canonical way to move between windows and splits is `<C-w><C-w>`; too fundamental to change.
-- Typically, you'll want to set Tmux to move between panes with `<C-s><arrows>`.
-- You can bookmark files (Press `,`) within each project for faster workflow. This was preferred over session management.
-- You can see registers content by pressing `"`, and marks positions by pressing the back-tick '`'
-- `<space>` is the **leader key**, which is used to open `which-key` menu in normal mode
-- `<leader>fk` lists all available key bindings and `<leader>fC` lists commands.
-- `<leader>fP` will take you to individual plugin configuration!
-- `<leader>kk` brings up a sticky-notes sidebar. it persists; and it's project-specific!
-  - you can create mutiple notes per projects and notes content is in Markdown
+## How you drive it
 
-### General
+`<space>` is the leader key; it opens the which-key menu. Beyond that, a handful of conventions carry most of
+the day:
+
+| Keys | What it does |
+| --- | --- |
+| `<tab>` / `<S-tab>` | move between open buffers |
+| `s` / `S` | hop anywhere on the visible screen |
+| `<C-w><C-w>` | move between windows and splits — too fundamental to change |
+| `,` | bookmark files per project; preferred over session management |
+| `` ` `` / `"` | see marks positions / registers content |
+| `<leader>fk` / `<leader>fC` | list every key binding / every command |
+| `<leader>fP` | jump to an individual plugin's configuration |
+| `<leader>kk` | project-specific sticky-notes sidebar, in Markdown, persisted |
+
+Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
+
+## Plugins
+
+<details>
+<summary><b>General</b> — which-key, pickers, projects, colorscheme, undo</summary>
 
 - [whichkey.lua:](lua/user/whichkey.lua) shows all available keymaps
   - Press `<leader>` to check available keymaps
   - Shows Vim keymaps on `` ` `` (marks), `"` (registers), `z` (folds and spelling), `g` (operators)
-  and `<c-w>` (window navigation)
+    and `<c-w>` (window navigation)
 - [snacks.lua:](lua/user/snacks.lua) fuzzy finder via snacks.picker for files, buffers, etc.
   - `<leader>f` to access fuzzy finding features
   - `<leader>fk` shows all configured keymaps
@@ -140,7 +136,10 @@ docker run -it --rm nvim-config:latest bash
   - By default, we are using [Catppuccin-Mocha](https://catppuccin.com/)
 - [undo.lua](lua/user/undo.lua) is an Undo tree visualizer, with diff views. `<leader>eu` to toggle.
 
-### UI
+</details>
+
+<details>
+<summary><b>UI</b> — explorers, statusline, notifications, Markdown and images</summary>
 
 - [snacks.lua](lua/user/snacks.lua) a collection of UI niceties from folke (includes fuzzy finder)
 - [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer
@@ -165,7 +164,10 @@ docker run -it --rm nvim-config:latest bash
   - Needs `imagemagick` (`magick`/`convert`) on PATH, and `kitty` or `wezterm` with the kitty graphics protocol enabled
   - `<leader>vi` to render the image under the cursor
 
-### Productivity
+</details>
+
+<details>
+<summary><b>Productivity</b> — todos, Jira/Confluence, Markdown TOC, images, tests</summary>
 
 - [todo-comments.lua:](lua/user/todocomments.lua) highlights `@todo:`, `@body:`, `@warn:`, etc. in comments
   - `:TodoTelescope` command opens a fuzzy finder for all such comments in the current buffer
@@ -182,7 +184,10 @@ docker run -it --rm nvim-config:latest bash
 - [neotest.lua:](lua/user/neotest.lua) test runner UI, with neotest-python (pytest) as the Python adapter
   - `<leader>t` for test commands (run nearest/file/directory/last, summary, output, watch)
 
-### Navigation
+</details>
+
+<details>
+<summary><b>Navigation</b> — flash hopping, outline, trouble, quickfix</summary>
 
 - [flash.lua:](lua/user/flash.lua) fast word hopping
   - `s` (or `gs`) to hop to words in normal mode
@@ -198,7 +203,10 @@ docker run -it --rm nvim-config:latest bash
   - `<leader>x` for Trouble commands
 - [qf.lua:](lua/user/qf.lua) nvim-bqf, a better preview and UI for the quickfix window
 
-### Language support and LSPs
+</details>
+
+<details>
+<summary><b>Language support and LSPs</b> — treesitter, mason, completion, formatting, CMake</summary>
 
 - [treesitter/init.lua:](lua/user/treesitter/init.lua) syntax highlighting and code folding, via a thin custom grammar installer (replaces the archived nvim-treesitter plugin)
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
@@ -238,7 +246,10 @@ docker run -it --rm nvim-config:latest bash
   - Commands: `:RemoteStart`, `:RemoteStop`, `:RemoteInfo`
   - Uses telescope for UI (only plugin requiring telescope in this config)
 
-### Git integration
+</details>
+
+<details>
+<summary><b>Git integration</b> — signs, diffview, conflicts, GitButler</summary>
 
 - [gitsigns.lua:](lua/user/gitsigns.lua) shows git diff in the sign column
 - [diffview.lua:](lua/user/diffview.lua) a diff viewer for Git diffs
@@ -249,7 +260,10 @@ docker run -it --rm nvim-config:latest bash
   - Only enabled inside a GitButler-managed repo (needs the `but` CLI)
   - `<leader>b` for Butler commands (navigate hunks, rub/assign, absorb, discard, undo)
 
-### Miscellaneous
+</details>
+
+<details>
+<summary><b>Miscellaneous</b> — autopairs, CSV, line notes, cloaking, wrapped</summary>
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer/editor using csvview.nvim.
@@ -260,90 +274,65 @@ docker run -it --rm nvim-config:latest bash
 - [wrapped.lua:](user-config.elwardi/plugins/wrapped.lua) a GitHub-Wrapped-style yearly recap via wrapped.nvim (UI built on nvzone/volt)
   - `:WrappedNvim` to open
 
-## Configuration Presets
+</details>
 
-This configuration supports multiple presets to adapt to different usage scenarios. Currently available presets:
+## Presets
 
-- **full** (default): All plugins enabled, full feature set
-- **ssh**: Minimal preset optimized for remote SSH connections
-  - Excludes plugins that don't work well over SSH, mostly for adding latency overhead
+Two presets adapt the config to where you are running it:
 
-### Setting Your Preset
+- **full** (default): all plugins enabled
+- **ssh**: excludes plugins that do not work well over SSH, mostly the ones adding latency overhead
 
-There are three ways to select a preset (in order of priority):
-
-1. **Local preset file** (recommended for per-machine configuration):
-   ```bash
-   # Copy the example file and edit it
-   cp ~/.config/nvim/preset.lua.example ~/.config/nvim/preset.lua
-   # Edit preset.lua and change the return value to "ssh" or "full"
-   ```
-
-2. **Environment variable** (useful for one-time overrides):
-   ```bash
-   NVIM_PRESET=ssh nvim
-   ```
-
-3. **Default**: Falls back to "full" if neither of the above is set
-
-### SSH Usage Example
-
-For remote editing over SSH, use the ssh preset to improve performance:
+Three ways to select one, in order of priority:
 
 ```bash
-# On your remote machine, create a preset file
-echo 'return "ssh"' > ~/.config/nvim/preset.lua
+# 1. Local preset file — recommended for per-machine configuration
+cp ~/.config/nvim/preset.lua.example ~/.config/nvim/preset.lua   # then edit the return value
 
-# Or use environment variable
-export NVIM_PRESET=ssh
-nvim myfile.cpp
+# 2. Environment variable — useful for one-time overrides
+NVIM_PRESET=ssh nvim
+
+# 3. Neither of the above: falls back to "full"
 ```
 
-## Documentation
+For remote editing, `echo 'return "ssh"' > ~/.config/nvim/preset.lua` on the remote machine is usually what you
+want.
 
-A few tutorials can be accessed by `<leader>tt` when `nvim` command had no files
-passed in. These are not meant to teach people basic Vim skills but
-rather explain my current approach to editing efficiency.
+## Tutorials
 
-Even though the tutorials act on Lua files, they hold on any other filetype.
+A few tutorials open with `<leader>tt` when `nvim` is started without files. They are not meant to teach basic
+Vim skills, but rather explain my current approach to editing efficiency. They act on Lua files, but hold for
+any other filetype.
 
-Occasionally, you'd have to `:TutorialNext` to continue a tutorial, either becausse
-I was too lazy to implement proper step validation or implementing it would not
-have provided a good experience.
+Occasionally you will need `:TutorialNext` to continue — either because I was too lazy to implement proper step
+validation, or because implementing it would not have been a good experience.
 
+## Extending it with your own config
 
-## User Configuration Integration
+Keep your customizations in a separate git repository so you can pull updates from here without conflicts:
 
-You can seamlessly extend this configuration by using a separate user configuration repository.
+```
+my-nvim-config/
+├── init.lua              # Optional: runs before lazy.nvim loads
+└── plugins/              # Optional: custom plugin specs
+    ├── my-plugin.lua
+    └── another.lua
+```
 
-### Setup
+Symlink it into place:
 
-1. Create your own configuration repository with this structure:
-   ```
-   my-nvim-config/
-   ├── init.lua              # Optional: runs before lazy.nvim loads
-   └── plugins/              # Optional: custom plugin specs
-       ├── my-plugin.lua
-       └── another.lua
-   ```
+```bash
+ln -s /path/to/my-nvim-config ~/.config/nvim/user-config
+```
 
-2. Symlink your repository to the user-config directory:
-   ```bash
-   ln -s /path/to/my-nvim-config ~/.config/nvim/user-config
-   ```
-   Or you could just do to get my configuration (may super niche stuff and mostly
-   experimental):
-   ```bash
-   ln -s user-config.elwardi user-config
-   ```
+Or take mine — mostly niche and experimental:
 
-3. Your configuration will be loaded automatically:
-   - `init.lua` is executed before lazy.nvim initialization
-   - All files in `plugins/` are loaded as plugin specs
+```bash
+ln -s user-config.elwardi user-config
+```
 
-### Example User Plugin Spec
-
-Create `~/.config/nvim/user-config/plugins/my-theme.lua`:
+`init.lua` is executed before lazy.nvim initialization, and everything in `plugins/` is loaded as a plugin
+spec. A spec is just a lazy.nvim table:
 
 ```lua
 return {
@@ -354,53 +343,24 @@ return {
 }
 ```
 
-This approach allows you to:
-- Keep your customizations in a separate git repository
-- Pull updates from this main config without conflicts
-- Share settings across multiple machines with different needs
+## Plugin versions
 
-## Plugin Version Management
+All plugins are pinned through [Lazy.nvim][]'s lockfile, so installations stay consistent and a plugin update
+cannot break your editor unannounced. The workflow for staying current:
 
-All plugins are locked to specific versions using [Lazy.nvim][]'s lockfile feature. This ensures:
-- Consistent plugin versions across all installations
-- Protection against breaking changes from plugin updates
-- Reproducible development environment
+1. `:ConfigNews` — fetches the remote, shows how many commits you are behind and a changelog
+2. `git pull` in `~/.config/nvim`
+3. Review `lazy-lock.json` changes, if any
+4. Restart nvim
 
-### Checking for Updates
+`:Lazy update` also works, but it will diverge from this repo's pinned versions.
 
-Use the `:ConfigNews` command to check for configuration updates:
-
-```vim
-:ConfigNews
-```
-
-This will:
-- Fetch the latest changes from the remote repository
-- Show how many commits you're behind
-- Display a changelog of recent commits
-- Provide instructions for updating
-
-### Plugin Update Workflow
-
-The recommended workflow for keeping plugins up-to-date:
-
-1. Check for config updates: `:ConfigNews`
-2. Pull config updates: `git pull` in `~/.config/nvim`
-3. Review changes in `lazy-lock.json` if any
-4. Restart nvim to apply changes
-
-Alternatively you could just run `:Lazy update`; although this will diverge from this repo's plugin versions.
-
-[Screenshots]: /screenshots/README.md "Screenshots"
 [Neovim]: https://github.com/neovim/neovim/releases "Neovim"
 [NVM]: https://github.com/nvm-sh/nvm "NVM"
 [NodeJS]: https://nodejs.org "NodeJS"
 [RIPGrep]: https://github.com/BurntSushi/ripgrep "RIPGrep"
 [Kitty]: https://sw.kovidgoyal.net/kitty/binary/ "Kitty"
 [Rust]: https://www.rust-lang.org/tools/install "Rust"
-[TGPT]: https://github.com/aandrew-me/tgpt "TGPT"
-[SourceGraph]: https://sourcegraph.com "SourceGraph"
-[Neorg]: https://github.com/nvim-neorg/neorg "Neorg"
 [ImageMagick]: https://imagemagick.org/index.php "ImageMagick"
 [mermaid-cli]: https://github.com/mermaid-js/mermaid-cli "Mermaid-cli"
 [Lazy.nvim]: https://github.com/folke/lazy.nvim "Lazy.nvim"

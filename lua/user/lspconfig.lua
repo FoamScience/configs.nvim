@@ -395,26 +395,19 @@ return {
                     automatic_enable = { exclude = mason_exclude },
                 })
 
-                -- Auto-enable mason-installed LSPs not explicitly configured in
-                -- opts.servers. Builds a reverse lookup from all lspconfig configs
-                -- to match mason bin names to lspconfig server names.
-                local mr = require("mason-registry")
-                local mapped = require("mason-lspconfig.mappings").get_mason_map()
-                local lspconfigs = require("lspconfig.configs")
-                -- Build cmd→server lookup from lspconfig definitions
-                local bin_to_server = {}
-                for name, cfg in pairs(lspconfigs) do
-                    local default = cfg.default_config or {}
-                    local cmd = default.cmd and default.cmd[1]
-                    if cmd then
-                        bin_to_server[vim.fn.fnamemodify(cmd, ":t")] = name
-                    end
-                end
-                for _, pkg in ipairs(mr.get_installed_packages()) do
-                    if vim.tbl_contains(pkg.spec.categories, "LSP") then
+
+                -- Escape hatch: enable every mason-installed LSP that isn't mentioned
+                -- in opts.servers, so newly installed servers attach without needing
+                -- an entry here.
+                if opts.auto_enable ~= false then
+                    local mapped = require("mason-lspconfig.mappings").get_mason_map()
+                    for _, pkg in ipairs(require("mason-registry").get_installed_packages()) do
+                        -- fall back to the package name when mason-lspconfig's map
+                        -- predates the server (e.g. jls)
                         local server = mapped.package_to_lspconfig[pkg.name]
-                            or bin_to_server[pkg.name]
-                        if server and not opts.servers[server] then
+                            or (#vim.api.nvim_get_runtime_file("lsp/" .. pkg.name .. ".lua", false) > 0
+                                and pkg.name or nil)
+                        if server and opts.servers[server] == nil then
                             vim.lsp.enable(server)
                         end
                     end

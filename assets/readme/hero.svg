@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1200" height="360" viewBox="0 0 1200 360"
+     role="img" aria-labelledby="hero-title hero-desc">
+  <title id="hero-title">configs.nvim</title>
+  <desc id="hero-desc">A Neovim configuration driven from one leader key. The which-key panel on the right lists the leader groups: find, LSP, git, edit, navigation, test and CMake.</desc>
+
+  <rect width="1200" height="360" rx="26" fill="#181825"/>
+  <rect x="1" y="1" width="1198" height="358" rx="25" fill="none" stroke="#313244" stroke-width="2"/>
+
+  <g id="title-block" transform="translate(64 0)">
+    <text x="0" y="92" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+          font-size="20" letter-spacing="3" fill="#6c7086">NEOVIM  ·  v0.12+  ·  LUA</text>
+
+    <text x="0" y="164" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+          font-size="62" font-weight="700" fill="#cdd6f4">configs<tspan fill="#cba6f7">.nvim</tspan></text>
+
+    <text x="0" y="216" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+          font-size="27" fill="#bac2de">One leader key, not a million keymaps.</text>
+    <text x="0" y="252" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+          font-size="27" fill="#bac2de">Press <tspan font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#a6e3a1">&lt;space&gt;</tspan> and discover the rest.</text>
+
+    <text x="0" y="312" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+          font-size="19" fill="#585b70">lazy.nvim  ·  catppuccin-mocha  ·  full / ssh presets</text>
+  </g>
+
+  <g id="whichkey-panel" transform="translate(664 44)">
+    <rect width="480" height="272" rx="14" fill="#11111b" stroke="#313244" stroke-width="2"/>
+    <rect x="0" y="0" width="480" height="46" rx="14" fill="#1e1e2e"/>
+    <rect x="0" y="32" width="480" height="14" fill="#1e1e2e"/>
+    <text x="22" y="31" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+          font-size="21" fill="#a6e3a1">&lt;space&gt;</text>
+    <text x="458" y="31" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+          font-size="19" fill="#6c7086">which-key</text>
+
+    <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="21">
+      <g transform="translate(22 82)">
+        <text fill="#fab387">f</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Find</text>
+      </g>
+      <g transform="translate(22 114)">
+        <text fill="#fab387">l</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+LSP</text>
+      </g>
+      <g transform="translate(22 146)">
+        <text fill="#fab387">g</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Git</text>
+      </g>
+      <g transform="translate(22 178)">
+        <text fill="#fab387">e</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Edit</text>
+      </g>
+      <g transform="translate(22 210)">
+        <text fill="#fab387">n</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Navigation</text>
+      </g>
+      <g transform="translate(22 242)">
+        <text fill="#fab387">t</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Test</text>
+      </g>
+
+      <g transform="translate(266 82)">
+        <text fill="#fab387">m</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+CMake</text>
+      </g>
+      <g transform="translate(266 114)">
+        <text fill="#fab387">x</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Trouble</text>
+      </g>
+      <g transform="translate(266 146)">
+        <text fill="#fab387">r</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Refactor</text>
+      </g>
+      <g transform="translate(266 178)">
+        <text fill="#fab387">k</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Notes</text>
+      </g>
+      <g transform="translate(266 210)">
+        <text fill="#fab387">b</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Butler</text>
+      </g>
+      <g transform="translate(266 242)">
+        <text fill="#fab387">v</text><text x="34" fill="#585b70">→</text><text x="72" fill="#cdd6f4">+Select</text>
+      </g>
+    </g>
+  </g>
+</svg>
