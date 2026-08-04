@@ -289,6 +289,9 @@ return {
                         })
                     end
                 },
+                -- servers are hand-listed above; skip the mason-registry scan that
+                -- auto-enables anything mason-installed but not in `servers`
+                auto_enable = false,
             }
             return ret
         end,
@@ -443,14 +446,17 @@ return {
                 end, 100)
             end)
 
-            mr.refresh(function()
-                for _, tool in ipairs(opts.ensure_installed) do
-                    local p = mr.get_package(tool)
-                    if not p:is_installed() then
-                        p:install()
+            local missing = vim.tbl_filter(function(tool)
+                return not mr.get_package(tool):is_installed()
+            end, opts.ensure_installed)
+
+            if #missing > 0 then
+                mr.refresh(function()
+                    for _, tool in ipairs(missing) do
+                        mr.get_package(tool):install()
                     end
-                end
-            end)
+                end)
+            end
         end,
     },
 }
