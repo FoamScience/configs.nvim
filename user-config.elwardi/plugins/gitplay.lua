@@ -8,7 +8,7 @@
 -- q, ?, K (hunk detail) and gm/gt/gh (focus main/tree/hunks). Drive from a
 -- sidebar or use gm/gt/gh to hop. :GitPlay review = static, self-paced reading.
 return {
-    dir = "~/repo/gitplay.nvim",
+    "FoamScience/gitplay.nvim",
     name = "gitplay",
     cmd = { "GitPlay" },
     config = function()
