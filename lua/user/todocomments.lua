@@ -16,6 +16,10 @@ function M.config()
             NOTE = { icon = " ", color = "test", alt = {"todo", } },
         },
         merge_keywords = false,
+        highlight = {
+            -- also match inside python docstrings, not just comments
+            comments_only = false,
+        },
         search = {
             pattern = [[\b(@KEYWORDS):]], -- ripgrep regex, start with @, end with :
         },
