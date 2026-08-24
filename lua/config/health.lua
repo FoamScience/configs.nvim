@@ -306,11 +306,23 @@ end
 -- Check optional: mermaid-cli
 local function check_mermaid()
     health.start("Mermaid CLI (optional)")
-    health.info("Used for: render-markdown.nvim Mermaid diagram rendering")
+    health.info("Used for: mermaid fence rendering via image.nvim (lua/image/integrations/mermaid.lua)")
 
     if check_executable("mmdc") then
         local version = get_cmd_output("mmdc --version")
         health.ok("mermaid-cli " .. (version or "found"))
+        -- mmdc pins one exact chrome build; utils.mermaid falls back to whatever
+        -- chrome is around, but with an empty cache there is nothing to fall back to.
+        local chromes = vim.fn.glob(vim.fn.expand("~/.cache/puppeteer/chrome/*/chrome-linux64/chrome"), false, true)
+        if #chromes > 0 then
+            health.ok("puppeteer chrome: " .. vim.fs.basename(vim.fs.dirname(vim.fs.dirname(chromes[#chromes]))))
+        elseif check_executable("chromium") or check_executable("google-chrome") then
+            health.ok("system chrome available for mmdc")
+        else
+            health.warn("no chrome for mmdc", {
+                "Install: npx puppeteer browsers install chrome",
+            })
+        end
     else
         health.info("mermaid-cli (mmdc) not installed", {
             "Install: npm install -g @mermaid-js/mermaid-cli",
