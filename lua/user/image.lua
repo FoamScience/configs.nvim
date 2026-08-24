@@ -51,6 +51,12 @@ return {
                     enabled = true,
                     filetypes = { "typst" },
                 },
+                -- Local integration: lua/image/integrations/mermaid.lua, renders
+                -- mermaid fences through mmdc since image.nvim ships no mermaid support.
+                mermaid = {
+                    enabled = true,
+                    filetypes = { "markdown", "vimwiki" },
+                },
                 html = { enabled = true },
                 css = { enabled = true },
             },

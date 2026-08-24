@@ -61,7 +61,8 @@ Run `:checkhealth config` (or `:ConfigHealth`) to verify your setup, see what is
 
 - [ImageMagick][] for in-terminal image display, if your terminal supports it
 - `latex2text` to render TeX equations in Markdown
-- [mermaid-cli][] for mermaid charts in Markdown
+- [mermaid-cli][] for mermaid charts in Markdown, rendered through `image.nvim`
+  - It drives a puppeteer-managed chrome: `npx puppeteer browsers install chrome` if the cache is empty
   - On Ubuntu 23+ this needs apparmor policy changes around user namespaces; if you do not write mermaid charts
     often, do not bother
 
