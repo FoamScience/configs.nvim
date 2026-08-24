@@ -3,7 +3,7 @@ local M = {
     keys = { "<leader>kk", "<leader>kd", "<leader>kc", "<leader>kl", "<leader>kt", "<leader>kT" },
 }
 
-M.config = function ()
+M.config = function()
     require("haunt").setup({})
 end
 

@@ -1,13 +1,13 @@
 local M = {
-	"zeioth/garbage-day.nvim",
+    "zeioth/garbage-day.nvim",
     dependencies = "neovim/nvim-lspconfig",
-	event = "LspAttach",
+    event = "LspAttach",
 }
 function M.config()
-	local garbage = require "garbage-day"
-    garbage.setup {
+    local garbage = require("garbage-day")
+    garbage.setup({
         aggressive_mode = false,
-    }
+    })
 end
 
 return M

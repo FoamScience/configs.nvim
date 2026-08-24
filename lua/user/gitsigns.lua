@@ -25,18 +25,18 @@ end
 
 M.config = function()
     require("gitsigns").setup({
-        watch_gitdir                 = {
+        watch_gitdir = {
             interval = 1000,
             follow_files = true,
         },
-        numhl                        = true,
-        linehl                       = false,
-        word_diff                    = false,
-        attach_to_untracked          = true,
-        current_line_blame           = true,
-        current_line_blame_opts      = {
+        numhl = true,
+        linehl = false,
+        word_diff = false,
+        attach_to_untracked = true,
+        current_line_blame = true,
+        current_line_blame_opts = {
             virt_text = false,
-            virt_text_pos = 'right_align',
+            virt_text_pos = "right_align",
             delay = 300,
             ignore_whitespace = false,
             virt_text_priority = 100,
@@ -52,9 +52,9 @@ M.config = function()
                 { info.summary, "@lsp.type.operator" },
             }
         end,
-        update_debounce              = 200,
-        max_file_length              = 40000,
-        preview_config               = {
+        update_debounce = 200,
+        max_file_length = 40000,
+        preview_config = {
             border = "rounded",
             style = "minimal",
             relative = "cursor",

@@ -1,13 +1,13 @@
 local M = {
-    'Julian/lean.nvim',
-    event = { 'BufReadPre *.lean', 'BufNewFile *.lean' },
+    "Julian/lean.nvim",
+    event = { "BufReadPre *.lean", "BufNewFile *.lean" },
     dependencies = {
-        'nvim-lua/plenary.nvim',
+        "nvim-lua/plenary.nvim",
     },
 }
 
 M.config = function()
-    require('lean').setup({ mappings = false })
+    require("lean").setup({ mappings = false })
     -- kill lean split if it's the last thing remaining
     vim.api.nvim_create_autocmd("WinEnter", {
         callback = function()

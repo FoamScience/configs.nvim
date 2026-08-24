@@ -36,8 +36,10 @@ return {
         })
 
         if vim.fn.filereadable(foam_ls_bin) == 0 then
-            vim.notify("foam-ls not found at " .. foam_ls_bin
-                .. " — run `npm run prepare` in the repo", vim.log.levels.WARN)
+            vim.notify(
+                "foam-ls not found at " .. foam_ls_bin .. " — run `npm run prepare` in the repo",
+                vim.log.levels.WARN
+            )
             return
         end
 

@@ -37,21 +37,21 @@ vim.filetype.add({
 })
 
 vim.filetype.add({
-    extension = { xsh = 'xonsh', xonshrc = 'xonsh' },
-    filename = { ['.xonshrc'] = 'xonsh', ['xonshrc'] = 'xonsh' },
+    extension = { xsh = "xonsh", xonshrc = "xonsh" },
+    filename = { [".xonshrc"] = "xonsh", ["xonshrc"] = "xonsh" },
 })
 
 vim.api.nvim_create_autocmd({ "CmdWinEnter" }, {
     desc = "Huh?",
     callback = function()
-        vim.cmd "quit"
+        vim.cmd("quit")
     end,
 })
 
 vim.api.nvim_create_autocmd({ "TextYankPost" }, {
     desc = "Highight when yanking",
     callback = function()
-        vim.hl.on_yank { higroup = "@comment.warning", timeout = 40 }
+        vim.hl.on_yank({ higroup = "@comment.warning", timeout = 40 })
     end,
 })
 
@@ -62,7 +62,6 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
         vim.opt_local.wrap = true
     end,
 })
-
 
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     desc = "Apptainer files as shell ft",
@@ -106,7 +105,7 @@ vim.api.nvim_create_autocmd({ "BufReadPre", "FileReadPre" }, {
     group = gzip_grp,
     callback = function()
         vim.bo.binary = true
-    end
+    end,
 })
 vim.api.nvim_create_autocmd({ "BufReadPost", "FileReadPost" }, {
     pattern = "*.gz",
@@ -120,7 +119,7 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "FileReadPost" }, {
             vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(content, "\n"))
             vim.bo.binary = false
         end
-    end
+    end,
 })
 vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
     pattern = "*.gz",
@@ -131,6 +130,5 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
         vim.cmd("write! " .. tmpfile)
         os.execute("gzip -f " .. vim.fn.shellescape(tmpfile))
         os.execute("mv " .. tmpfile .. ".gz " .. vim.fn.shellescape(filename))
-    end
+    end,
 })
-

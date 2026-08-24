@@ -1,5 +1,5 @@
-local icons = require('user.lspicons')
-local utils = require('utils.lsp')
+local icons = require("user.lspicons")
+local utils = require("utils.lsp")
 
 local luals_opts = {
     -- mason = false,
@@ -46,15 +46,23 @@ local clangd_opts = {
     root_markers = { "compile_commands.json", ".git", "Makefile", "Make" },
     on_attach = function(client, bufnr)
         vim.schedule(function()
-            if not client.root_dir then return end
-            if not vim.api.nvim_buf_is_valid(bufnr) then return end
-            if vim.lsp.get_client_by_id(client.id) == nil then return end
+            if not client.root_dir then
+                return
+            end
+            if not vim.api.nvim_buf_is_valid(bufnr) then
+                return
+            end
+            if vim.lsp.get_client_by_id(client.id) == nil then
+                return
+            end
             local db_path = client.root_dir .. "/compile_commands.json"
-            if not vim.loop.fs_stat(db_path) then return end
+            if not vim.loop.fs_stat(db_path) then
+                return
+            end
             local workspace_files = vim.fn.split(vim.fn.system("jq -r '.[].file' " .. db_path), "\n")
             utils.workspace_diagnostics(client, bufnr, workspace_files)
         end)
-    end
+    end,
 }
 
 local find_uv_python_path = utils.find_uv_python_path
@@ -105,9 +113,13 @@ local ty_opts = {
     root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
     on_attach = function(client, bufnr)
         find_uv_python_path(bufnr, client, function(_, uv_python)
-            if not uv_python then return end
+            if not uv_python then
+                return
+            end
             local current = vim.tbl_get(client.settings or {}, "ty", "configuration", "environment", "python")
-            if current == uv_python then return end
+            if current == uv_python then
+                return
+            end
             -- ty does not re-resolve site-packages on didChangeConfiguration;
             -- restart this client for the buffer with the detected env.
             local new_config = vim.deepcopy(client.config)
@@ -139,17 +151,18 @@ local xonsh_lsp_opts = {
     on_attach = function(client, bufnr)
         client.name = "xonsh-lsp[ty]"
         find_uv_python_path(bufnr, client, function(_, uv_python)
-            if not uv_python then return end
+            if not uv_python then
+                return
+            end
             client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
-                environment = { python = uv_python }
+                environment = { python = uv_python },
             })
             client:notify("workspace/didChangeConfiguration", {
-                settings = client.settings
+                settings = client.settings,
             })
         end)
     end,
 }
-
 
 return {
     {
@@ -157,7 +170,7 @@ return {
         event = { "BufReadPost", "BufNewFile" },
         dependencies = {
             "mason.nvim",
-            { "folke/lazydev.nvim",             ft = "lua" },
+            { "folke/lazydev.nvim", ft = "lua" },
             { "mason-org/mason-lspconfig.nvim", config = function() end },
             {
                 "p00f/clangd_extensions.nvim",
@@ -189,8 +202,8 @@ return {
                     symbol_info = {
                         border = "single",
                     },
-                }
-            }
+                },
+            },
         },
         opts = function()
             local ret = {
@@ -276,8 +289,8 @@ return {
                     jls = {
                         cmd = function(dispatchers, config)
                             local file = (config.root_dir or "") .. "/.jls-classpath"
-                            local env = vim.fn.filereadable(file) == 1
-                                and { CLASSPATH = vim.fn.readfile(file)[1] } or nil
+                            local env = vim.fn.filereadable(file) == 1 and { CLASSPATH = vim.fn.readfile(file)[1] }
+                                or nil
                             return vim.lsp.rpc.start({ "jls" }, dispatchers, {
                                 cwd = config.root_dir,
                                 env = env,
@@ -311,7 +324,7 @@ return {
                                 { path = "${3rd}/luv/library", words = { "vim%.uv" } },
                             },
                         })
-                    end
+                    end,
                 },
                 -- servers are hand-listed above; skip the mason-registry scan that
                 -- auto-enables anything mason-installed but not in `servers`
@@ -364,7 +377,9 @@ return {
                             vim.lsp.codelens.enable(true)
                             vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
                                 buffer = buffer,
-                                callback = function(copts) return vim.lsp.codelens.enable(true, copts) end,
+                                callback = function(copts)
+                                    return vim.lsp.codelens.enable(true, copts)
+                                end,
                             })
                         end
                     end,
@@ -376,8 +391,13 @@ return {
                     group = vim.api.nvim_create_augroup("UserLspInlineCompletion", {}),
                     callback = function(ev)
                         local client = vim.lsp.get_client_by_id(ev.data.client_id)
-                        if not client or not client:supports_method(
-                                vim.lsp.protocol.Methods.textDocument_inlineCompletion, ev.buf) then
+                        if
+                            not client
+                            or not client:supports_method(
+                                vim.lsp.protocol.Methods.textDocument_inlineCompletion,
+                                ev.buf
+                            )
+                        then
                             return
                         end
                         vim.lsp.inline_completion.enable(true, { bufnr = ev.buf })
@@ -410,7 +430,7 @@ return {
 
             local have_mason = pcall(require, "mason-lspconfig")
             local mason_all = have_mason
-                and vim.tbl_keys(require("mason-lspconfig.mappings").get_mason_map().lspconfig_to_package)
+                    and vim.tbl_keys(require("mason-lspconfig.mappings").get_mason_map().lspconfig_to_package)
                 or {} --[[ @as string[] ]]
             local mason_exclude = {} ---@type string[]
 
@@ -443,7 +463,6 @@ return {
                     automatic_enable = { exclude = mason_exclude },
                 })
 
-
                 -- Escape hatch: enable every mason-installed LSP that isn't mentioned
                 -- in opts.servers, so newly installed servers attach without needing
                 -- an entry here.
@@ -453,8 +472,10 @@ return {
                         -- fall back to the package name when mason-lspconfig's map
                         -- predates the server (e.g. jls)
                         local server = mapped.package_to_lspconfig[pkg.name]
-                            or (#vim.api.nvim_get_runtime_file("lsp/" .. pkg.name .. ".lua", false) > 0
-                                and pkg.name or nil)
+                            or (
+                                #vim.api.nvim_get_runtime_file("lsp/" .. pkg.name .. ".lua", false) > 0 and pkg.name
+                                or nil
+                            )
                         if server and opts.servers[server] == nil then
                             vim.lsp.enable(server)
                         end

@@ -38,7 +38,7 @@ end, { desc = "Check FoamScience configuration requirements" })
 --   spec("user.colorscheme") -- loads in all presets
 --   spec("user.nvimtree", {"full"}) -- only loads in "full" preset
 function spec(item, presets)
-    presets = presets or {"full", "ssh"} -- default: load in all presets
+    presets = presets or { "full", "ssh" } -- default: load in all presets
 
     -- Check if current preset is in the allowed presets list
     if vim.tbl_contains(presets, vim.g.active_preset) then

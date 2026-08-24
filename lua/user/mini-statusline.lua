@@ -23,21 +23,31 @@ end
 
 local function flash_in_search()
     local flash_ok, _ = pcall(require, "flash")
-    if not flash_ok then return "" end
-    if not require("flash.plugins.search").enabled then return "" end
+    if not flash_ok then
+        return ""
+    end
+    if not require("flash.plugins.search").enabled then
+        return ""
+    end
     return "/" .. icons.kind.Event
 end
 
 local function recording()
     local rec = vim.fn.reg_recording()
-    if rec == "" then return "" end
+    if rec == "" then
+        return ""
+    end
     return "Recording @" .. rec
 end
 
 local function git_blame()
     local gitsigns_ok, _ = pcall(require, "gitsigns")
-    if not gitsigns_ok then return "" end
-    if not vim.b.gitsigns_blame_line then return "" end
+    if not gitsigns_ok then
+        return ""
+    end
+    if not vim.b.gitsigns_blame_line then
+        return ""
+    end
     local blame_line = vim.b.gitsigns_blame_line
     local prefix, message = blame_line:match("^(.*[•%.])%s*(.+)$")
     if message == nil then
@@ -65,10 +75,18 @@ local function diagnostics()
     end
     local S = vim.diagnostic.severity
     local result = {}
-    if counts[S.ERROR] > 0 then result[#result+1] = icons.diagnostics.Error .. counts[S.ERROR] end
-    if counts[S.WARN] > 0 then result[#result+1] = icons.diagnostics.Warning .. counts[S.WARN] end
-    if counts[S.HINT] > 0 then result[#result+1] = icons.diagnostics.Hint .. counts[S.HINT] end
-    if counts[S.INFO] > 0 then result[#result+1] = icons.diagnostics.Information .. counts[S.INFO] end
+    if counts[S.ERROR] > 0 then
+        result[#result + 1] = icons.diagnostics.Error .. counts[S.ERROR]
+    end
+    if counts[S.WARN] > 0 then
+        result[#result + 1] = icons.diagnostics.Warning .. counts[S.WARN]
+    end
+    if counts[S.HINT] > 0 then
+        result[#result + 1] = icons.diagnostics.Hint .. counts[S.HINT]
+    end
+    if counts[S.INFO] > 0 then
+        result[#result + 1] = icons.diagnostics.Information .. counts[S.INFO]
+    end
     return table.concat(result, " ")
 end
 
@@ -82,57 +100,57 @@ local function fileformat()
 end
 
 M.sidebar_filetypes = {
-    'NvimTree',
-    'neo-tree',
-    'undotree',
-    'undotreeDiff',
-    'Outline',
-    'toggleterm',
-    'trouble',
-    'qf',
+    "NvimTree",
+    "neo-tree",
+    "undotree",
+    "undotreeDiff",
+    "Outline",
+    "toggleterm",
+    "trouble",
+    "qf",
 }
 
 function M.config()
     icons = require("user.lspicons")
-    require('mini.icons').setup()
-    require('mini.icons').mock_nvim_web_devicons()
-    require('mini.ai').setup()
-    require('mini.operators').setup({
-        exchange = { prefix = 'ge' },
+    require("mini.icons").setup()
+    require("mini.icons").mock_nvim_web_devicons()
+    require("mini.ai").setup()
+    require("mini.operators").setup({
+        exchange = { prefix = "ge" },
         multiply = { prefix = nil },
         sort = { prefix = nil },
     })
-    require('mini.splitjoin').setup({
+    require("mini.splitjoin").setup({
         mappings = {
-            toggle = 'gj'
-        }
-    })
-    require('which-key').add({
-        { "<leader>s", group = "Surround", icon = icons.git.FileIgnored },
-    })
-    require('mini.surround').setup({
-        mappings = {
-            add = '<leader>sa',
-            delete = '<leader>sd',
-            find = '<leader>sf',
-            find_left = '<leader>sF',
-            highlight = '<leader>sh',
-            replace = '<leader>sr',
+            toggle = "gj",
         },
     })
-    require('which-key').add({
+    require("which-key").add({
+        { "<leader>s", group = "Surround", icon = icons.git.FileIgnored },
+    })
+    require("mini.surround").setup({
+        mappings = {
+            add = "<leader>sa",
+            delete = "<leader>sd",
+            find = "<leader>sf",
+            find_left = "<leader>sF",
+            highlight = "<leader>sh",
+            replace = "<leader>sr",
+        },
+    })
+    require("which-key").add({
         "<leader>gdD",
         function()
-            require('gitsigns').preview_hunk_inline()
+            require("gitsigns").preview_hunk_inline()
         end,
         desc = "Toggle hunk overlay",
-        icon = icons.kind.Boolean
+        icon = icons.kind.Boolean,
     })
-    local statusline = require('mini.statusline')
+    local statusline = require("mini.statusline")
 
     -- Custom content function matching old lualine layout
     statusline.section_location = function()
-        return '%l:%c %p%%'
+        return "%l:%c %p%%"
     end
 
     local function custom_content()
@@ -140,41 +158,40 @@ function M.config()
         local git = statusline.section_git({ trunc_width = 75 })
 
         -- Powerline-style separators - slanted triangles (matching lualine)
-        local sep_left = ""  -- U+E0B2 (left-pointing filled triangle)
+        local sep_left = "" -- U+E0B2 (left-pointing filled triangle)
         local sep_right = "" -- U+E0B0 (right-pointing filled triangle)
 
         -- Get mode color for dynamic separators
         local mode_color = vim.api.nvim_get_hl(0, { name = mode_hl }).bg
-        local devinfo_color = vim.api.nvim_get_hl(0, { name = 'MiniStatuslineDevinfo' }).bg
-        local fileinfo_color = vim.api.nvim_get_hl(0, { name = 'MiniStatuslineFileinfo' }).bg
-        local bg_color = vim.api.nvim_get_hl(0, { name = 'StatusLine' }).bg
+        local devinfo_color = vim.api.nvim_get_hl(0, { name = "MiniStatuslineDevinfo" }).bg
+        local fileinfo_color = vim.api.nvim_get_hl(0, { name = "MiniStatuslineFileinfo" }).bg
+        local bg_color = vim.api.nvim_get_hl(0, { name = "StatusLine" }).bg
 
         -- Dynamic separator highlights
-        vim.api.nvim_set_hl(0, 'StatusLineSep1', { fg = mode_color, bg = devinfo_color })
-        vim.api.nvim_set_hl(0, 'StatusLineSep2', { fg = devinfo_color, bg = bg_color })
-        vim.api.nvim_set_hl(0, 'StatusLineSep3', { fg = fileinfo_color, bg = bg_color })
-        vim.api.nvim_set_hl(0, 'StatusLineSep4', { fg = mode_color, bg = fileinfo_color })
+        vim.api.nvim_set_hl(0, "StatusLineSep1", { fg = mode_color, bg = devinfo_color })
+        vim.api.nvim_set_hl(0, "StatusLineSep2", { fg = devinfo_color, bg = bg_color })
+        vim.api.nvim_set_hl(0, "StatusLineSep3", { fg = fileinfo_color, bg = bg_color })
+        vim.api.nvim_set_hl(0, "StatusLineSep4", { fg = mode_color, bg = fileinfo_color })
 
-        local section_a = mode
-            .. (recording() ~= "" and " " .. recording() or "") .. " "
+        local section_a = mode .. (recording() ~= "" and " " .. recording() or "") .. " "
         local section_b = " " .. git .. (git_blame() ~= "" and " " .. git_blame() or "") .. " "
         local section_x = " " .. diagnostics() .. " " .. clients_lsp() .. " "
         local section_y = " " .. flash_in_search() .. " " .. fileformat() .. " " .. vim.bo.filetype .. " "
         local section_z = " " .. statusline.section_location() .. " "
 
         return statusline.combine_groups({
-            { hl = mode_hl,                 strings = { section_a } },
-            { hl = 'StatusLineSep1',        strings = { sep_right } },
-            { hl = 'MiniStatuslineDevinfo', strings = { section_b } },
-            { hl = 'StatusLineSep2',        strings = { sep_right } },
-            '%<', -- Truncation point
-            '%=', -- Right align
-            { hl = 'StatusLineSep3',         strings = { sep_left } },
-            { hl = 'MiniStatuslineFileinfo', strings = { section_x } },
-            { hl = 'MiniStatuslineFileinfo', strings = { sep_left } },
-            { hl = 'MiniStatuslineFileinfo', strings = { section_y } },
-            { hl = 'StatusLineSep4',         strings = { sep_left } },
-            { hl = mode_hl,                  strings = { section_z } },
+            { hl = mode_hl, strings = { section_a } },
+            { hl = "StatusLineSep1", strings = { sep_right } },
+            { hl = "MiniStatuslineDevinfo", strings = { section_b } },
+            { hl = "StatusLineSep2", strings = { sep_right } },
+            "%<", -- Truncation point
+            "%=", -- Right align
+            { hl = "StatusLineSep3", strings = { sep_left } },
+            { hl = "MiniStatuslineFileinfo", strings = { section_x } },
+            { hl = "MiniStatuslineFileinfo", strings = { sep_left } },
+            { hl = "MiniStatuslineFileinfo", strings = { section_y } },
+            { hl = "StatusLineSep4", strings = { sep_left } },
+            { hl = mode_hl, strings = { section_z } },
         })
     end
 
@@ -185,22 +202,21 @@ function M.config()
             active = custom_content,
             inactive = function()
                 return statusline.combine_groups({
-                    { hl = 'MiniStatuslineInactive', strings = { '%f' } },
-                    '%=',
-                    { hl = 'MiniStatuslineInactive', strings = { vim.bo.filetype } },
+                    { hl = "MiniStatuslineInactive", strings = { "%f" } },
+                    "%=",
+                    { hl = "MiniStatuslineInactive", strings = { vim.bo.filetype } },
                 })
             end,
         },
     })
 
-    local tabline = require('mini.tabline')
+    local tabline = require("mini.tabline")
 
     tabline.setup({
         show_icons = true,
         set_vim_settings = false,
-        tabpage_section = 'right',
+        tabpage_section = "right",
     })
-
 
     -- Custom tabline function with sidebar offset
     _G.custom_tabline = function()
@@ -268,26 +284,51 @@ function M.config()
             local ok, cp = pcall(require, "catppuccin.palettes")
             if ok then
                 local palette = cp.get_palette()
-                vim.api.nvim_set_hl(0, 'MiniStatuslineModeNormal', { fg = palette.base, bg = palette.blue, bold = true })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineModeInsert', { fg = palette.base, bg = palette.green, bold = true })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineModeVisual', { fg = palette.base, bg = palette.mauve, bold = true })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineModeReplace', { fg = palette.base, bg = palette.red, bold = true })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineModeCommand',
-                    { fg = palette.base, bg = palette.peach, bold = true })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineDevinfo', { fg = palette.peach, bg = palette.surface3 })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineFilename', { fg = palette.base, bg = palette.surface0 })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineFileinfo', { fg = palette.text, bg = palette.surface0 })
-                vim.api.nvim_set_hl(0, 'MiniStatuslineInactive', { fg = palette.overlay0, bg = palette.mantle })
-                vim.api.nvim_set_hl(0, 'MiniTablineCurrent', { fg = palette.base, bg = palette.blue, bold = true })
-                vim.api.nvim_set_hl(0, 'MiniTablineVisible', { fg = palette.subtext0, bg = palette.surface0 })
-                vim.api.nvim_set_hl(0, 'MiniTablineHidden', { fg = palette.overlay0, bg = palette.mantle })
-                vim.api.nvim_set_hl(0, 'MiniTablineModifiedCurrent',
-                    { fg = palette.peach, bg = palette.surface1, bold = true })
-                vim.api.nvim_set_hl(0, 'MiniTablineModifiedVisible', { fg = palette.peach, bg = palette.surface0 })
-                vim.api.nvim_set_hl(0, 'MiniTablineModifiedHidden', { fg = palette.peach, bg = palette.mantle })
-                vim.api.nvim_set_hl(0, 'MiniTablineFill', { bg = palette.mantle })
-                vim.api.nvim_set_hl(0, 'MiniTablineTabpagesection',
-                    { fg = palette.blue, bg = palette.surface0, bold = true })
+                vim.api.nvim_set_hl(
+                    0,
+                    "MiniStatuslineModeNormal",
+                    { fg = palette.base, bg = palette.blue, bold = true }
+                )
+                vim.api.nvim_set_hl(
+                    0,
+                    "MiniStatuslineModeInsert",
+                    { fg = palette.base, bg = palette.green, bold = true }
+                )
+                vim.api.nvim_set_hl(
+                    0,
+                    "MiniStatuslineModeVisual",
+                    { fg = palette.base, bg = palette.mauve, bold = true }
+                )
+                vim.api.nvim_set_hl(
+                    0,
+                    "MiniStatuslineModeReplace",
+                    { fg = palette.base, bg = palette.red, bold = true }
+                )
+                vim.api.nvim_set_hl(
+                    0,
+                    "MiniStatuslineModeCommand",
+                    { fg = palette.base, bg = palette.peach, bold = true }
+                )
+                vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { fg = palette.peach, bg = palette.surface3 })
+                vim.api.nvim_set_hl(0, "MiniStatuslineFilename", { fg = palette.base, bg = palette.surface0 })
+                vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { fg = palette.text, bg = palette.surface0 })
+                vim.api.nvim_set_hl(0, "MiniStatuslineInactive", { fg = palette.overlay0, bg = palette.mantle })
+                vim.api.nvim_set_hl(0, "MiniTablineCurrent", { fg = palette.base, bg = palette.blue, bold = true })
+                vim.api.nvim_set_hl(0, "MiniTablineVisible", { fg = palette.subtext0, bg = palette.surface0 })
+                vim.api.nvim_set_hl(0, "MiniTablineHidden", { fg = palette.overlay0, bg = palette.mantle })
+                vim.api.nvim_set_hl(
+                    0,
+                    "MiniTablineModifiedCurrent",
+                    { fg = palette.peach, bg = palette.surface1, bold = true }
+                )
+                vim.api.nvim_set_hl(0, "MiniTablineModifiedVisible", { fg = palette.peach, bg = palette.surface0 })
+                vim.api.nvim_set_hl(0, "MiniTablineModifiedHidden", { fg = palette.peach, bg = palette.mantle })
+                vim.api.nvim_set_hl(0, "MiniTablineFill", { bg = palette.mantle })
+                vim.api.nvim_set_hl(
+                    0,
+                    "MiniTablineTabpagesection",
+                    { fg = palette.blue, bg = palette.surface0, bold = true }
+                )
             end
         end
     end

@@ -28,25 +28,21 @@ local disabled_tab_hopping = {
     mason = true,
 }
 keymap("n", "<Tab>", function()
-    if disabled_tab_hopping[vim.bo.filetype]
-        or is_floating_window()
-    then
+    if disabled_tab_hopping[vim.bo.filetype] or is_floating_window() then
         return
     end
     if not (vim.fn.winlayout()[1] == "leaf") then
-        vim.cmd('wincmd w')
+        vim.cmd("wincmd w")
     else
         vim.cmd("bn")
     end
 end, opts)
 keymap("n", "<S-Tab>", function()
-    if disabled_tab_hopping[vim.bo.filetype]
-        or is_floating_window()
-    then
+    if disabled_tab_hopping[vim.bo.filetype] or is_floating_window() then
         return
     end
     if not (vim.fn.winlayout()[1] == "leaf") then
-        vim.cmd('wincmd x')
+        vim.cmd("wincmd x")
     else
         vim.cmd("bp")
     end

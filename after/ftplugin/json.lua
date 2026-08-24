@@ -9,13 +9,19 @@ local function conceal_long_strings(bufnr)
     vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 
     local ok, parser = pcall(vim.treesitter.get_parser, bufnr, "json")
-    if not ok or not parser then return end
+    if not ok or not parser then
+        return
+    end
 
     local tree = parser:parse()[1]
-    if not tree then return end
+    if not tree then
+        return
+    end
 
-    local query_ok, query = pcall(vim.treesitter.query.parse, "json", '(string_content) @str')
-    if not query_ok then return end
+    local query_ok, query = pcall(vim.treesitter.query.parse, "json", "(string_content) @str")
+    if not query_ok then
+        return
+    end
 
     for _, node in query:iter_captures(tree:root(), bufnr, 0, -1) do
         local sr, sc, er, ec = node:range()
@@ -36,5 +42,7 @@ vim.opt_local.conceallevel = 1
 conceal_long_strings()
 vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
     buffer = 0,
-    callback = function() conceal_long_strings() end,
+    callback = function()
+        conceal_long_strings()
+    end,
 })

@@ -9,8 +9,8 @@ M.find_uv_python_path = function(bufnr, client, callback)
     local first_line = vim.fn.getline(1)
     local path = string.match(first_line, "^#!%s*(%S+)")
     if path and string.find(path, "pvpython") then
-      callback(false, path)
-      return
+        callback(false, path)
+        return
     end
 
     local uv_path = vim.fn.exepath("uv")
@@ -142,7 +142,7 @@ end
 -- Enables workspace-wide diagnostics; enabled only for select
 -- filetypes+LSP combinations (eg. clangd)
 M.workspace_diagnostics = function(client, bufnr, workspace_files)
-    if not vim.tbl_get(client.server_capabilities, 'textDocumentSync', 'openClose') then
+    if not vim.tbl_get(client.server_capabilities, "textDocumentSync", "openClose") then
         return
     end
     for _, path in ipairs(workspace_files) do
@@ -154,21 +154,22 @@ M.workspace_diagnostics = function(client, bufnr, workspace_files)
             goto continue
         end
         local pathtext = nil
-        if vim.fn.filereadable(path) == 1 then pathtext = vim.fn.join(vim.fn.readfile(path), "\n") end
+        if vim.fn.filereadable(path) == 1 then
+            pathtext = vim.fn.join(vim.fn.readfile(path), "\n")
+        end
         if pathtext then
             local params = {
                 textDocument = {
                     uri = vim.uri_from_fname(path),
                     version = 0,
                     text = pathtext,
-                    languageId = filetype
-                }
+                    languageId = filetype,
+                },
             }
-            client:notify('textDocument/didOpen', params)
+            client:notify("textDocument/didOpen", params)
         end
         ::continue::
     end
 end
-
 
 return M

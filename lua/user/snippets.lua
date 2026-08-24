@@ -9,7 +9,7 @@ local M = {
 
 M.config = function()
     local ls = require("luasnip")
-    ls.setup{}
+    ls.setup({})
 
     -- Tab/S-Tab to jump between snippet nodes (not Enter)
     vim.keymap.set({ "i", "s" }, "<Tab>", function()

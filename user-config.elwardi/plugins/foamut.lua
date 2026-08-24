@@ -1,11 +1,11 @@
 -- foamUT integration for OpenFOAM unit testing
 -- Provides commands to list, run, and debug foamUT tests
 return {
-    dir = ".",  -- Virtual plugin (no actual plugin source)
+    dir = ".", -- Virtual plugin (no actual plugin source)
     name = "foamut",
     ft = { "cpp" },
     config = function()
-        local lspicons = require('user.lspicons')
+        local lspicons = require("user.lspicons")
 
         -- Use noice.notify if available, otherwise fall back to vim.notify
         local notifier = vim.notify
@@ -16,17 +16,17 @@ return {
 
         local M = {}
 
-        M.notify_opts                 = {
+        M.notify_opts = {
             timeout = 20000,
             title = "foamUT",
         }
 
-        M.ns_id                       = vim.api.nvim_create_namespace("foamut_test_status")
-        M.virt_ns_id                  = vim.api.nvim_create_namespace("foamut_virt_text")
-        M._cached_tests               = {}
+        M.ns_id = vim.api.nvim_create_namespace("foamut_test_status")
+        M.virt_ns_id = vim.api.nvim_create_namespace("foamut_virt_text")
+        M._cached_tests = {}
 
         -- Helper to parse and clean foamut JSON output
-        M._parse_json_output          = function(buffer)
+        M._parse_json_output = function(buffer)
             local output = "[" .. buffer .. "]"
             output = string.gsub(output, ",,", ",")
             output = string.gsub(output, ",]", "]")
@@ -41,7 +41,7 @@ return {
         end
 
         -- Helper to find test by name in cached tests
-        M._find_test_by_name          = function(test_name)
+        M._find_test_by_name = function(test_name)
             for _, test in ipairs(M._cached_tests) do
                 if test.name == test_name then
                     return test
@@ -51,7 +51,7 @@ return {
         end
 
         -- Helper to get test name at cursor using tree-sitter
-        M._get_test_name_at_cursor    = function(bufnr, line, col)
+        M._get_test_name_at_cursor = function(bufnr, line, col)
             -- Try to get tree-sitter parser for cpp
             local ok, parser = pcall(vim.treesitter.get_parser, bufnr, "cpp")
             if not ok or not parser then
@@ -175,7 +175,7 @@ return {
         end
 
         -- Helper to recursively extract assertions from test path
-        M._extract_assertions         = function(path, assertions, foamut_path, libname)
+        M._extract_assertions = function(path, assertions, foamut_path, libname)
             for _, item in ipairs(path) do
                 if item.kind == "assertion" and item["source-location"] then
                     local test_file = foamut_path .. "/tests/" .. libname .. "/" .. item["source-location"].filename
@@ -193,7 +193,7 @@ return {
         end
 
         -- Helper to set diagnostics for test results
-        M._set_test_diagnostics       = function(parsed_data, foamut_path)
+        M._set_test_diagnostics = function(parsed_data, foamut_path)
             -- Collect all assertions by file
             local diagnostics_by_file = {}
             local virt_text_by_file = {}
@@ -215,16 +215,14 @@ return {
                                         virt_text_by_file[assertion.file] = {}
                                     end
 
-                                    local severity = assertion.status
-                                        and vim.diagnostic.severity.HINT
+                                    local severity = assertion.status and vim.diagnostic.severity.HINT
                                         or vim.diagnostic.severity.ERROR
                                     local message = assertion.status and "assertion passed" or "assertion failed"
                                     local icon = assertion.status and lspicons.ui.BoxChecked or lspicons.ui.Circle
-                                    local virt_text = assertion.status
-                                        and string.format(" %s ", icon)
+                                    local virt_text = assertion.status and string.format(" %s ", icon)
                                         or string.format(" %s  ", icon)
-                                    local hl_group = assertion.status and "DiagnosticVirtualTextHint" or
-                                        "DiagnosticVirtualTextError"
+                                    local hl_group = assertion.status and "DiagnosticVirtualTextHint"
+                                        or "DiagnosticVirtualTextError"
 
                                     table.insert(diagnostics_by_file[assertion.file], {
                                         lnum = assertion.line,
@@ -285,14 +283,12 @@ return {
 
                     -- Build virtual text from all diagnostics in the buffer
                     for _, diag in ipairs(all_diagnostics) do
-                        local icon = (diag.severity == vim.diagnostic.severity.HINT)
-                            and lspicons.ui.BoxChecked
+                        local icon = (diag.severity == vim.diagnostic.severity.HINT) and lspicons.ui.BoxChecked
                             or lspicons.ui.Circle
                         local virt_text = (diag.severity == vim.diagnostic.severity.HINT)
-                            and string.format(" %s ", icon)
+                                and string.format(" %s ", icon)
                             or string.format(" %s  ", icon)
-                        local hl_group = (diag.severity == vim.diagnostic.severity.HINT)
-                            and "DiagnosticVirtualTextHint"
+                        local hl_group = (diag.severity == vim.diagnostic.severity.HINT) and "DiagnosticVirtualTextHint"
                             or "DiagnosticVirtualTextError"
 
                         vim.api.nvim_buf_set_extmark(bufnr, M.virt_ns_id, diag.lnum, 0, {
@@ -316,12 +312,12 @@ return {
                 end
 
                 -- Append to existing quickfix list
-                vim.fn.setqflist(qf_items, 'a')
+                vim.fn.setqflist(qf_items, "a")
             end
         end
 
         -- function to check foamUT env. vars.
-        M._check_env                  = function()
+        M._check_env = function()
             local foamut = vim.loop.os_getenv("FOAM_FOAMUT")
             local foam = vim.loop.os_getenv("WM_PROJECT")
             if foam == nil or foam == "" then
@@ -336,7 +332,7 @@ return {
         end
 
         -- function to run foamut with custom args
-        M._run_async_alltest          = function(args, callback)
+        M._run_async_alltest = function(args, callback)
             local foamut_path = M._check_env()
             if foamut_path == nil then
                 return
@@ -377,7 +373,7 @@ return {
             end
         end
 
-        M._select_unit_tests          = function(tests, callback)
+        M._select_unit_tests = function(tests, callback)
             -- Convert tests to items format for Snacks.picker
             local items = {}
             for _, entry in ipairs(tests) do
@@ -424,7 +420,7 @@ return {
 
         -- Internal function to discover tests (serial + standalone)
         -- Calls callback with (tests_array) on success, or (nil, error_msg) on failure
-        M._discover_tests             = function(callback, show_notification)
+        M._discover_tests = function(callback, show_notification)
             show_notification = show_notification == nil and true or show_notification
 
             local tests = {}
@@ -435,7 +431,8 @@ return {
             local function get_serial_tests()
                 -- First, get serial tests
                 local serial_args = {
-                    "-r", "json",
+                    "-r",
+                    "json",
                     "-#",
                     "--list-tests",
                     "--list-tags",
@@ -455,8 +452,11 @@ return {
                             retried = true
                             vim.schedule(function()
                                 if show_notification then
-                                    notifier("Failed to parse json output (likely compilation), retrying...", "warn",
-                                        M.notify_opts)
+                                    notifier(
+                                        "Failed to parse json output (likely compilation), retrying...",
+                                        "warn",
+                                        M.notify_opts
+                                    )
                                 end
                                 get_serial_tests()
                             end)
@@ -478,8 +478,12 @@ return {
                         local comps = {}
                         for comp in string.gmatch(filters, "%[[^%]]+%]") do
                             local tag_content = comp:match("%[(.+)%]")
-                            if comp ~= "[serial]" and comp ~= "[parallel]" and comp ~= "[standalone]"
-                                and not (tag_content and tag_content:match("^#")) then
+                            if
+                                comp ~= "[serial]"
+                                and comp ~= "[parallel]"
+                                and comp ~= "[standalone]"
+                                and not (tag_content and tag_content:match("^#"))
+                            then
                                 table.insert(comps, comp)
                             end
                         end
@@ -505,7 +509,8 @@ return {
                     -- Now get standalone tests
                     local standalone_args = {
                         "--standalone",
-                        "-r", "json",
+                        "-r",
+                        "json",
                         "-#",
                         "--list-tests",
                         "--list-tags",
@@ -526,7 +531,12 @@ return {
                                     -- Standalone tests don't get case tags, only their own test tags
                                     local test_tags = {}
                                     for _, tag in ipairs(test.tags) do
-                                        if tag ~= "serial" and tag ~= "parallel" and tag ~= "standalone" and not tag:match("^#") then
+                                        if
+                                            tag ~= "serial"
+                                            and tag ~= "parallel"
+                                            and tag ~= "standalone"
+                                            and not tag:match("^#")
+                                        then
                                             table.insert(test_tags, tag)
                                         end
                                     end
@@ -547,8 +557,11 @@ return {
                         -- Call the callback with the tests
                         vim.schedule(function()
                             if not success2 and show_notification then
-                                notifier("Failed to parse json output for standalone tests, showing only serial tests", "warn",
-                                    M.notify_opts)
+                                notifier(
+                                    "Failed to parse json output for standalone tests, showing only serial tests",
+                                    "warn",
+                                    M.notify_opts
+                                )
                             end
 
                             if vim.tbl_isempty(tests) then
@@ -567,7 +580,7 @@ return {
         end
 
         -- function to list available tests
-        M.FoamUtListTests             = function()
+        M.FoamUtListTests = function()
             M._discover_tests(function(tests, err)
                 if not tests then
                     notifier(err or "Failed to discover tests", "error", M.notify_opts)
@@ -580,7 +593,7 @@ return {
         end
 
         -- Helper to run a single test
-        M._run_single_test            = function(test, foamut_path)
+        M._run_single_test = function(test, foamut_path)
             local args = {}
 
             -- Add mode-specific flags
@@ -634,7 +647,7 @@ return {
         end
 
         -- function to run tests (single or multiple)
-        M.FoamUtRunTests              = function(tests)
+        M.FoamUtRunTests = function(tests)
             -- Normalize input to array
             if not vim.islist(tests) then
                 tests = { tests }
@@ -669,12 +682,12 @@ return {
         end
 
         -- Backward compatibility alias
-        M.FoamUtRunTest               = function(test)
+        M.FoamUtRunTest = function(test)
             M.FoamUtRunTests(test)
         end
 
         -- Function to run test at cursor position
-        M.FoamUtRunTestAtCursor       = function()
+        M.FoamUtRunTestAtCursor = function()
             -- Check environment
             local foamut_path = M._check_env()
             if not foamut_path then
@@ -714,7 +727,11 @@ return {
                 -- Find test in cached tests
                 local cached_test = M._find_test_by_name(test_name_to_run)
                 if not cached_test then
-                    notifier(string.format("Test '%s' not found after discovery", test_name_to_run), "warn", M.notify_opts)
+                    notifier(
+                        string.format("Test '%s' not found after discovery", test_name_to_run),
+                        "warn",
+                        M.notify_opts
+                    )
                     return
                 end
 
@@ -722,14 +739,15 @@ return {
                 if cached_test.lib ~= libname then
                     notifier(
                         string.format("Library mismatch (file: %s, cached: %s)", libname, cached_test.lib),
-                        "warn", M.notify_opts
+                        "warn",
+                        M.notify_opts
                     )
                 end
 
                 -- Build test object in the format expected by _run_single_test
                 local test = {
                     value = cached_test.name,
-                    properties = cached_test
+                    properties = cached_test,
                 }
 
                 -- Notify user

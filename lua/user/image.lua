@@ -19,7 +19,9 @@ return {
         "folke/snacks.nvim",
         opts = function(_, opts)
             opts.image = { enabled = false }
-            if opts.styles then opts.styles.snacks_image = nil end
+            if opts.styles then
+                opts.styles.snacks_image = nil
+            end
             return opts
         end,
     },
@@ -29,7 +31,7 @@ return {
         ft = { "markdown", "norg", "vimwiki", "html", "css", "tex", "typst" },
         cmd = { "Image" },
         opts = {
-            backend = "kitty",      -- works on kitty and (with caveats) wezterm
+            backend = "kitty", -- works on kitty and (with caveats) wezterm
             processor = "magick_cli",
 
             integrations = {
@@ -38,7 +40,7 @@ return {
                     clear_in_insert_mode = false,
                     download_remote_images = true,
                     only_render_image_at_cursor = false,
-                    floating_windows = true,           -- mirror the snacks float behavior
+                    floating_windows = true, -- mirror the snacks float behavior
                     filetypes = { "markdown", "vimwiki" },
                 },
                 neorg = {
@@ -55,7 +57,7 @@ return {
 
             max_width = nil,
             max_height = nil,
-            max_width_window_percentage = 60,    -- right-side float should not eat main text
+            max_width_window_percentage = 60, -- right-side float should not eat main text
             max_height_window_percentage = 70,
             window_overlap_clear_enabled = true,
             window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "snacks_notif", "scrollview", "scrollview_sign" },
@@ -84,7 +86,9 @@ return {
                             window = vim.api.nvim_get_current_win(),
                             with_virtual_padding = true,
                         })
-                        if img then img:render() end
+                        if img then
+                            img:render()
+                        end
                     end
                 end,
                 desc = "image: render under cursor",
