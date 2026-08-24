@@ -16,14 +16,18 @@ local function get_node_at_cursor()
 end
 
 local function move_to_node(node)
-    if not node then return end
+    if not node then
+        return
+    end
     local start_row, start_col, _, _ = node:range()
     vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
 end
 
 function M.goto_next_sibling()
     local node = get_node_at_cursor()
-    if not node then return end
+    if not node then
+        return
+    end
     local current = node
     while current do
         local sibling = current:next_sibling()
@@ -38,7 +42,9 @@ end
 
 function M.goto_prev_sibling()
     local node = get_node_at_cursor()
-    if not node then return end
+    if not node then
+        return
+    end
     local current = node
     while current do
         local sibling = current:prev_sibling()
@@ -53,22 +59,26 @@ end
 
 function M.select_current_node()
     local node = get_node_at_cursor()
-    if not node then return end
+    if not node then
+        return
+    end
     local start_row, start_col, end_row, end_col = node:range()
     vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
-    vim.cmd('normal! v')
+    vim.cmd("normal! v")
     vim.api.nvim_win_set_cursor(0, { end_row + 1, end_col - 1 })
 end
 
 function M.setup()
     local opts = { noremap = true, silent = true }
 
-    vim.keymap.set('n', '<M-n>', M.goto_next_sibling,
-        vim.tbl_extend('force', opts, { desc = 'Tree: Next sibling' }))
-    vim.keymap.set('n', '<M-N>', M.goto_prev_sibling,
-        vim.tbl_extend('force', opts, { desc = 'Tree: Previous sibling' }))
-    vim.keymap.set('n', '<M-v>', M.select_current_node,
-        vim.tbl_extend('force', opts, { desc = 'Tree: Select node' }))
+    vim.keymap.set("n", "<M-n>", M.goto_next_sibling, vim.tbl_extend("force", opts, { desc = "Tree: Next sibling" }))
+    vim.keymap.set(
+        "n",
+        "<M-N>",
+        M.goto_prev_sibling,
+        vim.tbl_extend("force", opts, { desc = "Tree: Previous sibling" })
+    )
+    vim.keymap.set("n", "<M-v>", M.select_current_node, vim.tbl_extend("force", opts, { desc = "Tree: Select node" }))
 end
 
 M.setup()

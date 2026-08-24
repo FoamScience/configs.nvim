@@ -1,6 +1,6 @@
 local M = {}
 
-local types = require('blink.cmp.types')
+local types = require("blink.cmp.types")
 
 local unicode_items = {
     -- Logic & Quantifiers
@@ -11,7 +11,12 @@ local unicode_items = {
     { label = "∨", insertText = "∨", kind = types.CompletionItemKind.Text, filterText = "or lor vee" },
     { label = "⟹", insertText = "⟹", kind = types.CompletionItemKind.Text, filterText = "implies Longrightarrow" },
     { label = "⇒", insertText = "⇒", kind = types.CompletionItemKind.Text, filterText = "Rightarrow implies2" },
-    { label = "⇔", insertText = "⇔", kind = types.CompletionItemKind.Text, filterText = "iff Leftrightarrow equivalent" },
+    {
+        label = "⇔",
+        insertText = "⇔",
+        kind = types.CompletionItemKind.Text,
+        filterText = "iff Leftrightarrow equivalent",
+    },
     { label = "↔", insertText = "↔", kind = types.CompletionItemKind.Text, filterText = "leftrightarrow iff2" },
 
     -- Arrows
@@ -23,7 +28,12 @@ local unicode_items = {
     { label = "∈", insertText = "∈", kind = types.CompletionItemKind.Text, filterText = "in mem member element" },
     { label = "∉", insertText = "∉", kind = types.CompletionItemKind.Text, filterText = "notin notmem notelement" },
     { label = "⊆", insertText = "⊆", kind = types.CompletionItemKind.Text, filterText = "subseteq subset" },
-    { label = "⊂", insertText = "⊂", kind = types.CompletionItemKind.Text, filterText = "subset propersubset ssubset" },
+    {
+        label = "⊂",
+        insertText = "⊂",
+        kind = types.CompletionItemKind.Text,
+        filterText = "subset propersubset ssubset",
+    },
     { label = "⊇", insertText = "⊇", kind = types.CompletionItemKind.Text, filterText = "supseteq superset" },
     { label = "∪", insertText = "∪", kind = types.CompletionItemKind.Text, filterText = "cup union" },
     { label = "∩", insertText = "∩", kind = types.CompletionItemKind.Text, filterText = "cap intersection inter" },
@@ -31,16 +41,31 @@ local unicode_items = {
 
     -- Proof & Turnstiles
     { label = "⊨", insertText = "⊨", kind = types.CompletionItemKind.Text, filterText = "entails models vDash" },
-    { label = "⊢", insertText = "⊢", kind = types.CompletionItemKind.Text, filterText = "provable vdash turnstile" },
+    {
+        label = "⊢",
+        insertText = "⊢",
+        kind = types.CompletionItemKind.Text,
+        filterText = "provable vdash turnstile",
+    },
     { label = "⊣", insertText = "⊣", kind = types.CompletionItemKind.Text, filterText = "dashv" },
 
     -- Comparison & Equality
     { label = "≤", insertText = "≤", kind = types.CompletionItemKind.Text, filterText = "le leq lessthanorequal" },
-    { label = "≥", insertText = "≥", kind = types.CompletionItemKind.Text, filterText = "ge geq greaterthanorequal" },
+    {
+        label = "≥",
+        insertText = "≥",
+        kind = types.CompletionItemKind.Text,
+        filterText = "ge geq greaterthanorequal",
+    },
     { label = "≠", insertText = "≠", kind = types.CompletionItemKind.Text, filterText = "ne neq notequal" },
     { label = "≈", insertText = "≈", kind = types.CompletionItemKind.Text, filterText = "approx approximate" },
     { label = "≡", insertText = "≡", kind = types.CompletionItemKind.Text, filterText = "equiv identical" },
-    { label = "≺", insertText = "≺", kind = types.CompletionItemKind.Text, filterText = "prec precedes pareto dominates" },
+    {
+        label = "≺",
+        insertText = "≺",
+        kind = types.CompletionItemKind.Text,
+        filterText = "prec precedes pareto dominates",
+    },
     { label = "≻", insertText = "≻", kind = types.CompletionItemKind.Text, filterText = "succ succeeds" },
 
     -- Number Sets
@@ -118,7 +143,12 @@ local unicode_items = {
     { label = "⁻¹", insertText = "⁻¹", kind = types.CompletionItemKind.Text, filterText = "inv inverse ^-1" },
 
     -- Special Symbols
-    { label = "ℓ", insertText = "ℓ", kind = types.CompletionItemKind.Text, filterText = "ell script_l lengthscale" },
+    {
+        label = "ℓ",
+        insertText = "ℓ",
+        kind = types.CompletionItemKind.Text,
+        filterText = "ell script_l lengthscale",
+    },
     { label = "ℏ", insertText = "ℏ", kind = types.CompletionItemKind.Text, filterText = "hbar" },
     { label = "★", insertText = "★", kind = types.CompletionItemKind.Text, filterText = "star" },
     { label = "†", insertText = "†", kind = types.CompletionItemKind.Text, filterText = "dagger" },
@@ -148,9 +178,13 @@ function M.new(opts)
     return self
 end
 
-function M:enabled() return vim.bo.filetype == "lean" end
+function M:enabled()
+    return vim.bo.filetype == "lean"
+end
 
-function M:get_trigger_characters() return {} end
+function M:get_trigger_characters()
+    return {}
+end
 
 function M:get_completions(ctx, callback)
     -- Don't trigger on dot

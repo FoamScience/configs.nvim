@@ -1,6 +1,6 @@
 local M = {
     "nvim-tree/nvim-tree.lua",
-    cmd = {"NvimTreeOpen", "NvimTreeToggle"},
+    cmd = { "NvimTreeOpen", "NvimTreeToggle" },
     lazy = true,
 }
 

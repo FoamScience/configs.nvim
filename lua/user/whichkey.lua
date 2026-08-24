@@ -10,7 +10,7 @@ local is_file_type = function(filetype)
 end
 
 function M.config()
-    local wk = require "which-key"
+    local wk = require("which-key")
     local icons = require("user.lspicons")
     local mappings = {
         {
@@ -21,10 +21,10 @@ function M.config()
             desc = "Buffer Local Keymaps",
         },
         { "<leader>n", group = "navigation", icon = icons.ui.Forward },
-        { "<leader>t", group = "Test",     icon = icons.ui.BoxChecked },
-        { "<leader>x", group = "Trouble",  icon = icons.diagnostics.Warning },
+        { "<leader>t", group = "Test", icon = icons.ui.BoxChecked },
+        { "<leader>x", group = "Trouble", icon = icons.diagnostics.Warning },
         { "<leader>r", group = "Refactor", icon = icons.ui.Pencil },
-        { "<leader>m", group = "CMake",    icon = icons.misc.Package },
+        { "<leader>m", group = "CMake", icon = icons.misc.Package },
         {
             "<leader>nn",
             "<cmd>Outline<cr>",
@@ -35,65 +35,94 @@ function M.config()
     local mtoc_keys = {}
     if vim.bo.filetype == "markdown" or vim.bo.filetype == "rmd" then
         mtoc_keys = {
-            { "<leader>et",  group = "Markdown TOC", icon = icons.ui.List },
-            { "<leader>eti", "<cmd>Mtoc insert<CR>", desc = "Insert the ToC for current buffer",  icon = icons.ui.Plus,                 mode = { "n" } },
-            { "<leader>etu", "<cmd>Mtoc update<CR>", desc = "Update the ToC for current buffer",  icon = icons.ui.History },
-            { "<leader>etp", "<cmd>Mtoc pick<CR>",   desc = "Pick the ToC ",                      icon = icons.diagnostics.BoldQuestion },
-            { "<leader>etr", "<cmd>Mtoc remove<CR>", desc = "Remove the ToC from current buffer", icon = icons.diagnostics.BoldError },
+            { "<leader>et", group = "Markdown TOC", icon = icons.ui.List },
+            {
+                "<leader>eti",
+                "<cmd>Mtoc insert<CR>",
+                desc = "Insert the ToC for current buffer",
+                icon = icons.ui.Plus,
+                mode = { "n" },
+            },
+            {
+                "<leader>etu",
+                "<cmd>Mtoc update<CR>",
+                desc = "Update the ToC for current buffer",
+                icon = icons.ui.History,
+            },
+            {
+                "<leader>etp",
+                "<cmd>Mtoc pick<CR>",
+                desc = "Pick the ToC ",
+                icon = icons.diagnostics.BoldQuestion,
+            },
+            {
+                "<leader>etr",
+                "<cmd>Mtoc remove<CR>",
+                desc = "Remove the ToC from current buffer",
+                icon = icons.diagnostics.BoldError,
+            },
         }
-        vim.keymap.set({ 'x', 'o' }, 'aT',
-            function() return require('mtoc')._select_toc_textobj(false) end,
-            { expr = true, desc = 'outer ToC' })
-        vim.keymap.set({ 'x', 'o' }, 'iT',
-            function() return require('mtoc')._select_toc_textobj(true) end,
-            { expr = true, desc = 'inner ToC' })
+        vim.keymap.set({ "x", "o" }, "aT", function()
+            return require("mtoc")._select_toc_textobj(false)
+        end, { expr = true, desc = "outer ToC" })
+        vim.keymap.set({ "x", "o" }, "iT", function()
+            return require("mtoc")._select_toc_textobj(true)
+        end, { expr = true, desc = "inner ToC" })
     end
     vim.list_extend(mappings, {
-        { "<leader>e",  group = "Edit",                              icon = icons.ui.Pencil },
-        { "<leader>ee", "<cmd>NvimTreeToggle<CR>",                   desc = "Explorer",     icon = icons.ui.Folder },
-        { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",    icon = icons.ui.History },
+        { "<leader>e", group = "Edit", icon = icons.ui.Pencil },
+        { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Explorer", icon = icons.ui.Folder },
+        { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree", icon = icons.ui.History },
         unpack(mtoc_keys),
     })
-    local sticky_ok, haunt = pcall(require, "haunt.api")
-    if sticky_ok then
-        local haunt_picker = require("haunt.picker")
-        vim.list_extend(mappings, {
-            { "<leader>k", group = "StickyNotes", icon = icons.ui.BookMark },
-            {
-                "<leader>kk",
-                function() haunt.annotate() end,
-                desc = "Create a note",
-            },
-            {
-                "<leader>kd",
-                function() haunt.delete() end,
-                desc = "Delete a note",
-            },
-            {
-                "<leader>kc",
-                function() haunt.clear_all() end,
-                desc = "Clear all notes",
-            },
-            {
-                "<leader>kl",
-                function() haunt_picker.show() end,
-                desc = "List all notes",
-            },
-            {
-                "<leader>kt",
-                function() haunt.toggle_annotation() end,
-                desc = "Toggle note display",
-            },
-            {
-                "<leader>kT",
-                function() haunt.toggle_all_lines() end,
-                desc = "Toggle all notes display",
-            },
-        })
-    end
+    vim.list_extend(mappings, {
+        { "<leader>k", group = "StickyNotes", icon = icons.ui.BookMark },
+        {
+            "<leader>kk",
+            function()
+                require("haunt.api").annotate()
+            end,
+            desc = "Create a note",
+        },
+        {
+            "<leader>kd",
+            function()
+                require("haunt.api").delete()
+            end,
+            desc = "Delete a note",
+        },
+        {
+            "<leader>kc",
+            function()
+                require("haunt.api").clear_all()
+            end,
+            desc = "Clear all notes",
+        },
+        {
+            "<leader>kl",
+            function()
+                require("haunt.picker").show()
+            end,
+            desc = "List all notes",
+        },
+        {
+            "<leader>kt",
+            function()
+                require("haunt.api").toggle_annotation()
+            end,
+            desc = "Toggle note display",
+        },
+        {
+            "<leader>kT",
+            function()
+                require("haunt.api").toggle_all_lines()
+            end,
+            desc = "Toggle all notes display",
+        },
+    })
 
     vim.list_extend(mappings, {
-        { "<leader>l",  group = "LSP",        icon = icons.kind.Class,  mode = { "n", "v" } },
+        { "<leader>l", group = "LSP", icon = icons.kind.Class, mode = { "n", "v" } },
         {
             "<leader>la",
             vim.lsp.buf.code_action,
@@ -102,7 +131,9 @@ function M.config()
         },
         {
             "<leader>ld",
-            function() require("snacks").picker.lsp_definitions() end,
+            function()
+                require("snacks").picker.lsp_definitions()
+            end,
             desc = "Symbol definition",
             icon = icons.kind.Function,
         },
@@ -114,7 +145,9 @@ function M.config()
         },
         {
             "<leader>lD",
-            function() require("snacks").picker.lsp_type_definitions() end,
+            function()
+                require("snacks").picker.lsp_type_definitions()
+            end,
             desc = "Type definition",
             icon = icons.kind.TypeParameter,
         },
@@ -127,39 +160,51 @@ function M.config()
         {
             "<leader>lh",
             vim.lsp.buf.typehierarchy,
-            cond = function() return not is_file_type("cpp") end,
+            cond = function()
+                return not is_file_type("cpp")
+            end,
             desc = "Inheritence tree",
             icon = icons.kind.Class,
         },
         {
             "<leader>lh",
             "<cmd>ClangdTypeHierarchy<CR>",
-            cond = function() return is_file_type("cpp") end,
+            cond = function()
+                return is_file_type("cpp")
+            end,
             desc = "Inheritence tree",
             icon = icons.kind.Class,
         },
         {
             "<leader>lH",
             "<cmd>ClangdSwitchSourceHeader<CR>",
-            cond = function() return is_file_type("cpp") end,
+            cond = function()
+                return is_file_type("cpp")
+            end,
             desc = "Switch header/source file",
             icon = icons.kind.Boolean,
         },
         {
             "<leader>lf",
-            function() require("conform").format({ async = true, lsp_format = "fallback" }) end,
+            function()
+                require("conform").format({ async = true, lsp_format = "fallback" })
+            end,
             desc = "Format",
             icon = icons.kind.Namespace,
         },
         {
             "<leader>lg",
-            function() vim.diagnostic.open_float(nil, { focus = false }) end,
+            function()
+                vim.diagnostic.open_float(nil, { focus = false })
+            end,
             desc = "Line diagnostics",
             icon = icons.ui.Bug,
         },
         {
             "<leader>lG",
-            function() require("snacks").picker.diagnostics() end,
+            function()
+                require("snacks").picker.diagnostics()
+            end,
             desc = "Diagnostics",
             icon = icons.ui.Bug,
         },
@@ -220,7 +265,9 @@ function M.config()
         },
         {
             "<leader>lR",
-            function() require("snacks").picker.lsp_references() end,
+            function()
+                require("snacks").picker.lsp_references()
+            end,
             desc = "References",
             icon = icons.kind.Reference,
         },
@@ -254,10 +301,16 @@ function M.config()
                 require("snacks").picker.lsp_symbols({
                     filter = {
                         xonsh = {
-                            "Class", "Function", "Method", "Module",
-                            "Variable", "Constant", "Property", "Field"
-                        }
-                    }
+                            "Class",
+                            "Function",
+                            "Method",
+                            "Module",
+                            "Variable",
+                            "Constant",
+                            "Property",
+                            "Field",
+                        },
+                    },
                 })
             end,
             desc = "Document Symbols",
@@ -265,7 +318,9 @@ function M.config()
         },
         {
             "<leader>lS",
-            function() require("snacks").picker.lsp_workspace_symbols() end,
+            function()
+                require("snacks").picker.lsp_workspace_symbols()
+            end,
             desc = "Workspace Symbols",
             icon = icons.kind.Variable,
         },
@@ -276,7 +331,7 @@ function M.config()
                 vim.lsp.inlay_hint.enable(not hints_on)
             end,
             desc = "Toggle inlay hints",
-            icon = icons.ui.Fire
+            icon = icons.ui.Fire,
         },
 
         { "<leader>T", group = "TreeSitter", icon = icons.ui.Code },
@@ -290,27 +345,29 @@ function M.config()
             "<leader>Tt",
             "<cmd>InspectTree<cr>",
             desc = "Inspect Tree",
-            icon = icons.ui.Search
+            icon = icons.ui.Search,
         },
 
-        { "<leader>q", group = "QuickFix",   icon = icons.ui.Watches, mode = { "n", "v" } },
+        { "<leader>q", group = "QuickFix", icon = icons.ui.Watches, mode = { "n", "v" } },
         {
             "<leader>qd",
-            function() vim.diagnostic.setqflist({ open = true }) end,
+            function()
+                vim.diagnostic.setqflist({ open = true })
+            end,
             desc = "Quick diagnostics",
-            icon = icons.ui.Bug
+            icon = icons.ui.Bug,
         },
         {
             "<leader>qt",
             "<cmd>TodoQuickFix<CR>",
             desc = "Todos",
-            icon = icons.ui.Note
+            icon = icons.ui.Note,
         },
         {
             "<leader>qq",
             "<cmd>copen<CR>",
             desc = "Open quickfix list",
-            icon = icons.ui.Search
+            icon = icons.ui.Search,
         },
     })
 
@@ -319,27 +376,27 @@ function M.config()
         {
             "<leader>gj",
             "<cmd>lua require 'gitsigns'.next_hunk({navigation_message = false})<cr>",
-            desc = "Next Hunk"
+            desc = "Next Hunk",
         },
         {
             "<leader>gk",
             "<cmd>lua require 'gitsigns'.prev_hunk({navigation_message = false})<cr>",
-            desc = "Previous Hunk"
+            desc = "Previous Hunk",
         },
         {
             "<leader>gl",
             "<cmd>lua require 'gitsigns'.blame_line()<cr>",
-            desc = "Blame"
+            desc = "Blame",
         },
         {
             "<leader>gp",
             "<cmd>lua require 'gitsigns'.preview_hunk()<cr>",
-            desc = "Preview Hunk"
+            desc = "Preview Hunk",
         },
         {
             "<leader>gr",
             "<cmd>lua require 'gitsigns'.reset_hunk()<cr>",
-            desc = "Reset Hunk"
+            desc = "Reset Hunk",
         },
         {
             "<leader>gR",
@@ -379,19 +436,18 @@ function M.config()
     })
 
     vim.list_extend(mappings, {
-        { "<leader>p",  group = "GitPlay",                     icon = icons.git.Branch },
-        { "<leader>pp", "<cmd>GitPlay<cr>",                    desc = "Pick commit / branch (default)" },
-        { "<leader>pc", "<cmd>GitPlay HEAD<cr>",               desc = "Play full history (animated)" },
-        { "<leader>pz", "<cmd>GitPlay zz<cr>",                 desc = "Play uncommitted (zz)" },
-        { "<leader>pd", "<cmd>GitPlay diff<cr>",               desc = "Replay unstaged diff" },
-        { "<leader>pD", "<cmd>GitPlay diff --staged<cr>",      desc = "Replay staged diff" },
-        { "<leader>pt", "<cmd>GitPlay stash<cr>",              desc = "Replay a stash" },
-        { "<leader>ps", "<cmd>GitPlay screensaver<cr>",        desc = "Screensaver" },
-        { "<leader>px", "<cmd>GitPlay stop<cr>",               desc = "Stop" },
+        { "<leader>p", group = "GitPlay", icon = icons.git.Branch },
+        { "<leader>pp", "<cmd>GitPlay<cr>", desc = "Pick commit / branch (default)" },
+        { "<leader>pc", "<cmd>GitPlay HEAD<cr>", desc = "Play full history (animated)" },
+        { "<leader>pz", "<cmd>GitPlay zz<cr>", desc = "Play uncommitted (zz)" },
+        { "<leader>pd", "<cmd>GitPlay diff<cr>", desc = "Replay unstaged diff" },
+        { "<leader>pD", "<cmd>GitPlay diff --staged<cr>", desc = "Replay staged diff" },
+        { "<leader>pt", "<cmd>GitPlay stash<cr>", desc = "Replay a stash" },
+        { "<leader>ps", "<cmd>GitPlay screensaver<cr>", desc = "Screensaver" },
+        { "<leader>px", "<cmd>GitPlay stop<cr>", desc = "Stop" },
     })
 
-    local jira_ok = vim.env.JIRA_API_TOKEN and pcall(require, "jira-interface")
-    if jira_ok then
+    if vim.env.JIRA_API_TOKEN then
         vim.list_extend(mappings, {
             { "<leader>j", group = "Jira", icon = icons.ui.List },
             {
@@ -445,8 +501,7 @@ function M.config()
         })
     end
 
-    local confluence_ok = (vim.env.CONFLUENCE_API_TOKEN or vim.env.JIRA_API_TOKEN) and pcall(require, "confluence-interface")
-    if confluence_ok then
+    if vim.env.CONFLUENCE_API_TOKEN or vim.env.JIRA_API_TOKEN then
         vim.list_extend(mappings, {
             { "<leader>c", group = "Confluence", icon = icons.kind.Text },
             {
@@ -516,92 +571,128 @@ function M.config()
         { "<leader>f", group = "Find", icons.ui.Telescope },
         {
             "<leader>f:",
-            function() require("snacks").picker.command_history() end,
+            function()
+                require("snacks").picker.command_history()
+            end,
             desc = "Command history",
         },
         {
             "<leader>fb",
-            function() require("snacks").picker.git_branches() end,
+            function()
+                require("snacks").picker.git_branches()
+            end,
             desc = "Checkout branch",
         },
         {
             "<leader>fB",
-            function() require("snacks").picker.buffers() end,
+            function()
+                require("snacks").picker.buffers()
+            end,
             desc = "Buffers",
         },
         {
             "<leader>fc",
-            function() require("snacks").picker.colorschemes() end,
+            function()
+                require("snacks").picker.colorschemes()
+            end,
             desc = "Colorscheme",
         },
         {
             "<leader>ff",
-            function() require("snacks").picker.files() end,
+            function()
+                require("snacks").picker.files()
+            end,
             desc = "Find files",
         },
         {
             "<leader>fg",
-            function() require("snacks").picker.git_log_file() end,
+            function()
+                require("snacks").picker.git_log_file()
+            end,
             desc = "This buffer's Git history",
         },
         {
             "<leader>fs",
-            function() require("snacks").picker.grep_word() end,
+            function()
+                require("snacks").picker.grep_word()
+            end,
             desc = "Find String",
         },
         {
             "<leader>fh",
-            function() require("snacks").picker.help() end,
+            function()
+                require("snacks").picker.help()
+            end,
             desc = "Help",
         },
         {
             "<leader>fH",
-            function() require("snacks").picker.highlights() end,
+            function()
+                require("snacks").picker.highlights()
+            end,
             desc = "Highlights",
         },
         {
             "<leader>fl",
-            function() require("snacks").picker.resume() end,
+            function()
+                require("snacks").picker.resume()
+            end,
             desc = "Last Search",
         },
         {
             "<leader>fM",
-            function() require("snacks").picker.man() end,
+            function()
+                require("snacks").picker.man()
+            end,
             desc = "Man Pages",
         },
         {
             "<leader>fr",
-            function() require("snacks").picker.recent() end,
+            function()
+                require("snacks").picker.recent()
+            end,
             desc = "Recent File",
         },
         {
             "<leader>fR",
-            function() require("snacks").picker.registers() end,
+            function()
+                require("snacks").picker.registers()
+            end,
             desc = "Registers",
         },
         {
             "<leader>fk",
-            function() require("snacks").picker.keymaps() end,
+            function()
+                require("snacks").picker.keymaps()
+            end,
             desc = "Keymaps",
         },
         {
             "<leader>fC",
-            function() require("snacks").picker.commands() end,
+            function()
+                require("snacks").picker.commands()
+            end,
             desc = "Commands",
         },
         {
             "<leader>fp",
-            function() require("snacks").picker.projects() end,
+            function()
+                require("snacks").picker.projects()
+            end,
             desc = "List projects",
         },
         {
             "<leader>fP",
-            function() require("snacks").picker.lazy() end,
+            function()
+                require("snacks").picker.lazy()
+            end,
             desc = "Plugin configs",
         },
         {
             "<leader>fu",
-            function() require("snacks").picker.undo() end,
+            function()
+                require("snacks").picker.undo()
+            end,
             desc = "Undo tree",
         },
     })
@@ -617,8 +708,7 @@ function M.config()
         })
     end
 
-
-    wk.setup {
+    wk.setup({
         preset = "helix",
         spec = mappings,
         notify = true,
@@ -627,7 +717,7 @@ function M.config()
             scroll_up = "<c-u>",
         },
         sort = { "local", "order", "manual", "group", "alphanum", "mod" },
-    }
+    })
 end
 
 return M

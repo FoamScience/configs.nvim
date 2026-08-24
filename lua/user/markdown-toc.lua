@@ -14,7 +14,7 @@ M.config = function()
     require("mtoc").setup({
         debug = false,
         picker = {
-            preferred = 'snacks',
+            preferred = "snacks",
         },
         headings = {
             before_toc = false,
@@ -27,13 +27,13 @@ M.config = function()
         },
         auto_update = {
             enabled = true,
-            events = { 'BufWritePre' },
-            pattern = '*.{md,mdown,mkd,mkdn,markdown,mdwn}',
+            events = { "BufWritePre" },
+            pattern = "*.{md,mdown,mkd,mkdn,markdown,mdwn}",
             suppress_pollution = true,
         },
         toc_list = {
             numbered = false,
-        }
+        },
     })
 end
 

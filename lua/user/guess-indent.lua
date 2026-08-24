@@ -4,10 +4,10 @@ local M = {
 }
 
 M.config = function()
-    require('guess-indent').setup {
+    require("guess-indent").setup({
         auto_cmd = true,
         override_editorconfig = false,
-    }
+    })
 end
 
 return M

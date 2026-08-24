@@ -7,57 +7,57 @@ vim.loader.enable()
 -- - empty vim options
 -- - vim opens a c++ header file with git changes and LSP errors
 -- basic setup startup (msec): 16.10/16.15
-require "user.base"
-require "user.options"
-require "user.keymaps"
-require "user.autocmds"
-require "user.news"
+require("user.base")
+require("user.options")
+require("user.keymaps")
+require("user.autocmds")
+require("user.news")
 require("user.tree-climb")
 -- Core plugins (loaded in all presets)
-spec "user.colorscheme"
-spec "user.whichkey"
-spec "user.noice"
-spec "user.fidget"
-require "user.treesitter"
-spec "user.lspconfig"
-spec "user.todocomments"
-spec "user.gitsigns"
-spec "user.diffview"
-spec "user.gitconflicts"
-spec "user.navic"
-spec "user.mini-statusline"
-spec "user.cmp"
-spec "user.autopairs"
-spec "user.snippets"
-spec "user.guess-indent"
-spec "user.undo"
-spec "user.markdown-toc"
-spec "user.flash"
-spec "user.outline"
-spec "user.qf"
-spec "user.oil"
-spec "user.conform"
-spec "user.trouble"
-spec "user.refactoring"
-spec "user.optional.colorizer"
-spec "user.optional.dial"
-spec "user.optional.csv"
-spec "user.optional.typst"
-spec "user.optional.cloack"
-spec "user.optional.haunt"
-spec "user.remote-nvim"
+spec("user.colorscheme")
+spec("user.whichkey")
+spec("user.noice")
+spec("user.fidget")
+require("user.treesitter")
+spec("user.lspconfig")
+spec("user.todocomments")
+spec("user.gitsigns")
+spec("user.diffview")
+spec("user.gitconflicts")
+spec("user.navic")
+spec("user.mini-statusline")
+spec("user.cmp")
+spec("user.autopairs")
+spec("user.snippets")
+spec("user.guess-indent")
+spec("user.undo")
+spec("user.markdown-toc")
+spec("user.flash")
+spec("user.outline")
+spec("user.qf")
+spec("user.oil")
+spec("user.conform")
+spec("user.trouble")
+spec("user.refactoring")
+spec("user.optional.colorizer")
+spec("user.optional.dial")
+spec("user.optional.csv")
+spec("user.optional.typst")
+spec("user.optional.cloack")
+spec("user.optional.haunt")
+spec("user.remote-nvim")
 
 -- Full-only plugins (excluded from SSH due to latency/GUI dependencies)
-spec("user.snacks", {"full"})             -- Heavy file scanning with latency
-spec("user.image", {"full"})              -- Image rendering in-terminal
-spec("user.img-clip", {"full"})           -- Clipboard/GUI-dependent
-spec("user.project", {"full"})            -- Heavy directory scanning
-spec("user.nvimtree", {"full"})           -- Large directory browsing over latency
-spec("user.optional.tpipeline", {"full"}) -- Tmux statusline (moved to full-only)
-spec("user.optional.cinnamon", {"full"})  -- Scrolling animations
-spec("user.render-markdown", {"full"})    -- Heavy markdown rendering
-spec("user.incline", {"full"})            -- Floating window decorations
-spec("user.atlassian", {"full"})          -- jira & confluence client
+spec("user.snacks", { "full" }) -- Heavy file scanning with latency
+spec("user.image", { "full" }) -- Image rendering in-terminal
+spec("user.img-clip", { "full" }) -- Clipboard/GUI-dependent
+spec("user.project", { "full" }) -- Heavy directory scanning
+spec("user.nvimtree", { "full" }) -- Large directory browsing over latency
+spec("user.optional.tpipeline", { "full" }) -- Tmux statusline (moved to full-only)
+spec("user.optional.cinnamon", { "full" }) -- Scrolling animations
+spec("user.render-markdown", { "full" }) -- Heavy markdown rendering
+spec("user.incline", { "full" }) -- Floating window decorations
+spec("user.atlassian", { "full" }) -- jira & confluence client
 
 -- Load user-config directory (for separate user repo integration)
 -- Users can symlink their config repo to ~/.config/nvim/user-config/
@@ -87,4 +87,4 @@ if user_config_stat and user_config_stat.type == "directory" then
 end
 
 -- lazy needs to be loaded last
-require "user.lazy"
+require("user.lazy")

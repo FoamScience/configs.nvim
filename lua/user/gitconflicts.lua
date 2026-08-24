@@ -3,7 +3,7 @@ local M = {
     event = { "BufReadPre", "BufNewFile" },
 }
 M.config = function()
-    require("diffconflicts").setup {}
+    require("diffconflicts").setup({})
 end
 
 return M

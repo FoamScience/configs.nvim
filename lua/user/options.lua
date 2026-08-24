@@ -42,8 +42,8 @@ vim.opt.signcolumn = "yes" -- show the sign column
 vim.opt.undofile = true -- enable persistent undo
 vim.opt.cursorline = false -- highlight the current line
 
-vim.opt.wrap = false      -- display lines as one long line
-vim.opt.linebreak = true  -- when wrap is on, break at word boundaries, not mid-word
+vim.opt.wrap = false -- display lines as one long line
+vim.opt.linebreak = true -- when wrap is on, break at word boundaries, not mid-word
 
 --vim.opt.scrolloff = 999 -- keep cursor around the center of the screen
 --vim.opt.sidescrolloff = 10 -- show 10 chars when scrolling horizontally
@@ -52,9 +52,9 @@ vim.opt.virtualedit = "block" -- allow cursor to move where there is no text in 
 vim.opt.inccommand = "split" -- live replace preview
 
 vim.opt.fillchars = vim.opt.fillchars + "eob: "
-vim.opt.fillchars:append {
-	stl = " ",
-}
+vim.opt.fillchars:append({
+    stl = " ",
+})
 
 vim.opt.laststatus = 3
 vim.opt.splitkeep = "cursor"
@@ -64,9 +64,9 @@ if not vim.fn.isdirectory("/tmp/.vim-undo-dir") then
     vim.fn.mkdir(vim.opt.undodir, "p")
 end
 
-vim.opt.shortmess:append "c"
+vim.opt.shortmess:append("c")
 
-vim.cmd "set whichwrap+=<,>,[,],h,l"
-vim.cmd [[set iskeyword+=-]]
+vim.cmd("set whichwrap+=<,>,[,],h,l")
+vim.cmd([[set iskeyword+=-]])
 
-require('vim._core.ui2')
+require("vim._core.ui2")

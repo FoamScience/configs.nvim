@@ -3,8 +3,8 @@ local M = {
     event = "VeryLazy",
 }
 
-M.config = function ()
-    require('fidget').setup({
+M.config = function()
+    require("fidget").setup({
         notification = {
             window = {
                 avoid = { "NvimTree" },

@@ -384,15 +384,16 @@ local function check_config_updates()
     end
 
     -- Get default branch
-    local default_branch = get_cmd_output("cd " ..
-        config_dir .. " && git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | cut -d'/' -f2")
+    local default_branch =
+        get_cmd_output("cd " .. config_dir .. " && git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | cut -d'/' -f2")
     if not default_branch or default_branch == "" then
         default_branch = "master"
     end
 
     -- Check commits behind
-    local commits_behind = get_cmd_output("cd " ..
-        config_dir .. " && git rev-list HEAD..origin/" .. default_branch .. " --count 2>/dev/null")
+    local commits_behind = get_cmd_output(
+        "cd " .. config_dir .. " && git rev-list HEAD..origin/" .. default_branch .. " --count 2>/dev/null"
+    )
     local behind_count = tonumber(commits_behind) or 0
 
     if behind_count == 0 then
@@ -413,7 +414,9 @@ local function check_config_updates()
     local status = get_cmd_output("cd " .. config_dir .. " && git status --porcelain 2>/dev/null")
     if status and status ~= "" then
         local lines = vim.split(status, "\n")
-        local modified_count = #vim.tbl_filter(function(l) return l ~= "" end, lines)
+        local modified_count = #vim.tbl_filter(function(l)
+            return l ~= ""
+        end, lines)
         health.info(modified_count .. " local modification(s) detected")
     end
 end

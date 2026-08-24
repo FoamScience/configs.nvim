@@ -1,21 +1,21 @@
 local M = {
-    'b0o/incline.nvim',
+    "b0o/incline.nvim",
     config = function()
-        require('incline').setup()
+        require("incline").setup()
     end,
-    event = 'VeryLazy',
+    event = "VeryLazy",
     cond = function()
         return vim.env.SSH_CONNECTION == nil
     end,
     dependencies = {
         "echasnovski/mini.nvim",
         "SmiteshP/nvim-navic",
-    }
+    },
 }
 
 -- Get colors from catppuccin theme
 function M.get_mode_colors(props, ft_color)
-    local helpers = require 'incline.helpers'
+    local helpers = require("incline.helpers")
     local palette = require("catppuccin.palettes").get_palette()
     local fg, bg, ifg, ibg
     local m = vim.api.nvim_get_mode().mode
@@ -27,16 +27,16 @@ function M.get_mode_colors(props, ft_color)
         bg = palette.mantle
         ifg = palette.overlay0
         ibg = palette.mantle
-    elseif m:match('n') then
+    elseif m:match("n") then
         fg = palette.base
         bg = palette.blue
-    elseif m:match('i') then
+    elseif m:match("i") then
         fg = palette.base
         bg = palette.green
-    elseif m:match('R') then
+    elseif m:match("R") then
         fg = palette.base
         bg = palette.yellow
-    elseif m:match('v') or m:match('V') then
+    elseif m:match("v") or m:match("V") then
         fg = palette.base
         bg = palette.mauve
     else -- unknown mode!
@@ -48,7 +48,9 @@ end
 
 -- Get merge branch info for DiffConflicts decoration
 function M.get_merge_info()
-    if M._merge_info then return M._merge_info end
+    if M._merge_info then
+        return M._merge_info
+    end
     local info = { head = nil, incoming = nil, base = nil }
     local head = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null"):gsub("%s+$", "")
     if vim.v.shell_error == 0 and head ~= "" and head ~= "HEAD" then
@@ -66,7 +68,9 @@ function M.get_merge_info()
         if vim.v.shell_error ~= 0 or base == "" then
             base = vim.fn.system("git merge-base HEAD MERGE_HEAD 2>/dev/null"):gsub("%s+$", ""):sub(1, 7)
         end
-        if base ~= "" then info.base = base end
+        if base ~= "" then
+            info.base = base
+        end
     else
         -- Rebase case
         local rebase_head = vim.fn.system("git rev-parse --short REBASE_HEAD 2>/dev/null"):gsub("%s+$", "")
@@ -83,30 +87,54 @@ function M.get_diffconflicts_role(bufname)
     local name = vim.fn.fnamemodify(bufname, ":t")
     -- Explicit DiffConflicts buffer names
     -- RCONFL = working tree file with conflict markers (the merged view)
-    if name == "RCONFL" then return "MERGED" end
-    if name == "LOCAL" then return "LOCAL" end
-    if name == "BASE" then return "BASE" end
-    if name == "REMOTE" then return "REMOTE" end
+    if name == "RCONFL" then
+        return "MERGED"
+    end
+    if name == "LOCAL" then
+        return "LOCAL"
+    end
+    if name == "BASE" then
+        return "BASE"
+    end
+    if name == "REMOTE" then
+        return "REMOTE"
+    end
     -- jj-style names
-    if name == "snapshot" then return "MERGED" end
-    if name == "left" then return "LOCAL" end
-    if name == "base" then return "BASE" end
-    if name == "right" then return "REMOTE" end
+    if name == "snapshot" then
+        return "MERGED"
+    end
+    if name == "left" then
+        return "LOCAL"
+    end
+    if name == "base" then
+        return "BASE"
+    end
+    if name == "right" then
+        return "REMOTE"
+    end
     return nil
 end
 
 -- Get diffview info for a buffer: { side = "left"|"right", label = "abc1234" or "LOCAL" }
 function M.get_diffview_info(bufname)
-    if not bufname:match("^diffview://") then return nil end
+    if not bufname:match("^diffview://") then
+        return nil
+    end
     local ok, lib = pcall(require, "diffview.lib")
-    if not ok then return nil end
+    if not ok then
+        return nil
+    end
     local view = lib.get_current_view()
-    if not view then return nil end
+    if not view then
+        return nil
+    end
 
     -- Extract the context segment from diffview://<repo>/<context>/<path>
     -- The context is the commit abbrev, ":0:" for staged, or "[custom]"
     local context = bufname:match("^diffview://.-/([^/]+)/")
-    if not context then return nil end
+    if not context then
+        return nil
+    end
 
     local side, label
     if view.left and view.left.commit and context == view.left:abbrev(11) then
@@ -141,8 +169,12 @@ end
 function M.get_diffconflicts_role_for_win(bufnr, winid)
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     local explicit = M.get_diffconflicts_role(bufname)
-    if explicit then return explicit end
-    if not vim.wo[winid].diff then return nil end
+    if explicit then
+        return explicit
+    end
+    if not vim.wo[winid].diff then
+        return nil
+    end
     local tab_wins = vim.api.nvim_tabpage_list_wins(0)
     for _, w in ipairs(tab_wins) do
         if w ~= winid then
@@ -157,14 +189,14 @@ function M.get_diffconflicts_role_for_win(bufnr, winid)
 end
 
 function M.config()
-    local helpers = require 'incline.helpers'
-    local devicons = require 'nvim-web-devicons'
+    local helpers = require("incline.helpers")
+    local devicons = require("nvim-web-devicons")
     local navic_ok, navic = pcall(require, "nvim-navic")
     -- Clear cached merge info on new merge sessions
     M._merge_info = nil
-    require('incline').setup {
+    require("incline").setup({
         hide = {
-            only_win = 'count_ignored',
+            only_win = "count_ignored",
         },
         ignore = {
             buftypes = function(bufnr, buftype)
@@ -191,16 +223,16 @@ function M.config()
         },
         render = function(props)
             local raw_bufname = vim.api.nvim_buf_get_name(props.buf)
-            local filename = vim.fn.fnamemodify(raw_bufname, ':t')
+            local filename = vim.fn.fnamemodify(raw_bufname, ":t")
             -- For diffview buffers, extract the actual filename from the URI
             if raw_bufname:match("^diffview://") then
                 local dv_path = raw_bufname:match("^diffview://.-/[^/]+/(.+)$")
                 if dv_path then
-                    filename = vim.fn.fnamemodify(dv_path, ':t')
+                    filename = vim.fn.fnamemodify(dv_path, ":t")
                 end
             end
-            if filename == '' then
-                filename = '[No Name]'
+            if filename == "" then
+                filename = "[No Name]"
             end
             local ft_icon, ft_color = devicons.get_icon_color(filename)
             local modified = vim.bo[props.buf].modified
@@ -241,7 +273,9 @@ function M.config()
                         local n = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(b), ":t")
                         if not M.get_diffconflicts_role(vim.api.nvim_buf_get_name(b)) then
                             local icon, color = devicons.get_icon_color(n)
-                            if icon then ft_icon, ft_color = icon, color end
+                            if icon then
+                                ft_icon, ft_color = icon, color
+                            end
                             filename = n
                             break
                         end
@@ -251,14 +285,14 @@ function M.config()
 
             local res = {
                 ft_icon and {
-                    ' ',
+                    " ",
                     ft_icon,
-                    ' ',
+                    " ",
                     guibg = colors.bg or ft_color,
-                    guifg = colors.fg or helpers.contrast_color(ft_color)
-                } or '',
-                ' ',
-                { filename, gui = modified and 'bold,italic' or 'bold' },
+                    guifg = colors.fg or helpers.contrast_color(ft_color),
+                } or "",
+                " ",
+                { filename, gui = modified and "bold,italic" or "bold" },
                 guibg = colors.bg or ft_color,
                 guifg = colors.fg or helpers.contrast_color(ft_color),
             }
@@ -266,7 +300,7 @@ function M.config()
             if dc_label then
                 local bg = dc_badge_bg or colors.bg or ft_color
                 table.insert(res, {
-                    { ' ' .. dc_label .. ' ', gui = 'bold' },
+                    { " " .. dc_label .. " ", gui = "bold" },
                     guibg = bg,
                     guifg = helpers.contrast_color(bg),
                 })
@@ -290,7 +324,7 @@ function M.config()
                 local palette = require("catppuccin.palettes").get_palette()
                 local dv_bg = dv_info.side == "left" and palette.peach or palette.lavender
                 table.insert(res, {
-                    { '  ' .. dv_info.label .. ' ', gui = 'bold' },
+                    { "  " .. dv_info.label .. " ", gui = "bold" },
                     guibg = dv_bg,
                     guifg = helpers.contrast_color(dv_bg),
                 })
@@ -307,7 +341,9 @@ function M.config()
                 end
             end
 
-            if not navic_ok then return res end
+            if not navic_ok then
+                return res
+            end
             local data_length = #res[3][1] + 6
 
             local res_no_navic = {}
@@ -321,13 +357,13 @@ function M.config()
                         data_length = data_length + #item.name + #"> {}"
                     end
                     table.insert(res, {
-                        { ' > ', },
-                        { item.icon, },
-                        { item.name, },
+                        { " > " },
+                        { item.icon },
+                        { item.name },
                     })
                 end
             end
-            table.insert(res, ' ')
+            table.insert(res, " ")
             local cur_winid = vim.api.nvim_get_current_win()
             local cursor_line = vim.fn.line("w0", cur_winid)
             local curpos = vim.fn.line(".", cur_winid)
@@ -341,7 +377,7 @@ function M.config()
             end
             return res
         end,
-    }
+    })
 end
 
 return M

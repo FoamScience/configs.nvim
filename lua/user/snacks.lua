@@ -6,12 +6,12 @@ local M = {
 M.config = function()
     -- Quick health check (all local, fast)
     local checks = {
-        { "node",        vim.fn.executable("node") == 1 },
-        { "python",      vim.fn.executable("python3") == 1 or vim.fn.executable("python") == 1 },
-        { "rg",          vim.fn.executable("rg") == 1 },
+        { "node", vim.fn.executable("node") == 1 },
+        { "python", vim.fn.executable("python3") == 1 or vim.fn.executable("python") == 1 },
+        { "rg", vim.fn.executable("rg") == 1 },
         { "tree-sitter", vim.fn.executable("tree-sitter") == 1 },
-        { "rust",        vim.fn.executable("rustc") == 1 },
-        { "git",         vim.fn.executable("git") == 1 },
+        { "rust", vim.fn.executable("rustc") == 1 },
+        { "git", vim.fn.executable("git") == 1 },
     }
     local health_parts = {}
     for _, c in ipairs(checks) do
@@ -76,7 +76,7 @@ M.config = function()
             },
             convert = {
                 notify = false,
-            }
+            },
         },
         picker = {
             enabled = true,
@@ -113,8 +113,8 @@ M.config = function()
                 --        title_pos = "center",
                 --    },
                 --},
-            }
-        }
+            },
+        },
     })
 
     -- Async fetch + behind count to update dashboard accurately
@@ -124,8 +124,7 @@ M.config = function()
             {},
             vim.schedule_wrap(function(result)
                 local count = tonumber(result.stdout and result.stdout:gsub("%s+", "")) or 0
-                local new_text = count > 0
-                    and string.format("Config is %d commit(s) behind  —  :ConfigNews", count)
+                local new_text = count > 0 and string.format("Config is %d commit(s) behind  —  :ConfigNews", count)
                     or "Config is up to date"
                 for _, buf in ipairs(vim.api.nvim_list_bufs()) do
                     if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "snacks_dashboard" then

@@ -7,7 +7,7 @@ local M = {
 }
 
 M.config = function()
-    require("img-clip").setup{}
+    require("img-clip").setup({})
 end
 
 return M
