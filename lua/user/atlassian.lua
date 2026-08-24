@@ -6,8 +6,27 @@ end
 return {
 	"FoamScience/conflira.nvim",
 	dependencies = { "folke/snacks.nvim", "grapp-dev/nui-components.nvim" },
-	event = "VeryLazy",
 	ft = "csf",
+	cmd = {
+		"JiraSearch",
+		"JiraMe",
+		"JiraCreate",
+		"JiraRefresh",
+		"JiraStatus",
+		"JiraBoard",
+		"JiraTodoToIssue",
+		"JiraSearchEdit",
+		"ConfluenceSearch",
+		"ConfluenceSpaces",
+		"ConfluencePages",
+		"ConfluenceRecent",
+		"ConfluenceCreate",
+		"ConfluenceSearchCQL",
+		"ConfluenceCQLFilter",
+		"ConfluenceRefresh",
+		"ConfluenceStatus",
+		"ConfluenceSearchEdit",
+	},
 	config = function()
 		vim.schedule(function()
 			if vim.env.JIRA_API_TOKEN then

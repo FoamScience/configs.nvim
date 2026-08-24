@@ -54,43 +54,39 @@ function M.config()
         { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree",    icon = icons.ui.History },
         unpack(mtoc_keys),
     })
-    local sticky_ok, haunt = pcall(require, "haunt.api")
-    if sticky_ok then
-        local haunt_picker = require("haunt.picker")
-        vim.list_extend(mappings, {
-            { "<leader>k", group = "StickyNotes", icon = icons.ui.BookMark },
-            {
-                "<leader>kk",
-                function() haunt.annotate() end,
-                desc = "Create a note",
-            },
-            {
-                "<leader>kd",
-                function() haunt.delete() end,
-                desc = "Delete a note",
-            },
-            {
-                "<leader>kc",
-                function() haunt.clear_all() end,
-                desc = "Clear all notes",
-            },
-            {
-                "<leader>kl",
-                function() haunt_picker.show() end,
-                desc = "List all notes",
-            },
-            {
-                "<leader>kt",
-                function() haunt.toggle_annotation() end,
-                desc = "Toggle note display",
-            },
-            {
-                "<leader>kT",
-                function() haunt.toggle_all_lines() end,
-                desc = "Toggle all notes display",
-            },
-        })
-    end
+    vim.list_extend(mappings, {
+        { "<leader>k", group = "StickyNotes", icon = icons.ui.BookMark },
+        {
+            "<leader>kk",
+            function() require("haunt.api").annotate() end,
+            desc = "Create a note",
+        },
+        {
+            "<leader>kd",
+            function() require("haunt.api").delete() end,
+            desc = "Delete a note",
+        },
+        {
+            "<leader>kc",
+            function() require("haunt.api").clear_all() end,
+            desc = "Clear all notes",
+        },
+        {
+            "<leader>kl",
+            function() require("haunt.picker").show() end,
+            desc = "List all notes",
+        },
+        {
+            "<leader>kt",
+            function() require("haunt.api").toggle_annotation() end,
+            desc = "Toggle note display",
+        },
+        {
+            "<leader>kT",
+            function() require("haunt.api").toggle_all_lines() end,
+            desc = "Toggle all notes display",
+        },
+    })
 
     vim.list_extend(mappings, {
         { "<leader>l",  group = "LSP",        icon = icons.kind.Class,  mode = { "n", "v" } },
@@ -390,8 +386,7 @@ function M.config()
         { "<leader>px", "<cmd>GitPlay stop<cr>",               desc = "Stop" },
     })
 
-    local jira_ok = vim.env.JIRA_API_TOKEN and pcall(require, "jira-interface")
-    if jira_ok then
+    if vim.env.JIRA_API_TOKEN then
         vim.list_extend(mappings, {
             { "<leader>j", group = "Jira", icon = icons.ui.List },
             {
@@ -445,8 +440,7 @@ function M.config()
         })
     end
 
-    local confluence_ok = (vim.env.CONFLUENCE_API_TOKEN or vim.env.JIRA_API_TOKEN) and pcall(require, "confluence-interface")
-    if confluence_ok then
+    if vim.env.CONFLUENCE_API_TOKEN or vim.env.JIRA_API_TOKEN then
         vim.list_extend(mappings, {
             { "<leader>c", group = "Confluence", icon = icons.kind.Text },
             {

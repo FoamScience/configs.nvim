@@ -158,10 +158,12 @@ return {
             end
 
             local templates = {}
-            local jok, jira_config = pcall(require, "jira-interface.config")
-            if jok then
-                templates = (jira_config.options and next(jira_config.options) and jira_config.options.templates)
-                    or jira_config.defaults.templates or {}
+            if vim.env.JIRA_API_TOKEN then
+                local jok, jira_config = pcall(require, "jira-interface.config")
+                if jok then
+                    templates = (jira_config.options and next(jira_config.options) and jira_config.options.templates)
+                        or jira_config.defaults.templates or {}
+                end
             end
 
             local csf_snippets = {}
