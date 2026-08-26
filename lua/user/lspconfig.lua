@@ -304,6 +304,17 @@ return {
                         end,
                     }),
                     clangd = clangd_opts,
+                    -- laravel-ls answers `initialize` with an error ("unknown
+                    -- scheme") when rootUri is null, which aborts client startup
+                    -- with an assert. Only start it where an artisan root exists.
+                    laravel_ls = {
+                        root_dir = function(bufnr, on_dir)
+                            local root = vim.fs.root(bufnr, { "artisan" })
+                            if root then
+                                on_dir(root)
+                            end
+                        end,
+                    },
                     xonsh_lsp = xonsh_lsp_opts,
                     rust_analyzer = {
                         on_attach = function(client, _)
