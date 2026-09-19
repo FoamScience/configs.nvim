@@ -6,8 +6,11 @@ local M = {
     },
 }
 
+M.init = function()
+    vim.g.lean_config = { mappings = false }
+end
+
 M.config = function()
-    require("lean").setup({ mappings = false })
     -- kill lean split if it's the last thing remaining
     vim.api.nvim_create_autocmd("WinEnter", {
         callback = function()
