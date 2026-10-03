@@ -344,18 +344,9 @@ function M.config()
             if not navic_ok then
                 return res
             end
-            local data_length = #res[3][1] + 6
-
-            local res_no_navic = {}
-            for i, v in ipairs(res) do
-                res_no_navic[i] = v
-            end
             if props.focused then
                 local data = navic.get_data(props.buf) or {}
                 for _, item in ipairs(data) do
-                    if item.name then
-                        data_length = data_length + #item.name + #"> {}"
-                    end
                     table.insert(res, {
                         { " > " },
                         { item.icon },
@@ -364,20 +355,47 @@ function M.config()
                 end
             end
             table.insert(res, " ")
-            local cur_winid = vim.api.nvim_get_current_win()
-            local cursor_line = vim.fn.line("w0", cur_winid)
-            local curpos = vim.fn.line(".", cur_winid)
-            local win_width = vim.api.nvim_win_get_width(cur_winid)
-            if curpos == cursor_line then
-                local first_line = vim.api.nvim_buf_get_lines(props.buf, cursor_line - 1, cursor_line, false)[1] or ""
-                local total_length = #first_line + data_length
-                if total_length > win_width then
-                    return res_no_navic
-                end
-            end
             return res
         end,
     })
+    M.patch_placement()
+end
+
+-- Drop the winline to the bottom of its window when buffer text runs under it at the top.
+-- incline has no per-window placement hook, so wrap its (private) row computation.
+function M.patch_placement()
+    local config = require("incline.config")
+    local Winline = getmetatable(require("incline.winline")(0)).__index
+    local get_row = Winline.get_win_geom_row
+
+    local function text_under(self, row)
+        local win = self.target_win
+        local winline = row + (vim.wo[win].winbar == "" and 1 or 0)
+        if winline < 1 then
+            return false
+        end
+        -- Assumes one buffer line per screen line; wrapped/folded lines above may misplace the check
+        local lnum = vim.fn.line("w0", win) + winline - 1
+        local line = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), lnum - 1, lnum, false)[1]
+        if not line then
+            return false
+        end
+        local info = vim.fn.getwininfo(win)[1]
+        local leftcol = vim.api.nvim_win_call(win, vim.fn.winsaveview).leftcol
+        local text_end = info.textoff + vim.api.nvim_win_call(win, function()
+            return vim.fn.strdisplaywidth(line)
+        end) - leftcol
+        local win_width = vim.api.nvim_win_get_width(win)
+        return text_end > self:get_win_geom_col(win_width, self:get_win_geom_width(win_width))
+    end
+
+    function Winline:get_win_geom_row()
+        local row = get_row(self)
+        if config.window.placement.vertical ~= "top" or not text_under(self, row) then
+            return row
+        end
+        return vim.api.nvim_win_get_height(self.target_win) - 1
+    end
 end
 
 return M
