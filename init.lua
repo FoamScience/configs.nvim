@@ -46,6 +46,7 @@ spec("user.optional.typst")
 spec("user.optional.cloack")
 spec("user.optional.haunt")
 spec("user.remote-nvim")
+spec("user.herdr")
 
 -- Full-only plugins (excluded from SSH due to latency/GUI dependencies)
 spec("user.snacks", { "full" }) -- Heavy file scanning with latency
