@@ -15,12 +15,9 @@ function M.config()
             fidget = true,
             flash = true,
             gitsigns = true,
-            lsp_trouble = true,
             mason = true,
             navic = true,
-            noice = true,
             snacks = true,
-            telescope = true,
             which_key = true,
         },
     })

@@ -12,20 +12,6 @@
 --     with `enable_kitty_graphics = true` already).
 
 return {
-    -- Disable snacks.image and strip its leftover style entry so the two
-    -- don't fight over the same buffers and the snacks config doesn't
-    -- advertise an image module that's been turned off.
-    {
-        "folke/snacks.nvim",
-        opts = function(_, opts)
-            opts.image = { enabled = false }
-            if opts.styles then
-                opts.styles.snacks_image = nil
-            end
-            return opts
-        end,
-    },
-
     {
         "3rd/image.nvim",
         ft = { "markdown", "norg", "vimwiki", "html", "css", "tex", "typst" },

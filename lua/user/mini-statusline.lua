@@ -1,6 +1,6 @@
 -- 0.33ms replacement for lualine
 local M = {
-    "echasnovski/mini.nvim",
+    "nvim-mini/mini.nvim",
     event = "VeryLazy",
 }
 
@@ -100,13 +100,10 @@ local function fileformat()
 end
 
 M.sidebar_filetypes = {
-    "NvimTree",
     "neo-tree",
-    "undotree",
-    "undotreeDiff",
+    "nvim-undotree",
     "Outline",
     "toggleterm",
-    "trouble",
     "qf",
 }
 

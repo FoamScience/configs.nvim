@@ -16,28 +16,24 @@ require("user.tree-climb")
 -- Core plugins (loaded in all presets)
 spec("user.colorscheme")
 spec("user.whichkey")
-spec("user.noice")
 spec("user.fidget")
 require("user.treesitter")
 spec("user.lspconfig")
 spec("user.todocomments")
 spec("user.gitsigns")
 spec("user.diffview")
-spec("user.gitconflicts")
 spec("user.navic")
 spec("user.mini-statusline")
 spec("user.cmp")
 spec("user.autopairs")
 spec("user.snippets")
 spec("user.guess-indent")
-spec("user.undo")
 spec("user.markdown-toc")
 spec("user.flash")
 spec("user.outline")
 spec("user.qf")
 spec("user.oil")
 spec("user.conform")
-spec("user.trouble")
 spec("user.refactoring")
 spec("user.optional.colorizer")
 spec("user.optional.dial")
@@ -45,7 +41,6 @@ spec("user.optional.csv")
 spec("user.optional.typst")
 spec("user.optional.cloack")
 spec("user.optional.haunt")
-spec("user.remote-nvim")
 spec("user.herdr")
 
 -- Full-only plugins (excluded from SSH due to latency/GUI dependencies)
@@ -53,9 +48,7 @@ spec("user.snacks", { "full" }) -- Heavy file scanning with latency
 spec("user.image", { "full" }) -- Image rendering in-terminal
 spec("user.img-clip", { "full" }) -- Clipboard/GUI-dependent
 spec("user.project", { "full" }) -- Heavy directory scanning
-spec("user.nvimtree", { "full" }) -- Large directory browsing over latency
 spec("user.optional.tpipeline", { "full" }) -- Tmux statusline (moved to full-only)
-spec("user.optional.cinnamon", { "full" }) -- Scrolling animations
 spec("user.render-markdown", { "full" }) -- Heavy markdown rendering
 spec("user.incline", { "full" }) -- Floating window decorations
 spec("user.atlassian", { "full" }) -- jira & confluence client

@@ -1,8 +1,4 @@
 local M = {
-    --"theKnightsOfRohan/csvlens.nvim",
-    --dependencies = {
-    --	"akinsho/toggleterm.nvim",
-    --},
     "hat0uma/csvview.nvim",
     cmd = { "CsvViewEnable", "CsvViewDisable", "CsvViewToggle" },
 }

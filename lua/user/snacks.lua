@@ -50,33 +50,19 @@ M.config = function()
                 { section = "startup" },
             },
         },
-        styles = {
-            snacks_image = {
-                relative = "editor",
-                col = -1,
-                row = 2,
-            },
-        },
         -- @WARN: NEVER INCLUDE THIS. IT IS JUST SLOW
         --  quickfile = {
         --      enabled = true,
         --  },
         animate = {},
+        scroll = {
+            enabled = true,
+        },
         indent = {
             enabled = true,
         },
         input = {
             border = "rounded",
-        },
-        image = {
-            enabled = true,
-            doc = {
-                inline = false,
-                float = true,
-            },
-            convert = {
-                notify = false,
-            },
         },
         picker = {
             enabled = true,

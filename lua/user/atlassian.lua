@@ -5,7 +5,7 @@ end
 
 return {
     "FoamScience/conflira.nvim",
-    dependencies = { "folke/snacks.nvim", "grapp-dev/nui-components.nvim" },
+    dependencies = { "folke/snacks.nvim", "MunifTanjim/nui.nvim", "grapp-dev/nui-components.nvim" },
     ft = "csf",
     cmd = {
         "JiraSearch",

@@ -173,7 +173,7 @@ return {
             { "folke/lazydev.nvim", ft = "lua" },
             { "mason-org/mason-lspconfig.nvim", config = function() end },
             {
-                "p00f/clangd_extensions.nvim",
+                "dchinmay2/clangd_extensions.nvim",
                 ft = "cpp",
                 event = { "LspAttach" },
                 opts = {
