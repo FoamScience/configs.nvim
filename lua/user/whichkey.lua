@@ -22,7 +22,6 @@ function M.config()
         },
         { "<leader>n", group = "navigation", icon = icons.ui.Forward },
         { "<leader>t", group = "Test", icon = icons.ui.BoxChecked },
-        { "<leader>x", group = "Trouble", icon = icons.diagnostics.Warning },
         { "<leader>r", group = "Refactor", icon = icons.ui.Pencil },
         { "<leader>m", group = "CMake", icon = icons.misc.Package },
         {
@@ -71,8 +70,15 @@ function M.config()
     end
     vim.list_extend(mappings, {
         { "<leader>e", group = "Edit", icon = icons.ui.Pencil },
-        { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Explorer", icon = icons.ui.Folder },
-        { "<leader>eu", "<cmd>lua require('undotree').toggle()<CR>", desc = "Undo Tree", icon = icons.ui.History },
+        {
+            "<leader>ee",
+            function()
+                require("snacks").explorer()
+            end,
+            desc = "Explorer",
+            icon = icons.ui.Folder,
+        },
+        { "<leader>eu", "<cmd>Undotree<CR>", desc = "Undo Tree", icon = icons.ui.History },
         unpack(mtoc_keys),
     })
     vim.list_extend(mappings, {
@@ -427,11 +433,6 @@ function M.config()
             "<leader>gh",
             "<cmd>DiffviewFileHistory<cr>",
             desc = "Git History for All files",
-        },
-        {
-            "<leader>gt",
-            "<cmd>DiffConflicts<cr>",
-            desc = "Diff Conflicts",
         },
     })
 

@@ -23,7 +23,7 @@ Command-line at the top, auto-completed. Messages at bottom-right corner.
 ![noice](ui2.png)
 
 ## TODOs right in the code, convertible to Github issues
-In you comments type `@todo:` to create a TODO item. Access project-wide todos with `:TodoTelescope`
+In you comments type `@todo:` to create a TODO item. Access project-wide todos with `<leader>qt` (`:TodoQuickFix`)
 
 ![todos](todos.png)
 

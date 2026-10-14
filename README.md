@@ -1,6 +1,6 @@
 <p align="center">
   <img src="./assets/readme/hero.svg" width="100%"
-       alt="configs.nvim — a Neovim configuration driven from one leader key, showing the which-key panel with the find, LSP, git, edit, navigation, test, CMake, trouble, refactor, notes, butler and select groups">
+       alt="configs.nvim — a Neovim configuration driven from one leader key, showing the which-key panel with the find, LSP, git, edit, navigation, test, CMake, refactor, notes, butler and select groups">
 </p>
 
 My minimal(?), clutter-free Neovim configuration for day-to-day programming. Everything is reachable from
@@ -135,7 +135,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 - [colorscheme.lua](lua/user/colorscheme.lua) is where the color scheme is set
   - Press `<leader>fc` to see a live demo of all available color schemes
   - By default, we are using [Catppuccin-Mocha](https://catppuccin.com/)
-- [undo.lua](lua/user/undo.lua) is an Undo tree visualizer, with diff views. `<leader>eu` to toggle.
+- Neovim's built-in `:Undotree` (`nvim.undotree`) visualizes the undo tree. `<leader>eu` to toggle.
 
 </details>
 
@@ -143,7 +143,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 <summary><b>UI</b> — explorers, statusline, notifications, Markdown and images</summary>
 
 - [snacks.lua](lua/user/snacks.lua) a collection of UI niceties from folke (includes fuzzy finder)
-- [nvimtree.lua:](lua/user/nvimtree.lua) a file explorer
+- snacks.explorer is the sidebar file explorer
   - `<leader>ee` to toggle
 - [oil.lua:](lua/user/oil.lua) file explorer as an editable buffer, replaces netrw
   - `-` opens the parent directory
@@ -152,10 +152,10 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
   - Displays single statusline across both Neovim and Tmux for seamless integration
   - Only loaded in "full" preset
 - [incline.lua](lua/user/incline.lua) floating buffer names at top-right corners of windows
-- [noice.lua:](lua/user/noice.lua) nicer UI. Not relevant for users
+- Neovim's experimental built-in `ui2` replaces the message and cmdline UI (enabled in [options.lua](lua/user/options.lua))
 - [fidget.lua:](lua/user/fidget.lua) LSP progress notifications in the corner
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
-- [cinnamon.lua:](lua/user/optional/cinnamon.lua) optional scrolling cursor animations.
+- snacks.scroll provides smooth scrolling animations.
 - [render-markdown.lua:](lua/user/render-markdown.lua) prettifying Markdown document editing.
   - With support for Latex equation rendering
 - [guess-indent.lua](lua/user/guess-indent.lua) to guess indentation style (tabs/spaces)
@@ -171,7 +171,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 <summary><b>Productivity</b> — todos, Jira/Confluence, Markdown TOC, images, tests</summary>
 
 - [todo-comments.lua:](lua/user/todocomments.lua) highlights `@todo:`, `@body:`, `@warn:`, etc. in comments
-  - `:TodoTelescope` command opens a fuzzy finder for all such comments in the current buffer
+  - `<leader>qt` (`:TodoQuickFix`) lists all such comments in the quickfix window
   - Use [todo-issue Github action](https://github.com/DerJuulsn/todo-issue) to convert your committed
     Todos to Github issues.
 - [atlassian.lua:](lua/user/atlassian.lua) conflira.nvim, a thin Jira and Confluence client (merges the former separate jira/confluence plugins)
@@ -188,7 +188,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 </details>
 
 <details>
-<summary><b>Navigation</b> — flash hopping, outline, trouble, quickfix</summary>
+<summary><b>Navigation</b> — flash hopping, outline, quickfix</summary>
 
 - [flash.lua:](lua/user/flash.lua) fast word hopping
   - `s` (or `gs`) to hop to words in normal mode
@@ -200,9 +200,8 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 - [outline.lua:](lua/user/outline.lua) fast local code navigation
   - `<leader>nn` to toggle
   - `?` to see keymaps for the outline window
-- [trouble.lua:](lua/user/trouble.lua) pretty list for diagnostics, symbols, LSP refs and the quickfix/location list
-  - `<leader>x` for Trouble commands
 - [qf.lua:](lua/user/qf.lua) nvim-bqf, a better preview and UI for the quickfix window
+  - `<leader>q` for quickfix commands (diagnostics, todos, ...)
 
 </details>
 
@@ -213,7 +212,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
   - Auto-installs tree-sitter grammars for languages the first time they are encountered
   - with `xonsh` support through the [xonsh-lsp](https://github.com/FoamScience/xonsh-language-server)
-- [mason.lua:](lua/user/mason.lua) sets up a few language servers to support common languages
+- [lspconfig.lua:](lua/user/lspconfig.lua) sets up a few language servers to support common languages
   - C++/C: with `clangd`, OpenFOAM with `foam_ls`, Lua with `lua_ls` and a few more
     - `clangd` is not managed through Mason on ARM machines, run `apt install clangd` instead
   - Python: `pyright` or `pylsp`, with support for ParaView Python (pvpython) environments
@@ -243,20 +242,15 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 - [typst.lua:](lua/user/optional/typst.lua) live-preview for Typst documents via typst-preview.nvim
   - Opens the preview in the browser for `typst` files
 - [navic.lua:](lua/user/navic.lua) shows code structure at the cursor in the winbar
-- [remote-nvim.lua:](lua/user/remote-nvim.lua) connect to remote Neovim instances over SSH
-  - Commands: `:RemoteStart`, `:RemoteStop`, `:RemoteInfo`
-  - Uses telescope for UI (only plugin requiring telescope in this config)
 
 </details>
 
 <details>
-<summary><b>Git integration</b> — signs, diffview, conflicts, GitButler</summary>
+<summary><b>Git integration</b> — signs, diffview, GitButler</summary>
 
 - [gitsigns.lua:](lua/user/gitsigns.lua) shows git diff in the sign column
-- [diffview.lua:](lua/user/diffview.lua) a diff viewer for Git diffs
+- [diffview.lua:](lua/user/diffview.lua) a diff viewer for Git diffs and merge conflicts (diffview-plus.nvim, a maintained fork)
   - `<leader>gd` to open, or `:DiffviewOpen` in normal mode
-- [gitconflicts.lua:](lua/user/gitconflicts.lua) git conflict resolution UI via diffconflicts.nvim
-  - `<leader>gt` to open, or `:DiffConflicts` in normal mode
 - [butlr.lua:](user-config.elwardi/plugins/butlr.lua) GitButler hunk navigation and actions via butlr.nvim
   - Only enabled inside a GitButler-managed repo (needs the `but` CLI)
   - `<leader>b` for Butler commands (navigate hunks, rub/assign, absorb, discard, undo)
@@ -264,7 +258,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 </details>
 
 <details>
-<summary><b>Miscellaneous</b> — autopairs, CSV, line notes, cloaking, wrapped</summary>
+<summary><b>Miscellaneous</b> — autopairs, CSV, line notes, cloaking</summary>
 
 - [autopairs.lua:](lua/user/autopairs.lua) automatically inserts closing brackets, quotes, etc.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer/editor using csvview.nvim.
@@ -272,8 +266,6 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 - [haunt.lua:](lua/user/optional/haunt.lua) Line notes that do not affect the code source.
 - [cloak.lua:](lua/user/optional/cloack.lua) Hiding environment variables.
   - `:CloackDisable` to see the variables' values.
-- [wrapped.lua:](user-config.elwardi/plugins/wrapped.lua) a GitHub-Wrapped-style yearly recap via wrapped.nvim (UI built on nvzone/volt)
-  - `:WrappedNvim` to open
 
 </details>
 

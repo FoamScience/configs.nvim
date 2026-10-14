@@ -7,11 +7,8 @@ return {
     config = function()
         local lspicons = require("user.lspicons")
 
-        -- Use noice.notify if available, otherwise fall back to vim.notify
-        local notifier = vim.notify
-        local noice_ok, noice = pcall(require, "noice")
-        if noice_ok then
-            notifier = noice.notify
+        local function notifier(msg, level, opts)
+            vim.notify(msg, vim.log.levels[level:upper()], opts)
         end
 
         local M = {}

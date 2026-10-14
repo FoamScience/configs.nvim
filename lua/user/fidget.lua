@@ -4,13 +4,7 @@ local M = {
 }
 
 M.config = function()
-    require("fidget").setup({
-        notification = {
-            window = {
-                avoid = { "NvimTree" },
-            },
-        },
-    })
+    require("fidget").setup({})
 end
 
 return M

@@ -5,20 +5,22 @@ local M = {
     dependencies = {
         { "rafamadriz/friendly-snippets" },
         { "L3MON4D3/LuaSnip", version = "v2.*" },
-        { "saghen/blink.compat", version = "2.*", lazy = true, opts = {} },
-        { "petertriho/cmp-git", dependencies = "nvim-lua/plenary.nvim" },
+        { "Kaiser-Yang/blink-cmp-git" },
     },
 }
 
+-- blink-cmp-git only fetches open issues/PRs by default
+local function github_all_states(kind)
+    return {
+        get_command_args = function(command, token)
+            local args = require("blink-cmp-git.default.github")[kind].get_command_args(command, token)
+            args[#args] = args[#args] .. "?state=all&per_page=50"
+            return args
+        end,
+    }
+end
+
 M.config = function()
-    require("cmp_git").setup({
-        github = {
-            issues = { state = "all", limit = 50 },
-            pull_requests = { state = "all", limit = 50 },
-        },
-        filetypes = { "gitcommit", "octo", "markdown", "NeogitCommitMessage" },
-        -- triggers: : (commits), # (issues/PRs), @ (mentions), ! (GitLab MRs)
-    })
     require("blink.cmp").setup({
         keymap = {
             preset = "super-tab",
@@ -47,7 +49,15 @@ M.config = function()
             providers = {
                 git = {
                     name = "git",
-                    module = "blink.compat.source",
+                    module = "blink-cmp-git",
+                    opts = {
+                        git_centers = {
+                            github = {
+                                issue = github_all_states("issue"),
+                                pull_request = github_all_states("pull_request"),
+                            },
+                        },
+                    },
                 },
                 lazydev = {
                     name = "LazyDev",
@@ -103,7 +113,7 @@ M.config = function()
             },
         },
         snippets = { preset = "luasnip" },
-        signature = { window = { border = "single" } },
+        signature = { enabled = true, window = { border = "single" } },
         term = { enabled = true },
         cmdline = {
             enabled = true,
