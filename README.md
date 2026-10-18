@@ -152,7 +152,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
   - Displays single statusline across both Neovim and Tmux for seamless integration
   - Only loaded in "full" preset
 - [incline.lua](lua/user/incline.lua) floating buffer names at top-right corners of windows
-- Neovim's experimental built-in `ui2` replaces the message and cmdline UI (enabled in [options.lua](lua/user/options.lua))
+- [noice.lua:](lua/user/noice.lua) cmdline as a popup at the top of the screen; messages stay native
 - [fidget.lua:](lua/user/fidget.lua) LSP progress notifications in the corner
 - [colorizer.lua:](lua/user/optional/colorizer.lua) colorizes color codes in CSS, HTML, etc.
 - snacks.scroll provides smooth scrolling animations.
