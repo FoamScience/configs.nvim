@@ -71,5 +71,4 @@ vim.cmd([[set iskeyword+=-]])
 
 vim.opt.winborder = "single"
 
-require("vim._core.ui2").enable({})
 vim.cmd.packadd("nvim.undotree")
