@@ -8,6 +8,10 @@
 -- Rebuild the checkout with `npm run prepare` after pulling changes.
 local foam_ls_bin = vim.fn.expand("/home/elwardi/repo/foam-language-server/bin/foam-ls")
 
+if vim.fn.filereadable(foam_ls_bin) == 0 then
+    return {}
+end
+
 -- Virtual plugin: no source to clone. `dir` must point at a real directory
 -- or lazy skips the spec; the work lives in `init`, which lazy runs at
 -- startup regardless of lazy-loading (a plain `config` is skipped for a
