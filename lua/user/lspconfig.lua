@@ -316,6 +316,42 @@ return {
                         end,
                     },
                     xonsh_lsp = xonsh_lsp_opts,
+                    jsonnet_ls = {},
+                    -- particode case files: diagnostics/hover/completion from the
+                    -- binary's own registries. Starts inside a particode tree (root with
+                    -- cases/), or anywhere for a buffer that mentions particode (a case key
+                    -- or an import of particode.libsonnet). Binary: PATH, else a build dir.
+                    particode = {
+                        mason = false,
+                        filetypes = { "json", "jsonc", "jsonnet" },
+                        root_dir = function(bufnr, on_dir)
+                            local function bin_for(root)
+                                local b = vim.fn.exepath("particode")
+                                if b ~= "" then return b end
+                                for _, r in ipairs({ root, vim.fn.expand("~/repo/particode") }) do
+                                    b = r and vim.fn.glob(r .. "/build/*/particode", false, true)[1]
+                                    if b then return b end
+                                end
+                            end
+                            local root = vim.fs.root(bufnr, { "cases" })
+                            if not root then
+                                local head = table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, 200, false), "\n")
+                                if not head:find("particode", 1, true) then return end
+                                root = vim.fs.dirname(vim.api.nvim_buf_get_name(bufnr))
+                            end
+                            if bin_for(root) then on_dir(root) end
+                        end,
+                        cmd = function(dispatchers, config)
+                            local bin = vim.fn.exepath("particode")
+                            if bin == "" then
+                                for _, r in ipairs({ config.root_dir, vim.fn.expand("~/repo/particode") }) do
+                                    bin = vim.fn.glob(r .. "/build/*/particode", false, true)[1]
+                                    if bin then break end
+                                end
+                            end
+                            return vim.lsp.rpc.start({ bin, "lsp" }, dispatchers, { cwd = config.root_dir })
+                        end,
+                    },
                     rust_analyzer = {
                         on_attach = function(client, _)
                             client.server_capabilities.inlayHintProvider = nil
