@@ -7,3 +7,4 @@ result
 result-*
 .direnv/
 lua/.luarc.json
+lazy-lock.json
