@@ -1,7 +1,43 @@
 local min_live_words = 3
+local repo = "https://github.com/context-dot-dev/sgrep"
+local installing = false
+
+local function bin()
+    local b = vim.fn.exepath("sgrep")
+    if b ~= "" then
+        return b
+    end
+    b = (vim.env.CARGO_HOME or vim.fn.expand("~/.cargo")) .. "/bin/sgrep"
+    if vim.fn.executable(b) == 1 then
+        return b
+    end
+end
+
+if not bin() and vim.fn.executable("cargo") == 0 then
+    return {}
+end
+
+local function ensure(cb)
+    if bin() then
+        return cb()
+    end
+    if installing then
+        return vim.notify("sgrep is still building", vim.log.levels.INFO, { title = "sgrep" })
+    end
+    installing = true
+    vim.notify("sgrep not found, building from " .. repo, vim.log.levels.INFO, { title = "sgrep" })
+    vim.system({ "cargo", "install", "--git", repo }, { text = true }, vim.schedule_wrap(function(res)
+        installing = false
+        if res.code ~= 0 or not bin() then
+            return vim.notify("sgrep build failed:\n" .. res.stderr, vim.log.levels.ERROR, { title = "sgrep" })
+        end
+        vim.notify("sgrep installed", vim.log.levels.INFO, { title = "sgrep" })
+        cb()
+    end))
+end
 
 local function cmd(query, cwd)
-    return { "sgrep", "--json", "-n", "30", query, cwd }
+    return { bin(), "--json", "-n", "30", query, cwd }
 end
 
 local test_patterns = { "^tests?/", "/tests?/", "^spec/", "/spec/", "test_[^/]*$", "_test%.[^/]*$", "%.test%.[^/]*$", "%.spec%.[^/]*$" }
@@ -79,14 +115,22 @@ return {
         {
             "<leader>fS",
             function()
-                require("snacks").input({ prompt = "Semantic search" }, function(q)
-                    if q and q ~= "" then
-                        sgrep(q)
-                    end
+                ensure(function()
+                    require("snacks").input({ prompt = "Semantic search" }, function(q)
+                        if q and q ~= "" then
+                            sgrep(q)
+                        end
+                    end)
                 end)
             end,
             desc = "Semantic grep (sgrep)",
         },
-        { "<leader>fL", sgrep_live, desc = "Semantic grep live (sgrep)" },
+        {
+            "<leader>fL",
+            function()
+                ensure(sgrep_live)
+            end,
+            desc = "Semantic grep live (sgrep)",
+        },
     },
 }
