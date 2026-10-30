@@ -17,10 +17,8 @@ M.config = {
     max_file_bytes = 512 * 1024,
     defs = { timeout_ms = 300, max_idents = 30, max = 8, max_lines = 40 },
     imports = { max = 6, max_lines = 40 },
-    -- semantic search hits via sgrep; false disables
+    -- semantic search hits via m2v; false disables
     search = {
-        cmd = "sgrep",
-        root_markers = { ".git" },
         n = 8,
         max = 4,
         max_lines = 40,
