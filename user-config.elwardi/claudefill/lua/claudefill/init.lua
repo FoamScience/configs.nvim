@@ -25,24 +25,16 @@ M.config = {
         max_query = 500,
         timeout_ms = 400,
     },
-    hl = "Comment",
-    hl_add = "DiffAdd",
-    hl_delete = "DiffDelete",
-    keys = { trigger = "<M-c>", accept = "<M-y>" },
+    -- accepting and cycling are the vim.lsp.inline_completion keys
+    keys = { trigger = "<M-c>" },
 }
 
 local SYSTEM =
-    [[You are a code completion and editing engine inside an editor. The user message ends with an excerpt of a file in which the editable part sits between a <REGION> line and a </REGION> line. If the region contains <CURSOR>, the user is typing there: write the code that belongs at <CURSOR> (continue the statement, finish the block, implement what a nearby comment describes) and adjust later lines of the region when they must change to stay consistent. Without <CURSOR>, the user selected the region for you to complete or correct: finish unfinished code, implement comments and TODOs, fix bugs. Everything outside the region is read-only and stays in the file: code after </REGION> directly follows your rewrite, so never repeat it; <context> and <outline> blocks show related code from this and other files. Match the indentation and style of the surrounding code and keep lines that need no change exactly as they are, blank lines included. Never explain, ask, or refuse. Reply with exactly <region>, a newline, the full rewritten region without <CURSOR>, a newline, </region>, and nothing else. Return the region unchanged when nothing needs doing.]]
+    [[You are a code completion and editing engine inside an editor. The user message ends with an excerpt of a file in which the editable part sits between a <REGION> line and a </REGION> line. The region contains <CURSOR>, where the user is typing: write the code that belongs at <CURSOR> (continue the statement, finish the block, implement what a nearby comment describes) and adjust later lines of the region when they must change to stay consistent. Everything outside the region is read-only and stays in the file: code after </REGION> directly follows your rewrite, so never repeat it; <context> and <outline> blocks show related code from this and other files. Match the indentation and style of the surrounding code and keep lines that need no change exactly as they are, blank lines included. Never explain, ask, or refuse. Reply with exactly <region>, a newline, the full rewritten region without <CURSOR>, a newline, </region>, and nothing else. Return the region unchanged when nothing needs doing.]]
 
-local ns = api.nvim_create_namespace("claudefill")
-local proc, pending, shown
-
-local function clear()
-    if shown and api.nvim_buf_is_valid(shown.buf) then
-        api.nvim_buf_clear_namespace(shown.buf, ns, 0, -1)
-    end
-    shown = nil
-end
+local proc, pending
+-- last finished suggestion; served while buffer and cursor are unchanged
+local ready
 
 local function progress(req, message)
     if req.handle then
@@ -66,90 +58,59 @@ local function fresh(req)
     if api.nvim_get_current_buf() ~= req.buf or api.nvim_buf_get_changedtick(req.buf) ~= req.tick then
         return false
     end
-    local mode = api.nvim_get_mode().mode:sub(1, 1)
-    if req.mode == "n" then
-        return mode == "n"
-    end
     local pos = api.nvim_win_get_cursor(0)
-    return pos[1] - 1 == req.row and pos[2] == req.col and mode == "i"
+    return pos[1] - 1 == req.row and pos[2] == req.col and api.nvim_get_mode().mode:sub(1, 1) == "i"
 end
 
-local function virt_line(buf, line, hl)
-    return { { (line:gsub("\t", (" "):rep(vim.bo[buf].tabstop))), hl } }
+local function position(row, col)
+    return { line = row, character = col }
 end
 
-local function show_insert(req, text)
-    local lines = vim.split(text, "\n", { plain = true })
-    local opts = { virt_text = { { lines[1], M.config.hl } }, virt_text_pos = "inline" }
-    if #lines > 1 then
-        opts.virt_lines = vim.tbl_map(function(l)
-            return virt_line(req.buf, l, M.config.hl)
-        end, vim.list_slice(lines, 2))
-    end
-    api.nvim_buf_set_extmark(req.buf, ns, req.row, req.col, opts)
-    shown = { kind = "insert", mode = req.mode, buf = req.buf, row = req.row, col = req.col, lines = lines }
-end
-
-local function show_diff(req, new)
-    local hunks =
-        vim.text.diff(table.concat(req.old, "\n") .. "\n", table.concat(new, "\n") .. "\n", { result_type = "indices" })
-    if #hunks == 0 then
-        return false
-    end
-    for _, h in ipairs(hunks) do
-        local sa, ca, sb, cb = unpack(h)
-        local added = vim.tbl_map(function(l)
-            return virt_line(req.buf, l, M.config.hl_add)
-        end, vim.list_slice(new, sb, sb + cb - 1))
-        if ca > 0 then
-            local first = req.first + sa - 1
-            api.nvim_buf_set_extmark(req.buf, ns, first, 0, {
-                end_row = first + ca,
-                hl_group = M.config.hl_delete,
-                hl_eol = true,
-            })
-            if cb > 0 then
-                api.nvim_buf_set_extmark(req.buf, ns, first + ca - 1, 0, { virt_lines = added })
-            end
-        elseif sa == 0 then
-            api.nvim_buf_set_extmark(req.buf, ns, req.first, 0, { virt_lines = added, virt_lines_above = true })
-        else
-            api.nvim_buf_set_extmark(req.buf, ns, req.first + sa - 1, 0, { virt_lines = added })
-        end
-    end
-    local sb, cb = hunks[#hunks][3], hunks[#hunks][4]
-    shown = {
-        kind = "replace",
-        mode = req.mode,
-        buf = req.buf,
-        first = req.first,
-        last = req.last,
-        lines = new,
-        -- offset of the last changed line inside the new region
-        land = math.max(sb + math.max(cb, 1) - 1, 1),
-    }
-    return true
-end
-
-local function show(req, text)
-    clear()
+-- lsp.InlineCompletionItem for the rewritten region, positions in utf-8 bytes
+local function to_item(req, text)
     -- anything outside <region> is the model talking, not code
     text = text:match("<region>\n?(.-)\n?</region>")
     if not text then
-        return false
+        return
     end
     text = text:gsub("^```[%w_+-]*\n", ""):gsub("\n?```%s*$", ""):gsub("<CURSOR>", "")
-    local new = vim.split(text, "\n", { plain = true })
-    if req.mode == "i" then
-        -- text around the cursor survived untouched: plain insertion, show as ghost text
-        local old, before = table.concat(req.old, "\n"), req.before
-        local after = old:sub(#before + 1)
-        if #text > #old and text:sub(1, #before) == before and text:sub(#text - #after + 1) == after then
-            show_insert(req, text:sub(#before + 1, #text - #after))
-            return true
-        end
+    -- text around the cursor survived untouched: plain insertion at the cursor
+    local old, before = table.concat(req.old, "\n"), req.before
+    local after = old:sub(#before + 1)
+    if #text > #old and text:sub(1, #before) == before and text:sub(#text - #after + 1) == after then
+        local at = position(req.row, req.col)
+        return { insertText = text:sub(#before + 1, #text - #after), range = { start = at, ["end"] = at } }
     end
-    return show_diff(req, new)
+
+    local new = vim.split(text, "\n", { plain = true })
+    local hunks = vim.text.diff(old .. "\n", table.concat(new, "\n") .. "\n", { result_type = "indices" })
+    if #hunks == 0 then
+        return
+    end
+    -- one item has one range: span every hunk, carrying unchanged lines in between
+    local a_lo, a_hi, b_lo, b_hi = math.huge, -1, math.huge, -1
+    for _, h in ipairs(hunks) do
+        local sa, ca, sb, cb = unpack(h)
+        a_lo, a_hi = math.min(a_lo, ca > 0 and sa or sa + 1), math.max(a_hi, ca > 0 and sa + ca - 1 or sa)
+        b_lo, b_hi = math.min(b_lo, cb > 0 and sb or sb + 1), math.max(b_hi, cb > 0 and sb + cb - 1 or sb)
+    end
+    local added = table.concat(vim.list_slice(new, b_lo, b_hi), "\n")
+    if a_lo > a_hi then
+        -- pure addition after old line a_hi (0 = before the region)
+        if a_hi == 0 then
+            local at = position(req.first, 0)
+            return { insertText = added .. "\n", range = { start = at, ["end"] = at } }
+        end
+        local at = position(req.first + a_hi - 1, #req.old[a_hi])
+        return { insertText = "\n" .. added, range = { start = at, ["end"] = at } }
+    end
+    return {
+        insertText = added,
+        range = {
+            start = position(req.first + a_lo - 1, 0),
+            ["end"] = position(req.first + a_hi - 1, #req.old[a_hi]),
+        },
+    }
 end
 
 local spawn, dispatch
@@ -171,10 +132,16 @@ local function on_result(p, msg)
         done(req, "error")
     elseif not fresh(req) then
         done(req, "discarded (buffer or cursor changed)")
-    elseif type(msg.result) == "string" and show(req, msg.result) then
-        done(req, ("%.1fs"):format((vim.uv.hrtime() - req.started) / 1e9))
     else
-        done(req, "no suggestion")
+        req.item = type(msg.result) == "string" and to_item(req, msg.result) or nil
+        if req.item then
+            ready = req
+            done(req, ("%.1fs"):format((vim.uv.hrtime() - req.started) / 1e9))
+            -- nvim requests inline completions on cursor events; ask it to come and get this one
+            api.nvim_exec_autocmds("CursorMovedI", { buffer = req.buf })
+        else
+            done(req, "no suggestion")
+        end
     end
     if p.turns >= M.config.max_turns then
         retire(p)
@@ -269,10 +236,8 @@ local function prompt(req, snippets, win)
     local name = vim.fn.fnamemodify(api.nvim_buf_get_name(req.buf), ":~:.")
     local lines = api.nvim_buf_get_lines(req.buf, win[1], win[2], false)
     local rel = req.first - win[1]
-    if req.mode == "i" then
-        local cur = lines[req.row - win[1] + 1]
-        lines[req.row - win[1] + 1] = cur:sub(1, req.col) .. "<CURSOR>" .. cur:sub(req.col + 1)
-    end
+    local cur = lines[req.row - win[1] + 1]
+    lines[req.row - win[1] + 1] = cur:sub(1, req.col) .. "<CURSOR>" .. cur:sub(req.col + 1)
     table.insert(lines, rel + 1 + (req.last - req.first), "</REGION>")
     table.insert(lines, rel + 1, "<REGION>")
     local parts = {}
@@ -299,25 +264,23 @@ local function prompt(req, snippets, win)
 end
 
 -- first/last: 0-based end-exclusive rows the model may rewrite
-local function request(buf, first, last, cursor)
-    clear()
+local function request(buf, first, last, row, col)
     seq = seq + 1
+    ready = nil
+    local before = api.nvim_buf_get_lines(buf, first, row + 1, false)
+    before[#before] = before[#before]:sub(1, col)
     local req = {
         seq = seq,
         started = vim.uv.hrtime(),
         buf = buf,
         first = first,
         last = last,
-        mode = cursor and "i" or "n",
+        row = row,
+        col = col,
         tick = api.nvim_buf_get_changedtick(buf),
         old = api.nvim_buf_get_lines(buf, first, last, false),
+        before = table.concat(before, "\n"),
     }
-    if cursor then
-        req.row, req.col = cursor[1], cursor[2]
-        local before = api.nvim_buf_get_lines(buf, first, req.row + 1, false)
-        before[#before] = before[#before]:sub(1, req.col)
-        req.before = table.concat(before, "\n")
-    end
     local win = {
         math.max(0, first - M.config.lines_before),
         math.min(api.nvim_buf_line_count(buf), last + M.config.lines_after),
@@ -357,61 +320,48 @@ function M.trigger()
     while last > row and blank(last - 1) do
         last = last - 1
     end
-    request(buf, first, last, { row - 1, col })
+    request(buf, first, last, row - 1, col)
 end
 
-function M.trigger_visual()
-    local a, b = vim.fn.line("v"), vim.fn.line(".")
-    api.nvim_feedkeys(api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
-    request(api.nvim_get_current_buf(), math.min(a, b) - 1, math.max(a, b))
+-- answers textDocument/inlineCompletion with the ready suggestion, if it still fits
+function M.complete(params)
+    local req = ready
+    if
+        not req
+        or vim.uri_to_bufnr(params.textDocument.uri) ~= req.buf
+        or params.position.line ~= req.row
+        or params.position.character ~= req.col
+        or not fresh(req)
+    then
+        return { items = {} }
+    end
+    return { items = { req.item } }
 end
 
-function M.accept()
-    local s = shown
-    if not s then
-        return
+local client_id
+
+local function attach(buf)
+    if vim.bo[buf].buftype == "" and api.nvim_buf_get_name(buf) ~= "" then
+        vim.lsp.buf_attach_client(buf, client_id)
     end
-    clear()
-    if s.kind == "insert" then
-        api.nvim_buf_set_text(s.buf, s.row, s.col, s.row, s.col, s.lines)
-        local last = s.lines[#s.lines]
-        api.nvim_win_set_cursor(0, { s.row + #s.lines, (#s.lines == 1 and s.col or 0) + #last })
-        return
-    end
-    api.nvim_buf_set_lines(s.buf, s.first, s.last, false, s.lines)
-    local row = math.min(s.first + s.land, api.nvim_buf_line_count(s.buf))
-    local line = api.nvim_buf_get_lines(s.buf, row - 1, row, false)[1]
-    api.nvim_win_set_cursor(0, { row, #line })
 end
 
 function M.setup(opts)
     M.config = vim.tbl_deep_extend("force", M.config, opts or {})
     vim.keymap.set("i", M.config.keys.trigger, M.trigger, { desc = "Claude: request infill" })
-    vim.keymap.set("x", M.config.keys.trigger, M.trigger_visual, { desc = "Claude: rewrite selection" })
-    vim.keymap.set({ "i", "n" }, M.config.keys.accept, M.accept, { desc = "Claude: accept infill" })
-    local group = api.nvim_create_augroup("claudefill", { clear = true })
-    api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufLeave" }, { group = group, callback = clear })
-    api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave" }, {
-        group = group,
-        callback = function()
-            if shown and shown.mode == "i" then
-                clear()
-            end
-        end,
-    })
-    -- normal-mode previews survive moving around inside the region to read them
-    api.nvim_create_autocmd({ "CursorMoved", "InsertEnter" }, {
-        group = group,
+    -- started before other servers so its item sorts first among inline completions
+    client_id = vim.lsp.start({ name = "claudefill", cmd = require("claudefill.server") }, { attach = false })
+    api.nvim_create_autocmd("BufEnter", {
+        group = api.nvim_create_augroup("claudefill", { clear = true }),
         callback = function(ev)
-            if not (shown and shown.mode == "n") then
-                return
-            end
-            local row = api.nvim_win_get_cursor(0)[1] - 1
-            if ev.event == "InsertEnter" or row < shown.first or row >= shown.last then
-                clear()
-            end
+            attach(ev.buf)
         end,
     })
+    for _, buf in ipairs(api.nvim_list_bufs()) do
+        if api.nvim_buf_is_loaded(buf) then
+            attach(buf)
+        end
+    end
     api.nvim_create_autocmd("VimLeavePre", {
         callback = function()
             if proc then
@@ -419,7 +369,13 @@ function M.setup(opts)
             end
         end,
     })
-    proc = spawn()
+    -- warm the session before the first trigger, not for every nvim started
+    api.nvim_create_autocmd("InsertEnter", {
+        once = true,
+        callback = function()
+            proc = proc or spawn()
+        end,
+    })
 end
 
 return M
