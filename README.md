@@ -197,6 +197,9 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
   - `R` in operator mode to do operations between flash tree-sitter searches
   - `<ctrl-s>` to toggle flash in regular search mode
   - `<leader>v` for incremental treesitter selection (next: `<leader>v`, prev: `<BS>`)
+- [m2v.lua:](lua/user/m2v.lua) semantic code search on model2vec embeddings, fused with ripgrep
+  - `<leader>fS` to search, `<leader>fL` for live search
+  - Only loaded in "full" preset (snacks picker)
 - [outline.lua:](lua/user/outline.lua) fast local code navigation
   - `<leader>nn` to toggle
   - `?` to see keymaps for the outline window
