@@ -233,10 +233,10 @@ local function definitions(results, path, win, cfg, load, out)
     return added
 end
 
-local function search_hits(hits, root, path, win, cfg, load, out)
+local function search_hits(hits, path, win, cfg, load, out)
     local added = 0
     for _, hit in ipairs(hits) do
-        local target = vim.uv.fs_realpath(vim.fs.joinpath(root, hit.path)) or vim.uv.fs_realpath(hit.path)
+        local target = vim.uv.fs_realpath(hit.path)
         local s = hit.start - 1
         local e = math.min(hit["end"] - 1, s + cfg.search.max_lines - 1)
         local file = target and load(target)
@@ -301,36 +301,27 @@ local function lsp_locations(buf, region, cfg, cb)
     end
 end
 
--- one sgrep per root: a timed-out run keeps going so its index still gets cached
-local searching = {}
-
 local function search(buf, region, cfg, cb)
     local opts = cfg.search
-    local bin = opts and vim.fn.exepath(opts.cmd) or ""
-    local root = opts and vim.fs.root(buf, opts.root_markers)
+    local ok, m2v = pcall(require, "m2v")
+    local root = opts and ok and m2v.root(buf)
     local query = table.concat(vim.tbl_map(vim.trim, api.nvim_buf_get_lines(buf, region[1], region[2], false)), " ")
     query = vim.trim(query):sub(1, opts and opts.max_query or 0)
-    if bin == "" or not root or searching[root] or query == "" then
-        return cb({}, root)
+    if not root or query == "" then
+        return cb({})
     end
-    searching[root] = true
-    local finished = false
+    local finished, job = false, nil
     local function finish(hits)
         if not finished then
             finished = true
-            cb(hits, root)
+            cb(hits)
         end
     end
-    vim.system(
-        { bin, "--json", "-n", tostring(opts.n), query, root },
-        { text = true },
-        vim.schedule_wrap(function(res)
-            searching[root] = nil
-            local ok, hits = pcall(vim.json.decode, res.code == 0 and res.stdout or "")
-            finish(ok and type(hits) == "table" and hits or {})
-        end)
-    )
+    job = m2v.search(root, query, opts.n, finish)
     vim.defer_fn(function()
+        if not finished and job then
+            job:kill(15)
+        end
         finish({})
     end, opts.timeout_ms)
 end
@@ -346,7 +337,7 @@ function M.gather(buf, win, region, cfg, cb)
         out[1] = { path = path, first = 0, last = last, lines = api.nvim_buf_get_lines(buf, 0, last + 1, false) }
     end
 
-    local locs, hits, root
+    local locs, hits
     local function join()
         if not (locs and hits) then
             return
@@ -354,15 +345,15 @@ function M.gather(buf, win, region, cfg, cb)
         if definitions(locs, path, win, cfg, load, out) == 0 then
             vim.list_extend(out, imports(buf, path, cfg, load))
         end
-        search_hits(hits, root, path, win, cfg, load, out)
+        search_hits(hits, path, win, cfg, load, out)
         cb(out)
     end
     lsp_locations(buf, region, cfg, function(r)
         locs = r
         join()
     end)
-    search(buf, region, cfg, function(h, r)
-        hits, root = h, r
+    search(buf, region, cfg, function(h)
+        hits = h
         join()
     end)
 end
