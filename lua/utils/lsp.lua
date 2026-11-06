@@ -61,6 +61,8 @@ M.find_uv_python_path = function(bufnr, client, callback)
     end
     report_progress("Checking UV configuration...", 0)
 
+    local Find_project_python, Create_script_env, Finalize_result
+
     local function check_script_python()
         if not is_uv_script then
             Find_project_python()

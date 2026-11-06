@@ -111,25 +111,30 @@ local ty_opts = {
         },
     },
     root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
-    on_attach = function(client, bufnr)
-        find_uv_python_path(bufnr, client, function(_, uv_python)
-            if not uv_python then
+    -- ty does not re-resolve site-packages on didChangeConfiguration, so detect
+    -- the env before starting. on_dir goes unused: it cannot change settings.
+    root_dir = function(bufnr)
+        find_uv_python_path(bufnr, { name = "ty" }, function(_, uv_python)
+            if not vim.api.nvim_buf_is_valid(bufnr) then
                 return
             end
-            local current = vim.tbl_get(client.settings or {}, "ty", "configuration", "environment", "python")
-            if current == uv_python then
-                return
+            local config = vim.deepcopy(vim.lsp.config.ty)
+            config.root_dir = vim.fs.root(bufnr, config.root_markers)
+            if uv_python then
+                config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+                    ty = { configuration = { environment = { python = uv_python } } },
+                })
             end
-            -- ty does not re-resolve site-packages on didChangeConfiguration;
-            -- restart this client for the buffer with the detected env.
-            local new_config = vim.deepcopy(client.config)
-            new_config.settings = vim.tbl_deep_extend("force", new_config.settings or {}, {
-                ty = { configuration = { environment = { python = uv_python } } },
+            vim.lsp.start(config, {
+                bufnr = bufnr,
+                -- each env gets its own client, eg. uv scripts next to a project
+                reuse_client = function(client, new_config)
+                    return client.name == new_config.name
+                        and not client:is_stopped()
+                        and client.root_dir == new_config.root_dir
+                        and vim.deep_equal(client.settings, new_config.settings)
+                end,
             })
-            client:stop()
-            vim.schedule(function()
-                vim.lsp.start(new_config, { bufnr = bufnr })
-            end)
         end)
     end,
 }
