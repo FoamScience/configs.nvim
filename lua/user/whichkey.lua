@@ -21,9 +21,7 @@ function M.config()
             desc = "Buffer Local Keymaps",
         },
         { "<leader>n", group = "navigation", icon = icons.ui.Forward },
-        { "<leader>t", group = "Test", icon = icons.ui.BoxChecked },
         { "<leader>r", group = "Refactor", icon = icons.ui.Pencil },
-        { "<leader>m", group = "CMake", icon = icons.misc.Package },
         {
             "<leader>nn",
             "<cmd>Outline<cr>",
