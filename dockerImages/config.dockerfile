@@ -1,9 +1,9 @@
 FROM ubuntu:latest
 
 # Install basic packages
-RUN apt update && apt install -y python3 python3-pip git curl unzip ripgrep imagemagick
+RUN apt update && apt install -y build-essential python3 python3-pip git curl unzip ripgrep imagemagick
 # Install neovim
-RUN curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.appimage -o nvim.appimage
+RUN curl -L https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.appimage -o nvim.appimage
 RUN chmod +x nvim.appimage 
 RUN ./nvim.appimage --appimage-extract
 RUN cp -r squashfs-root/usr/* /usr/ 
@@ -14,7 +14,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
     && export NVM_DIR="$HOME/.nvm" \
     && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
     && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" \
-    && nvm install v20 \
+    && nvm install 22 \
     && npm install -g tree-sitter-cli
 # Install rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
