@@ -371,9 +371,6 @@ end
 ---@param langs? string[]
 ---@param force? boolean
 function M.install(langs, force)
-    if not M.check_prereqs() then
-        return
-    end
     langs = langs or vim.tbl_keys(parsers)
     local tasks = {}
     for _, lang in ipairs(langs) do
@@ -387,7 +384,7 @@ function M.install(langs, force)
             end
         end
     end
-    if #tasks == 0 then
+    if #tasks == 0 or not M.check_prereqs() then
         return
     end
     run_pool(tasks, MAX_JOBS)
