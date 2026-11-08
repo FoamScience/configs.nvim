@@ -38,7 +38,12 @@ jobs:
       - name: Install pinned plugins
         env:
           NVIM_PRESET: ${{ matrix.preset }}
-        run: nvim --headless +qa
+        # waits for the async parser builds started at startup, quitting early leaves them half-built
+        run: |
+          nvim --headless +'lua vim.defer_fn(function()
+            vim.wait(600000, function() return #vim.api.nvim_get_proc_children(vim.fn.getpid()) == 0 end, 1000)
+            vim.cmd("qa")
+          end, 2000)'
 
       - name: Start without errors
         shell: bash
