@@ -3,11 +3,9 @@ local M = {
     ft = { "markdown", "rmd" },
     branch = "no-nvim-clutter",
     dependencies = {
-        "nvim-treesitter/nvim-treesitter", -- for efficient parsing
         "folke/snacks.nvim",
         --"nvim-telescope/telescope.nvim",   -- for picker UI
     },
-    build = ":TSInstall markdown",
 }
 
 M.config = function()
