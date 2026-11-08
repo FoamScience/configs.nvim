@@ -274,6 +274,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
   - `<leader>k` for note commands
 - [agentfill.lua:](lua/user/agentfill.lua) coding agents as an inline completion source, served from an in-process LSP
   - `<M-c>` in insert mode requests a suggestion; nothing is sent unless you ask
+  - `<C-f>` accepts it, `<M-n>`/`<M-p>` cycle through suggestions
 - [herdr.lua:](lua/user/herdr.lua) sends line comments and references to a coding agent in a herdr pane
   - Loaded only inside herdr (`HERDR_ENV` set)
   - `<leader>a` for agent commands

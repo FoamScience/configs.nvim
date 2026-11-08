@@ -452,14 +452,8 @@ return {
                         then
                             return
                         end
+                        -- accept/cycle keys live in blink's keymap (cmp.lua)
                         vim.lsp.inline_completion.enable(true, { bufnr = ev.buf })
-                        -- <Tab> belongs to blink's super-tab preset, so accept on <C-f>
-                        vim.keymap.set("i", "<C-f>", function()
-                            return vim.lsp.inline_completion.get()
-                        end, { buffer = ev.buf, desc = "LSP: accept inline completion" })
-                        vim.keymap.set("i", "<C-g>", function()
-                            return vim.lsp.inline_completion.select()
-                        end, { buffer = ev.buf, desc = "LSP: cycle inline completion" })
                     end,
                 })
             end

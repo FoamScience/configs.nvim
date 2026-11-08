@@ -34,6 +34,26 @@ M.config = function()
                 end,
                 "fallback",
             },
+            -- LSP inline completion (agentfill, copilot); <Tab> belongs to the super-tab preset
+            ["<C-f>"] = {
+                "scroll_documentation_down",
+                function()
+                    return vim.lsp.inline_completion.get()
+                end,
+                "fallback",
+            },
+            ["<M-n>"] = {
+                function()
+                    vim.lsp.inline_completion.select()
+                    return true
+                end,
+            },
+            ["<M-p>"] = {
+                function()
+                    vim.lsp.inline_completion.select({ count = -1 })
+                    return true
+                end,
+            },
         },
         sources = {
             default = { "lsp", "path", "snippets", "lazydev", "unicode" },
