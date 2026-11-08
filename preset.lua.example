@@ -10,17 +10,12 @@
 --   "full" (default)
 --     - All plugins enabled
 --     - Best for local editing with good performance
---     - Includes: snacks.nvim picker, nvim-tree, img-clip, project management, sticky-notes
---     - Visual effects: cinnamon scrolling, render-markdown, incline floating names
+--     - Includes: snacks.nvim picker, project.nvim, image.nvim, img-clip, render-markdown,
+--       incline floating names, tmux statusline, Jira/Confluence, m2v semantic search
 --
 --   "ssh"
 --     - Optimized for remote editing over SSH
---     - Excludes plugins that don't work well with latency:
---       * snacks.nvim picker (heavy file scanning)
---       * img-clip (clipboard/GUI-dependent)
---       * project.nvim (heavy directory scanning)
---       * nvim-tree (large directory browsing)
---       * sticky-notes (local file writes)
+--     - Excludes the "full"-only plugins above, which add latency or need a local GUI/clipboard
 --     - Still includes: LSP, git, treesitter, completion, navigation
 --     - Faster startup, lower bandwidth usage
 --
@@ -28,7 +23,7 @@
 --   return "full"  -- Use all features (default)
 --   return "ssh"   -- Minimal for SSH connections
 --
--- You can also use environment variable:
+-- Without a preset.lua, the NVIM_PRESET environment variable is used:
 --   NVIM_PRESET=ssh nvim
 
 return "full"

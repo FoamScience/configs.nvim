@@ -12,6 +12,13 @@ git clone https://github.com/FoamScience/configs.nvim ~/.config/nvim
 nvim +ConfigHealth                      # see what is still missing
 ```
 
+To try it next to your current config instead, clone it elsewhere and pick it with `NVIM_APPNAME`:
+
+```sh
+git clone https://github.com/FoamScience/configs.nvim ~/.config/configs.nvim
+NVIM_APPNAME=configs.nvim nvim
+```
+
 Then press `<space>` and read the menu.
 
 ## What it looks like
@@ -35,7 +42,8 @@ A working config for the languages I write every day:
 And what it deliberately leaves out:
 
 - Format-on-save is on through conform, but opt-out: `:FormatDisable!` for the buffer, `:FormatDisable` globally
-- AI assistants (Copilot, CodeCompanion, Avante) — removed for simplicity
+- Chat-style AI assistants (Copilot, CodeCompanion, Avante); the only AI piece is agentfill, an inline completion
+  you trigger by hand
 - DAP debugging plugins — removed in favour of simpler debugging workflows
 
 ## Getting started
@@ -53,6 +61,7 @@ Run `:checkhealth config` (or `:ConfigHealth`) to verify your setup, see what is
 - [Neovim][] **v0.12.x or newer**, [NodeJS][] **v22** (or newer), preferably installed with [NVM][]
 - Python 3 and (optionally) [Rust][]
 - The tree-sitter CLI: `npm install -g tree-sitter-cli`, or through `cargo`
+- A C compiler (`cc`, `gcc` or `clang`), to build tree-sitter grammars
 - `unzip`, for installing some LSP servers
 - [RIPGrep][], for todo-comments and various other searching tasks
 - A terminal with ligature support ([Kitty][], Warp, Alacritty, etc.)
@@ -108,7 +117,7 @@ the day:
 | `` ` `` / `"` | see marks positions / registers content |
 | `<leader>fk` / `<leader>fC` | list every key binding / every command |
 | `<leader>fP` | jump to an individual plugin's configuration |
-| `<leader>kk` | project-specific sticky-notes sidebar, in Markdown, persisted |
+| `<leader>kk` | annotate the current line with a note that stays out of the source |
 
 Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 
@@ -168,7 +177,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 </details>
 
 <details>
-<summary><b>Productivity</b> — todos, Jira/Confluence, Markdown TOC, images, tests</summary>
+<summary><b>Productivity</b> — todos, Jira/Confluence, Markdown TOC, images</summary>
 
 - [todo-comments.lua:](lua/user/todocomments.lua) highlights `@todo:`, `@body:`, `@warn:`, etc. in comments
   - `<leader>qt` (`:TodoQuickFix`) lists all such comments in the quickfix window
@@ -182,8 +191,6 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
   - Updates on save for Markdown files
 - [img-clip.lua:](lua/user/img-clip.lua) pastes clipboard images into the buffer (e.g. Markdown image links)
   - Excluded over SSH
-- [neotest.lua:](lua/user/neotest.lua) test runner UI, with neotest-python (pytest) as the Python adapter
-  - `<leader>t` for test commands (run nearest/file/directory/last, summary, output, watch)
 
 </details>
 
@@ -209,7 +216,7 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 </details>
 
 <details>
-<summary><b>Language support and LSPs</b> — treesitter, mason, completion, formatting, CMake</summary>
+<summary><b>Language support and LSPs</b> — treesitter, mason, completion, formatting</summary>
 
 - [treesitter/init.lua:](lua/user/treesitter/init.lua) syntax highlighting and code folding, via a thin custom grammar installer (replaces the archived nvim-treesitter plugin)
   - Sets up a few languages by default; such as C++, Python, Lua and OpenFOAM
@@ -235,9 +242,6 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 - [conform.lua:](lua/user/conform.lua) formatter orchestration (stylua, ruff_format, clang-format, latexindent, typstyle, shfmt, ...)
   - `<leader>lf` to format, falling back to the LSP formatter if none matches
   - Format-on-save; `:FormatDisable[!]` / `:FormatEnable` to toggle
-- [cmake-tools.lua:](lua/user/cmake-tools.lua) CMake configure/build/run from inside Neovim
-  - `<leader>m` for CMake commands (generate, build, run, select target/type, clean)
-  - Soft-links `compile_commands.json` to the project root, which `clangd` picks up
 - [refactoring.lua:](lua/user/refactoring.lua) language-aware extract/inline refactors (C++, Python, Lua, ...)
   - `<leader>r` for refactor commands (extract function/variable/block, inline variable)
 - [lean.lua:](user-config.elwardi/plugins/lean.lua) Lean 4 theorem prover support via lean.nvim
@@ -267,6 +271,12 @@ Typically you will also want Tmux to move between panes with `<C-s><arrows>`.
 - [csv.lua:](lua/user/optional/csv.lua) a CSV viewer/editor using csvview.nvim.
   - `<leader>cv` toggles the aligned CSV display
 - [haunt.lua:](lua/user/optional/haunt.lua) Line notes that do not affect the code source.
+  - `<leader>k` for note commands
+- [agentfill.lua:](lua/user/agentfill.lua) coding agents as an inline completion source, served from an in-process LSP
+  - `<M-c>` in insert mode requests a suggestion; nothing is sent unless you ask
+- [herdr.lua:](lua/user/herdr.lua) sends line comments and references to a coding agent in a herdr pane
+  - Loaded only inside herdr (`HERDR_ENV` set)
+  - `<leader>a` for agent commands
 - [cloak.lua:](lua/user/optional/cloack.lua) Hiding environment variables.
   - `:CloackDisable` to see the variables' values.
 
@@ -294,14 +304,6 @@ NVIM_PRESET=ssh nvim
 For remote editing, `echo 'return "ssh"' > ~/.config/nvim/preset.lua` on the remote machine is usually what you
 want.
 
-## Tutorials
-
-A few tutorials open with `<leader>tt` when `nvim` is started without files. They are not meant to teach basic
-Vim skills, but rather explain my current approach to editing efficiency. They act on Lua files, but hold for
-any other filetype.
-
-Occasionally you will need `:TutorialNext` to continue — either because I was too lazy to implement proper step
-validation, or because implementing it would not have been a good experience.
 
 ## Extending it with your own config
 
@@ -342,14 +344,16 @@ return {
 ## Plugin versions
 
 All plugins are pinned through [Lazy.nvim][]'s lockfile, so installations stay consistent and a plugin update
-cannot break your editor unannounced. The workflow for staying current:
+cannot break your editor unannounced. The `lazy-lock.json` in this repo only seeds your own lockfile, kept at
+`stdpath("data")/lazy-lock.json`, so `:Lazy update` never touches the repo and `git pull` never conflicts.
+
+To stay current:
 
 1. `:ConfigNews` — fetches the remote, shows how many commits you are behind and a changelog
-2. `git pull` in `~/.config/nvim`
-3. Review `lazy-lock.json` changes, if any
-4. Restart nvim
+2. `git pull` in the config directory
+3. `:ConfigLockReset` — moves your plugins to the versions pinned by this repo
 
-`:Lazy update` also works, but it will diverge from this repo's pinned versions.
+`:Lazy update` moves you ahead of the pinned versions; `:ConfigLockReset` brings you back.
 
 [Neovim]: https://github.com/neovim/neovim/releases "Neovim"
 [NVM]: https://github.com/nvm-sh/nvm "NVM"
