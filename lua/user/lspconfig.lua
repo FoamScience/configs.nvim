@@ -56,7 +56,7 @@ local clangd_opts = {
                 return
             end
             local db_path = client.root_dir .. "/compile_commands.json"
-            if not vim.loop.fs_stat(db_path) then
+            if not vim.uv.fs_stat(db_path) then
                 return
             end
             local workspace_files = vim.fn.split(vim.fn.system("jq -r '.[].file' " .. db_path), "\n")

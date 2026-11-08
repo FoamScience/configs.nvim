@@ -7,7 +7,8 @@ vim.loader.enable()
 -- - empty vim options
 -- - vim opens a c++ header file with git changes and LSP errors
 -- basic setup startup (msec): 16.10/16.15
-require("user.base")
+local base = require("user.base")
+local spec = base.spec
 require("user.options")
 require("user.keymaps")
 require("user.autocmds")
@@ -59,25 +60,27 @@ spec("user.m2v", { "full" }) -- semantic code search, snacks picker
 -- Load user-config directory (for separate user repo integration)
 -- Users can symlink their config repo to ~/.config/nvim/user-config/
 local user_config_dir = vim.fn.stdpath("config") .. "/user-config"
-local user_config_stat = vim.loop.fs_stat(user_config_dir)
+local user_config_stat = vim.uv.fs_stat(user_config_dir)
 if user_config_stat and user_config_stat.type == "directory" then
     -- Add user-config to package path so modules can be required
     package.path = user_config_dir .. "/?.lua;" .. user_config_dir .. "/?/init.lua;" .. package.path
 
     -- Load init.lua from user-config if it exists
     local user_init = user_config_dir .. "/init.lua"
-    if vim.loop.fs_stat(user_init) then
+    if vim.uv.fs_stat(user_init) then
         dofile(user_init)
     end
 
     -- Load all plugin specs from user-config/plugins/
     local user_plugins_dir = user_config_dir .. "/plugins"
-    if vim.loop.fs_stat(user_plugins_dir) then
+    if vim.uv.fs_stat(user_plugins_dir) then
         local files = vim.fn.glob(user_plugins_dir .. "/*.lua", false, true)
         for _, file in ipairs(files) do
             local ok, plugin_spec = pcall(dofile, file)
-            if ok and type(plugin_spec) == "table" then
-                table.insert(LAZY_PLUGIN_SPEC, plugin_spec)
+            if not ok then
+                vim.notify("user-config: " .. plugin_spec, vim.log.levels.ERROR)
+            elseif type(plugin_spec) == "table" then
+                table.insert(base.specs, plugin_spec)
             end
         end
     end

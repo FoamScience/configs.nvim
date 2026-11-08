@@ -1,4 +1,6 @@
-LAZY_PLUGIN_SPEC = {}
+local M = {}
+
+M.specs = {}
 
 -- Preset system: determines which plugins to load
 -- Presets can be set via:
@@ -8,7 +10,7 @@ LAZY_PLUGIN_SPEC = {}
 local function get_active_preset()
     -- Check for local preset file first (higher priority)
     local preset_file = vim.fn.stdpath("config") .. "/preset.lua"
-    if vim.loop.fs_stat(preset_file) then
+    if vim.uv.fs_stat(preset_file) then
         local ok, preset = pcall(dofile, preset_file)
         if ok and type(preset) == "string" then
             return preset
@@ -16,7 +18,7 @@ local function get_active_preset()
     end
 
     -- Check environment variable
-    local env_preset = vim.loop.os_getenv("NVIM_PRESET")
+    local env_preset = vim.uv.os_getenv("NVIM_PRESET")
     if env_preset then
         return env_preset
     end
@@ -37,11 +39,13 @@ end, { desc = "Check FoamScience configuration requirements" })
 -- Examples:
 --   spec("user.colorscheme") -- loads in all presets
 --   spec("user.nvimtree", {"full"}) -- only loads in "full" preset
-function spec(item, presets)
+function M.spec(item, presets)
     presets = presets or { "full", "ssh" } -- default: load in all presets
 
     -- Check if current preset is in the allowed presets list
     if vim.tbl_contains(presets, vim.g.active_preset) then
-        table.insert(LAZY_PLUGIN_SPEC, { import = item })
+        table.insert(M.specs, { import = item })
     end
 end
+
+return M
