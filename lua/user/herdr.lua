@@ -1,5 +1,6 @@
 local M = {
     "ChmaraX/herdr-nvim",
+    cond = vim.env.HERDR_ENV ~= nil,
     event = "VeryLazy",
 }
 
