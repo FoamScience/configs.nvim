@@ -24,6 +24,14 @@ jobs:
           neovim: true
           version: ${{ matrix.neovim_version }}
 
+      - name: Install tree-sitter CLI
+        run: |
+          mkdir -p ~/.local/bin
+          curl -fsSL https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-x64.gz \
+            | gunzip > ~/.local/bin/tree-sitter
+          chmod +x ~/.local/bin/tree-sitter
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
       - name: Set up Neovim configuration directory
         run: cp -rT . ~/.config/nvim
 
