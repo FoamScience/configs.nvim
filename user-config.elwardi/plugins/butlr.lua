@@ -1,9 +1,9 @@
 return {
     "FoamScience/butlr.nvim",
     lazy = false,
-    -- Only load with the `but` CLI available inside a GitButler repo.
+    -- butlr enables itself per repo on VimEnter/DirChanged; only gate on the CLI.
     enabled = function()
-        return vim.fn.executable("but") == 1 and vim.uv.fs_stat(vim.fn.getcwd() .. "/.git/gitbutler") ~= nil
+        return vim.fn.executable("but") == 1
     end,
     config = function()
         local butlr = require("butlr")
@@ -58,18 +58,17 @@ return {
         map("<leader>bm", function()
             picker.branches()
         end, "Mark branch (via picker)")
-        map("<leader>bM", actions.unmark, "Unmark")
 
-        -- Quick unassign (rub to zz)
+        -- Quick uncommit (back to @)
         map("<leader>bz", function()
             local hunk, file_data = state.get_hunk_at_cursor()
-            local id = hunk and hunk.id or (file_data and file_data.id)
-            if id then
-                actions.rub(id, "zz")
+            local source = hunk or file_data
+            if source and source.commit_id then
+                actions.uncommit(source.id)
             else
-                vim.notify("[butlr] no hunk under cursor", vim.log.levels.INFO)
+                vim.notify("[butlr] no committed hunk under cursor", vim.log.levels.INFO)
             end
-        end, "Unassign hunk")
+        end, "Uncommit hunk")
 
         -- Refresh
         map("<leader>bR", function()
