@@ -11,10 +11,21 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- the tracked lockfile only seeds the local one, so :Lazy update never dirties the repo
+local seed_lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json"
+local lockfile = vim.fn.stdpath("data") .. "/lazy-lock.json"
+if not vim.uv.fs_stat(lockfile) then
+    vim.uv.fs_copyfile(seed_lockfile, lockfile)
+end
+
+vim.api.nvim_create_user_command("ConfigLockReset", function()
+    assert(vim.uv.fs_copyfile(seed_lockfile, lockfile))
+    vim.cmd("Lazy restore")
+end, { desc = "Restore plugins to the versions pinned by this config" })
+
 require("lazy").setup({
     spec = require("user.base").specs,
-    -- Lock plugin versions using lazy-lock.json
-    lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json",
+    lockfile = lockfile,
     git = {
         log = { "-10" },
     },
