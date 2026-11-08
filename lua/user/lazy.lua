@@ -33,6 +33,10 @@ require("lazy").setup({
         missing = true, -- install missing plugins on startup
         colorscheme = { "primer_dark", "habamax" },
     },
+    -- image.nvim runs with processor = "magick_cli", so no plugin needs luarocks
+    rocks = {
+        enabled = false,
+    },
     checker = {
         enabled = false, -- disable automatic update checks
     },
