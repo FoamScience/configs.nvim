@@ -3,7 +3,7 @@ local filetypes =
 
 local M = {
     "MeanderingProgrammer/render-markdown.nvim",
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-mini/mini.nvim" },
+    dependencies = { "nvim-mini/mini.nvim" },
     ft = filetypes,
 }
 
