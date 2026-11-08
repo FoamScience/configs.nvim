@@ -3,53 +3,42 @@ name: Test
 on: [push, pull_request]
 
 jobs:
-  test:
+  startup:
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         neovim_version: ['nightly', 'v0.12.0']
-        plugin_category: [
-          'ux',
-          'lsp',
-          'git',
-          'winbar',
-          'telescope',
-          'autocomplete',
-          'edit',
-          'navigation',
-          'whichkey',
-          'ai',
-          'optional',
-        ]
+        preset: ['full', 'ssh']
 
     steps:
-      - name: Install Node.js v20
-        uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v7
         with:
-          node-version: '26'
+          node-version: '22'
 
-      - name: Install Python and Rust
-        run: |
-          sudo apt-get install python3 -y
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          export PATH="$HOME/.cargo/bin:$PATH"
-
-      - name: Set up Neovim
-        uses: rhysd/action-setup-vim@v1
+      - uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
           version: ${{ matrix.neovim_version }}
 
       - name: Set up Neovim configuration directory
-        run: |
-          cp -rT . ~/.config/nvim
+        run: cp -rT . ~/.config/nvim
 
-      - name: Test Neovim configs
+      - name: Install pinned plugins
+        env:
+          NVIM_PRESET: ${{ matrix.preset }}
+        run: nvim --headless +qa
+
+      - name: Start without errors
+        shell: bash
+        env:
+          NVIM_PRESET: ${{ matrix.preset }}
         run: |
           nvim --version
-          for category in "${{ matrix.plugin_category }}"; do
-            cmd="lua vim.g.plugin_settings = '"$category"=true'"
-            nvim --headless --cmd "$cmd" +'q' init.lua
-          done
+          nvim --headless \
+            +'lua vim.defer_fn(function() vim.cmd(vim.v.errmsg == "" and "qa!" or "cq!") end, 3000)' \
+            2>&1 | tee startup.log
+          ! grep -qE "^E[0-9]+:|Error" startup.log
