@@ -26,7 +26,7 @@ end
 
 -- Detect platform
 local function get_platform()
-    local uname = vim.loop.os_uname()
+    local uname = vim.uv.os_uname()
     if uname.sysname == "Darwin" then
         return "macos"
     elseif uname.sysname == "Linux" then
@@ -361,7 +361,7 @@ local function check_preset()
 
     -- Check user-config
     local user_config_dir = vim.fn.stdpath("config") .. "/user-config"
-    local user_config_stat = vim.loop.fs_stat(user_config_dir)
+    local user_config_stat = vim.uv.fs_stat(user_config_dir)
     if user_config_stat and user_config_stat.type == "directory" then
         health.ok("User configuration found at: " .. user_config_dir)
     else

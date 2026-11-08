@@ -1,5 +1,5 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
     vim.fn.system({
         "git",
         "clone",
@@ -12,7 +12,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-    spec = LAZY_PLUGIN_SPEC,
+    spec = require("user.base").specs,
     -- Lock plugin versions using lazy-lock.json
     lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json",
     git = {

@@ -315,8 +315,8 @@ return {
 
         -- function to check foamUT env. vars.
         M._check_env = function()
-            local foamut = vim.loop.os_getenv("FOAM_FOAMUT")
-            local foam = vim.loop.os_getenv("WM_PROJECT")
+            local foamut = vim.uv.os_getenv("FOAM_FOAMUT")
+            local foam = vim.uv.os_getenv("WM_PROJECT")
             if foam == nil or foam == "" then
                 notifier("OpenFOAM not sourced.", "error", M.notify_opts)
                 return nil
@@ -334,12 +334,12 @@ return {
             if foamut_path == nil then
                 return
             end
-            local stdout = vim.loop.new_pipe(false)
-            local stderr = vim.loop.new_pipe(false)
+            local stdout = vim.uv.new_pipe(false)
+            local stderr = vim.uv.new_pipe(false)
             local output_buffer = {}
             local error_buffer = {}
             local handle, pid
-            handle, pid = vim.loop.spawn("./foamut", {
+            handle, pid = vim.uv.spawn("./foamut", {
                 args = args,
                 cwd = foamut_path,
                 stdio = { nil, stdout, stderr },
