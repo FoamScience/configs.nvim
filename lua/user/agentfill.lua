@@ -6,5 +6,8 @@ return {
     main = "agentfill",
     -- start its LSP client before copilot so its suggestion sorts first
     lazy = false,
-    opts = { debug = true },
+    opts = {
+        debug = true,
+        agents = { claude = { model = "sonnet" } },
+    },
 }
